@@ -1,0 +1,62 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+users:
+  - name: jeff
+    ssh-authorized-keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKk3eLqd8mTVjXY9MbhdyLz+dclCLxexMv920WhbwABGCtcy7LyWAf2GTsmHjt+qh2TXb84fqfZsn/OYMaLJm4p4RzrC5W7lw2c4e2viR9mq+K0Hu34lP28Pp/g8aQ7fYnoJbiqcnKfPV7MbwtGv9OXNjBoRmz7A5Z1Wty0017Cxs7drx6V2/39xzrW4seSkfQ0CFVhOM/pfC5fzztrD2JaNm3T+6O+PTFlQMk3IPjmrhQ3vOcm6/2RXNDmMzBtOptik0ecT9xZvXcXDbiSG2g3tcQ93eoTUN3VW3bnMh5zUUURy0+XNmaI5QzoqZqfI/idaEI7nb8OXaBkBwOC8dl jeff@deltaskelta
+    shell: /bin/bash
+    groups: sudo 
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+apt:
+  sources:
+    neovim:
+      source: "ppa:neovim-ppa/stable"
+    docker:
+      source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable"
+      keyid: 0EBFCD88
+packages:
+  - ca-certificates
+  - apt-transport-https
+  - software-properties-common
+  - htop
+  - golang-go
+  - neovim
+  - docker-ce
+  - docker-compose
+  - git
+  - python3-pip
+runcmd:
+  # making the swapfile for future use
+  - fallocate -l 1G /swapfile
+  - chmod 600 /swapfile
+  - mkswap /swapfile
+  # make the sshd more secure and obscure
+  - sed -i -e '/^Port/s/^.*$/Port 31988/' /etc/ssh/sshd_config
+  - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+  - sed -i -e '/^PasswordAuthentication/s/^.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
+  - sed -i -e '$aAllowUsers jeff' /etc/ssh/sshd_config
+  - service ssh restart
+  # adds python 3 to neovim
+  - pip3 install neovim
+  # making the directories needed for neovim after signing in as jeff
+  - cd /home/jeff
+  - mkdir -p ./.config/nvim/plugged ./.config/nvim/autoload ./.config/nvim/tmp 
+  - mkdir -p ./bin ./docker ./go/bin ./go/src ./go/pkg
+  - curl -fLo ./.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  # cloning dotfiles from git repository
+  - git clone https://github.com/deltaskelta/dotfiles.git 
+  # link the file so nvim can find the config when it starts
+  - ln -s /home/jeff/dotfiles/init.vim /home/jeff/.config/nvim/init.vim 
+  - ln -s /home/jeff/dotfiles/.bash_profile /home/jeff/.bash_profile 
+  # chown everything as jeff:jeff in jeff home dir. Anything that adds files should be
+  # done before this.
+  - chown -R jeff:jeff /home/jeff 
+  # install the plugins and setup vim for the first use
+  - runuser -l jeff -c "nvim --headless +PlugInstall +qall"
+  - runuser -l jeff -c "nvim --headless +UpdateRemotePlugins +qall"
+  - runuser -l jeff -c "go get github.com/justjanne/powerline-go"
+  - usermod -aG docker jeff
+  - reboot
+bootcmd:
+  - swapon /swapfile
