@@ -1,0 +1,9 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    "import/first": "off",
+    "react/jsx-filename-extension": "off",
+    "arrow-body-style": "off",
+    "jsx-a11y/href-no-hash": "off"
+  }
+}
