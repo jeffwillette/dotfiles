@@ -1,10 +1,12 @@
 " Specify a directory for plugins
 " - Avoid using standard Vim directory names like 'plugin'
 call plug#begin('~/.config/nvim/plugged')
+"
+"TODO: add "for" statements to plugins for filetypes?
 
 Plug 'scrooloose/nerdtree'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'deltaskelta/ale'
+Plug 'w0rp/ale'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'qpkorr/vim-bufkill'
@@ -24,23 +26,26 @@ Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
 
-Plug 'zchee/deoplete-go', { 'do': 'make'}
-Plug 'fatih/vim-go'
-Plug 'sebdah/vim-delve'
+Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go'}
+Plug 'fatih/vim-go', {'for': 'go'}
+Plug 'sebdah/vim-delve', {'for': 'go'}
 
-Plug 'flowtype/vim-flow'
-Plug 'wokalski/autocomplete-flow'
-Plug 'ternjs/tern_for_vim', { 'do': 'yarn install' }
-Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern' }
-Plug 'Galooshi/vim-import-js'
-Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
+Plug 'ternjs/tern_for_vim', { 'do': 'yarn install', 'for': 'javascript' }
+Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern', 'for': 'javascript' }
+Plug 'Galooshi/vim-import-js', {'for': 'javascript'}
+Plug 'pangloss/vim-javascript', {'for': 'javascript'}
+Plug 'mxw/vim-jsx', {'for': 'javascript'}
 Plug 'jaawerth/neomake-local-eslint-first'
 
-Plug 'mhartington/nvim-typescript', { 'do': ':UpdateRemotePlugins'}
-Plug 'HerringtonDarkholme/yats.vim'
+Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'peitalin/vim-jsx-typescript', { 'for': 'typescript' }
+Plug 'mhartington/nvim-typescript', { 'do': ':UpdateRemotePlugins', 'for': 'typescript'}
 
-Plug 'zchee/deoplete-jedi'
+Plug 'zchee/deoplete-jedi', { 'for': 'python' }
+Plug 'fenetikm/falcon'
+Plug 'chriskempson/base16-vim'
+
+Plug 'jparise/vim-graphql'
 
 call plug#end()
 
@@ -55,10 +60,14 @@ function! ToggleVerbose()
     endif
 endfunction
 
-function! Relpath(filename)
-    let cwd = getcwd()
-    let s = substitute(a:filename, l:cwd . "/" , "", "")
-    return s
+function! StartProfile() 
+    :profile start ~/vim-profile.log
+    :profile func *
+    :profile file *
+endfunction
+
+function! StopProfile()
+    :profile stop
 endfunction
 
 " SETCOLORS -------------------------------------------------------------------------
@@ -72,7 +81,7 @@ set guicursor=
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 syntax on
 filetype plugin indent on
-colorscheme Tomorrow-Night
+colorscheme base16-tomorrow-night
 
 " status line is filename and right aligned column number 
 " hidden makes the buffer hidden when inactvie rather than essentially 'closing' it
@@ -92,12 +101,17 @@ set clipboard=unnamed
 set cursorline 
 " do not show the scratch preview window when tabbing through completions
 set completeopt-=preview
+set laststatus=2
+set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
 " VIM AIRLINE ------------------------------------------------------------------------
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
 let g:airline_theme='tomorrow'
+"let g:airline#extensions#tabline#buffer_idx_mode = 0
+let g:airline#extensions#tabline#buffer_nr_show = 1
+let g:airline#extensions#tabline#buffer_nr_format = '%s: '
 
 " called in the startup section after everything has loaded (this is hacky)
 function! ChangeColors()
@@ -128,11 +142,6 @@ let g:neosnippet#snippets_directory='~/.config/nvim/plugged/vim-snippets/snippet
 let g:AutoPairsCenterLine = 0
 let g:AutoPairsMapCR = 1
 
-" VIM-FLOW-------------------------------------------------------------------------------
-let g:flow#showquickfix = 0 " dont use quickfix because ale does
-let g:flow#enable = 0 " dont check for errors because ale does
-let g:flow#omnifunc = 0 " dont use for omnifunc because deoplete
-
 " TERN-FOR-VIM --------------------------------------------------------------------------
 let g:tern_show_signature_in_pum = 1
 
@@ -144,15 +153,6 @@ let g:deoplete#ignore_sources = {}
 " gathering text from around seems to be largely unnecessary
 let g:deoplete#ignore_sources._ = ['around']
 
-" setting omnifuncs, do not touch unless you know what you are doing. This is not the same
-" as sources (IDK exactly why)
-let g:deoplete#omni#functions = {}
-let g:deoplete#omni#functions.javascript = [
-  \ 'tern#Complete',
-  \ 'jspc#omni',
-\]
-
-
 " shows type info in the completion, but dont confuse this with flow type info, tern and
 " flow serve different purposes https://github.com/ternjs/tern/issues/827
 let g:deoplete#sources#ternjs#types = 1 
@@ -163,8 +163,8 @@ let g:deoplete#sources#ternjs#case_insensitive = 1
 " which bundles it in node_modules (path in the project level .tern-project file) If I
 " don't want to eject the react-scripts, the references webpack file looks for NODE_ENV
 " variable which is unset, this script sets it.
-let g:tern#command = ['custom-tern']
-let g:tern#arguments = ['--persistent'] " stay on longer than the regular 5 minutes
+let g:deoplete#sources#ternjs#tern_bin = 'custom-tern' " for tern autocompleting
+let g:tern#command = ['custom-tern'] " for running tern commands
 
 " letting tab scroll through the autocomplete list, up to go backwards
 inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
@@ -225,16 +225,20 @@ let g:ale_sign_warning = '⚠'
 let g:ale_fix_on_save = 1
 let g:ale_javascript_eslint_executable = 'eslint_d'
 let g:ale_javascript_eslint_use_global = 1
+let g:ale_javascript_prettier_executable = 'prettier_d'
+let g:ale_javascript_prettier_options = '--fallback'
+let g:ale_javascript_prettier_use_global = 1
 let g:ale_open_list = 1
-let g:ale_set_loclist = 1
-let g:ale_set_quickfix = 0
+let g:ale_set_loclist = 0
+let g:ale_set_quickfix = 1
 let g:ale_keep_list_window_open = 1
 let g:ale_list_window_size = 10
 let g:ale_lint_on_text_changed = 'normal'
 let g:ale_lint_on_insert_leave = 1
 
 let g:ale_fixers = {
-	\ 'javascript': ['prettier', 'eslint'],
+	\ 'javascript': ['prettier', 'eslint', 'importjs'],
+	\ 'graphql': ['prettier'],
 	\ 'typescript': ['prettier', 'tslint'],
 	\ 'python': ['autopep8'],
 	\ 'go': ['gofmt', 'goimports'], 
@@ -242,29 +246,40 @@ let g:ale_fixers = {
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
 " which can be misleading because it seems like it should be running these linters on save
+" \ 'go': ['golint', 'go vet', 'go build', 'gometalinter'],
 let g:ale_linters = {
-   \ 'go': ['golint', 'go vet', 'go build', 'gometalinter'],
+   \ 'go': ['gometalinter'],
    \ 'proto': ['protoc-gen-lint'],
+   \ 'graphql': ['gqlint'],
+   \ 'javascript': ['eslint']
    \}
 
-let g:ale_go_gometalinter_options = '--fast'
-let g:ale_go_gometalinter_lint_package = 1
+let g:ale_go_gometalinter_options = '--fast --tests'
+let g:ale_go_gometalinter_lint_package = 0
 
 " ReactJS stuff --------------------------------------------------------
 " react syntax will work on .js files
 let g:jsx_ext_required = 0
+let g:javascript_plugin_flow = 1
 
 augroup javascript
     autocmd!
     " setting javascript things.
+    " importjs seems to mess with things
+    nnoremap <leader>i :ImportJSFix<CR>
+    "autocmd BufWritePre *.js :ImportJSFix
     autocmd FileType javascript set tabstop=2 shiftwidth=2 expandtab
 augroup END
 
 augroup typescript
     autocmd!
     " setting typescript things.
+    " TODO: just deleted ,*.jsx after *.tsx, if problems arise, put it back
+    autocmd BufNewFile,BufRead *.tsx set filetype=typescript.tsx
     autocmd FileType typescript set tabstop=2 shiftwidth=2 expandtab
-    nnoremap <leader>i :ImportJSFix<CR>
+    nnoremap <leader>i :TSImport<CR>
+    nnoremap <leader>d :TSDefPreview<CR>
+    nnoremap <leader>t :TSType<CR>
 augroup END
 
 " HTML FILES -----------------------------------------------------------
@@ -278,7 +293,11 @@ augroup nerdtree
     autocmd!
     autocmd VimEnter * NERDTree
     autocmd VimEnter * wincmd p
+    autocmd FileType nerdtree 
+          \ nnoremap <buffer> <Left> <ESC> |
+          \ nnoremap <buffer> <Right> <ESC>
 augroup END
+
 
 nnoremap <leader>[ :NERDTreeToggle<CR>
 nnoremap <leader>e :vertical resize 25<CR>
@@ -320,6 +339,9 @@ nnoremap <leader>w :w<CR>
 " close the preview window with leader p
 nnoremap <leader>p :pclose<CR>
 
+" move to the previous buffer
+nnoremap <leader>b <C-o>
+
 " in normal mode, the arrow keys will move tabs
 nnoremap <silent> <Left> :bprevious!<CR>
 nnoremap <silent> <Right> :bnext!<CR>
@@ -346,7 +368,17 @@ nnoremap <leader>5 :b5<CR>
 nnoremap <leader>6 :b6<CR>
 nnoremap <leader>7 :b7<CR>
 nnoremap <leader>8 :b8<CR>
-nnoremap <leader>9 :b9<CR>
+nnoremap <leader>10 :b10<CR>
+nnoremap <leader>11 :b11<CR>
+nnoremap <leader>12 :b12<CR>
+nnoremap <leader>13 :b13<CR>
+nnoremap <leader>14 :b14<CR>
+nnoremap <leader>15 :b15<CR>
+nnoremap <leader>16 :b16<CR>
+nnoremap <leader>17 :b17<CR>
+nnoremap <leader>18 :b18<CR>
+nnoremap <leader>19 :b19<CR>
+nnoremap <leader>20 :b20<CR>
 
 " this complements the vim command <S-J> which joins current line to below line, this one
 " breaks the current line in two
@@ -354,7 +386,7 @@ nnoremap <C-j> i<CR><Esc>
 
 " vimgrep the current dir (gd = grepdir) and drops the cursor in the proper spot to type
 " the identifier
-nnoremap <leader>s :vimgrep  %:p:h/*<Left><Left><Left><Left><Left><Left><Left><Left>
+nnoremap <leader>s :lvimgrep  %:p:h/*<Left><Left><Left><Left><Left><Left><Left><Left>
 
 " VISUAL MODE MAPPINGS ------------------------------------------------
 " in visual mode, arrows will move text around
@@ -381,9 +413,10 @@ augroup quickfix
 augroup END
 
 nnoremap <leader>. :cnext<CR>
-nnoremap <leader>/ :cprevious<CR>
-nnoremap <leader>,, :cclose<CR>
-nnoremap <leader>, :copen<CR>
+nnoremap <leader>, :cprevious<CR>
+nnoremap <leader>/ :cc<CR>
+nnoremap <leader>mm :cclose<CR>
+nnoremap <leader>m :copen<CR>
 
 " toggle highlighting after search
 map  <leader>h :set hls!<CR>
@@ -418,3 +451,11 @@ hi CursorLineNr gui=bold guifg=#81a2be
 hi CursorLine guibg=#2d2d2d
 " go methods only
 hi goMethodCall guifg=#81a2be
+
+hi jsFuncCall guifg=#81a2be
+
+" changes them to stand out more
+hi link typescriptCase Keyword
+hi link typescriptLabel Keyword
+hi link typescriptImport Function
+hi typescriptIdentifierName gui=BOLD

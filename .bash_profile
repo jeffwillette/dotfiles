@@ -47,11 +47,17 @@ if [ $SYSTEM == "Darwin" ]; then
     # my hosting server for sshing into
     export DELTASKELTA_SERVER=138.197.235.247
 
+    # for making the gopass tty work correctly
+    export GPG_TTY=$(tty)
+
     # so that it finds the right python when using venv wrapper
     VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
 
     #This is for the virtualenvwrapper for python
     source /usr/local/bin/virtualenvwrapper.sh
+
+    # get gopass completion
+    source /dev/stdin <<<"$(gopass completion bash)"
 
     if [ -f $(brew --prefix)/etc/bash_completion ]; then
         . $(brew --prefix)/etc/bash_completion
@@ -83,6 +89,10 @@ alias gac='ga && gc'
 alias vim='nvim'
 alias docker-rm-none='docker rmi $(docker images -f "dangling=true" -q)'
 alias dsize='du -hcs'
+alias g='grep -rn'
+
+# example of how to sed over multiple files
+# grep -rl LIABILITYACCOUNTNAME ./* | xargs gsed -i 's/LIABILITYACCOUNTNAME/LIABILITYACCOUNT/g'
 
 # These are not being used, but they might be convenient in the future...
 #black='\[\e[30m\]'

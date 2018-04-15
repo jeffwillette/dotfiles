@@ -1,0 +1,127 @@
+---
+# Setup a server for what I usually need
+- hosts: youshowpro
+  become: yes
+  become_user: root
+  gather_facts: no # next two lines install python2 on machiens where it is 3 by default
+  pre_tasks:
+    - name: Install Python 2
+      raw: apt-get -y install python
+
+  tasks: 
+    - name: Add Neovim Repository
+      apt_repository: 
+        repo: ppa:neovim-ppa/stable
+      register: neovimppa
+
+    - name: Add Docker GPG Key
+      apt_key: url=https://download.docker.com/linux/ubuntu/gpg
+
+    - name: Add Docker Repository
+      apt_repository: 
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu artful stable
+      register: dockerppa
+
+    - name: Install CA-Certificated
+      apt:
+        update_cache: yes
+        name: ca-certificates
+
+    - name: Install apt-transport-https
+      apt:
+        name: apt-transport-https
+
+    - name: Install software properties common
+      apt:
+        name: software-properties-common
+
+    - name: Install htop
+      apt:
+        name: htop
+
+    - name: Install Golang
+      apt:
+        name: golang-go
+
+    - name: Install neovim
+      apt:
+        name: neovim
+
+    - name: Install docker
+      apt:
+        name: docker-ce
+
+    - name: Install docker-compose
+      apt:
+        name: docker-compose
+
+    - name: Install git
+      apt:
+        name: git
+
+    - name: Install python3-pip
+      apt:
+        name: python3-pip
+
+    - name: Create User
+      user: 
+        name: jeff
+        groups: sudo,docker
+        password: gTb2G10SJYcbg
+        shell: /bin/bash
+
+    - name: Create user ssh folder
+      file: 
+        path: ~jeff/.ssh
+        state: directory
+        owner: jeff
+        group: jeff
+        mode: 0700
+
+    - name: Upload SSH key
+      copy: 
+        src: ~/.ssh/id_rsa.pub
+        dest: ~jeff/.ssh/authorized_keys
+        owner: jeff
+        group: jeff
+        mode: 0700
+
+    - name: Setup the SSH behavior
+      shell: |
+        sed -i -e '/^.Port/s/^.*$/Port 31988/' /etc/ssh/sshd_config
+        sed -i -e '/^.PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+        sed -i -e '/^.PasswordAuthentication/s/^.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
+        sed -i -e '$aAllowUsers jeff' /etc/ssh/sshd_config
+
+    - name: Make NeoVim directories
+      become: yes
+      become_user: jeff
+      shell: |
+        cd ~
+        mkdir -p ./.config/nvim/plugged ./.config/nvim/autoload ./.config/nvim/tmp 
+        mkdir -p ./bin ./docker ./go/bin ./go/src ./go/pkg
+        curl -fLo ./.config/nvim/autoload/plug.vim --create-dirs \
+          https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        
+        # cloning dotfiles from git repository
+        git clone https://github.com/deltaskelta/dotfiles.git 
+        
+        # link the file so nvim can find the config when it starts
+        ln -s /home/jeff/dotfiles/init.vim /home/jeff/.config/nvim/init.vim 
+        ln -s /home/jeff/dotfiles/.bash_profile /home/jeff/.bash_profile 
+
+        # install neovim plugins
+        nvim --headless +PlugInstall +qall
+        nvim --headless +UpdateRemotePlugins +qall
+
+        go get github.com/justjanne/powerline-go
+
+        # setup git
+        git config --global user.email 'jrwillette88@gmail.com'
+        git config --global user.name 'deltaskelta'
+
+    - name: Reboot
+      command: reboot
+
+        
+
