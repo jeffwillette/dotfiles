@@ -1,6 +1,7 @@
 ---
 # Setup a server for what I usually need
-- hosts: youshowpro
+# ansible-playbook -i "<host>," -u root dotfiles/ansible/setup.yml
+- hosts: all
   become: yes
   become_user: root
   gather_facts: no # next two lines install python2 on machiens where it is 3 by default
@@ -9,6 +10,12 @@
       raw: apt-get -y install python
 
   tasks: 
+    - name: Install the latest go
+      shell: |
+        wget -O go https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
+        tar -C /usr/local -xzf go
+        rm go
+
     - name: Add Neovim Repository
       apt_repository: 
         repo: ppa:neovim-ppa/stable
@@ -22,9 +29,17 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu artful stable
       register: dockerppa
 
-    - name: Install CA-Certificated
+    - name: Add yarn repo
+      shell: |
+        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+        echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+    - name: Update apt-get
       apt:
         update_cache: yes
+
+    - name: Install Ca-Certificated
+      apt:
         name: ca-certificates
 
     - name: Install apt-transport-https
@@ -38,10 +53,6 @@
     - name: Install htop
       apt:
         name: htop
-
-    - name: Install Golang
-      apt:
-        name: golang-go
 
     - name: Install neovim
       apt:
@@ -62,6 +73,10 @@
     - name: Install python3-pip
       apt:
         name: python3-pip
+
+    - name: Install yarn
+      apt: 
+        name: yarn
 
     - name: Create User
       user: 
@@ -88,9 +103,9 @@
 
     - name: Setup the SSH behavior
       shell: |
-        sed -i -e '/^.Port/s/^.*$/Port 31988/' /etc/ssh/sshd_config
-        sed -i -e '/^.PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
-        sed -i -e '/^.PasswordAuthentication/s/^.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
+        sed -i -e '/Port 22/s/^.*$/Port 31988/' /etc/ssh/sshd_config
+        sed -i -e '/PermitRootLogin yes/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+        sed -i -e '/PasswordAuthentication yes/s/^.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
         sed -i -e '$aAllowUsers jeff' /etc/ssh/sshd_config
 
     - name: Make NeoVim directories
@@ -121,7 +136,5 @@
         git config --global user.name 'deltaskelta'
 
     - name: Reboot
-      command: reboot
-
-        
-
+      command: shutdown -r 1
+      ignore_errors: true

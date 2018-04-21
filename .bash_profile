@@ -72,6 +72,9 @@ if [ $SYSTEM == "Darwin" ]; then
 elif [ $SYSTEM == "Linux" ]; then
     alias upgrade='sudo apt-get update && sudo apt-get upgrade'
 
+    # ansible installs go from the source download
+    export PATH=$PATH:/usr/local/go/bin
+
     # save the IP address in case I need it later
     export IP_ADDRESS=`ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
 fi
@@ -90,6 +93,7 @@ alias vim='nvim'
 alias docker-rm-none='docker rmi $(docker images -f "dangling=true" -q)'
 alias dsize='du -hcs'
 alias g='grep -rn'
+alias aplay='ansible-playbook'
 
 # example of how to sed over multiple files
 # grep -rl LIABILITYACCOUNTNAME ./* | xargs gsed -i 's/LIABILITYACCOUNTNAME/LIABILITYACCOUNT/g'

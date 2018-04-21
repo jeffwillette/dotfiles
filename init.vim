@@ -89,6 +89,7 @@ colorscheme base16-tomorrow-night
 set number
 set tabstop=4
 set shiftwidth=4
+set nowrap
 set expandtab
 set termguicolors
 set background=dark
@@ -429,7 +430,7 @@ map fhi :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 " HIGHLIGHTING ----------------------------------------------------------------
-hi SignColumn guibg=#212121
+hi link SignColumn LineNr
 hi Normal guibg=#212121
 hi Comment guifg=#595959
 hi VertSplit ctermbg=NONE ctermfg=8 cterm=NONE guibg=NONE guifg=#3a3a3a gui=NONE
