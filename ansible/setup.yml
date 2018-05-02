@@ -10,17 +10,6 @@
       raw: apt-get -y install python
 
   tasks: 
-    - name: Install the latest go
-      shell: |
-        wget -O go https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
-        tar -C /usr/local -xzf go
-        rm go
-
-    - name: Add Neovim Repository
-      apt_repository: 
-        repo: ppa:neovim-ppa/stable
-      register: neovimppa
-
     - name: Add Docker GPG Key
       apt_key: url=https://download.docker.com/linux/ubuntu/gpg
 
@@ -29,14 +18,33 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu artful stable
       register: dockerppa
 
+    - name: Add Neovim Repository
+      apt_repository: 
+        repo: ppa:neovim-ppa/stable
+      register: neovimppa
+
     - name: Add yarn repo
       shell: |
         curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
         echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 
+    - name: Install the latest go
+      shell: |
+        wget -O go https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz
+        tar -C /usr/local -xzf go
+        rm go
+
     - name: Update apt-get
       apt:
         update_cache: yes
+
+    - name: Install docker
+      apt:
+        name: docker-ce
+
+    - name: Install neovim
+      apt:
+        name: neovim
 
     - name: Install Ca-Certificated
       apt:
@@ -49,18 +57,6 @@
     - name: Install software properties common
       apt:
         name: software-properties-common
-
-    - name: Install htop
-      apt:
-        name: htop
-
-    - name: Install neovim
-      apt:
-        name: neovim
-
-    - name: Install docker
-      apt:
-        name: docker-ce
 
     - name: Install docker-compose
       apt:
@@ -78,6 +74,10 @@
       apt: 
         name: yarn
 
+    - name: Install htop
+      apt:
+        name: htop
+
     - name: Create User
       user: 
         name: jeff
@@ -87,7 +87,7 @@
 
     - name: Create user ssh folder
       file: 
-        path: ~jeff/.ssh
+        path: /home/jeff/.ssh
         state: directory
         owner: jeff
         group: jeff
@@ -96,25 +96,21 @@
     - name: Upload SSH key
       copy: 
         src: ~/.ssh/id_rsa.pub
-        dest: ~jeff/.ssh/authorized_keys
+        dest: /home/jeff/.ssh/authorized_keys
         owner: jeff
         group: jeff
         mode: 0700
 
-    - name: Setup the SSH behavior
-      shell: |
-        sed -i -e '/Port 22/s/^.*$/Port 31988/' /etc/ssh/sshd_config
-        sed -i -e '/PermitRootLogin yes/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
-        sed -i -e '/PasswordAuthentication yes/s/^.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
-        sed -i -e '$aAllowUsers jeff' /etc/ssh/sshd_config
-
-    - name: Make NeoVim directories
+    - name: Clone dotfiles, setup Go, setup NeoVim, setup Git
       become: yes
       become_user: jeff
+      args: 
+        executable: /bin/bash
       shell: |
         cd ~
+        mkdir ~/.Trash
+        mkdir -p ./bin ./go/bin ./go/src ./go/pkg
         mkdir -p ./.config/nvim/plugged ./.config/nvim/autoload ./.config/nvim/tmp 
-        mkdir -p ./bin ./docker ./go/bin ./go/src ./go/pkg
         curl -fLo ./.config/nvim/autoload/plug.vim --create-dirs \
           https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
         
@@ -125,15 +121,25 @@
         ln -s /home/jeff/dotfiles/init.vim /home/jeff/.config/nvim/init.vim 
         ln -s /home/jeff/dotfiles/.bash_profile /home/jeff/.bash_profile 
 
-        # install neovim plugins
-        nvim --headless +PlugInstall +qall
-        nvim --headless +UpdateRemotePlugins +qall
+        source /home/jeff/.bash_profile
 
         go get github.com/justjanne/powerline-go
 
-        # setup git
+        powerline-go --help
+
+        nvim --headless +PlugInstall +qall
+        nvim --headless +UpdateRemotePlugins +qall
+
         git config --global user.email 'jrwillette88@gmail.com'
         git config --global user.name 'deltaskelta'
+
+
+    - name: Setup the SSH behavior
+      shell: |
+        sed -i -e '/Port 22/s/^.*$/Port 31988/' /etc/ssh/sshd_config
+        sed -i -e '/PermitRootLogin yes/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+        sed -i -e '/PasswordAuthentication yes/s/^.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
+        sed -i -e '$aAllowUsers jeff' /etc/ssh/sshd_config
 
     - name: Reboot
       command: shutdown -r 1

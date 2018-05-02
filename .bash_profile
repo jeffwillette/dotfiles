@@ -1,3 +1,4 @@
+
 export PATH=$HOME/bin:/usr/local/sbin:$PATH
 
 # programs which search for a text editor will use this editor by default
@@ -89,11 +90,25 @@ alias ga='git add -A :/'
 alias gc='git commit'
 alias gs='git status'
 alias gac='ga && gc'
+alias gmend='git commit --amend --no-edit'
 alias vim='nvim'
 alias docker-rm-none='docker rmi $(docker images -f "dangling=true" -q)'
 alias dsize='du -hcs'
-alias g='grep -rn'
 alias aplay='ansible-playbook'
+
+function trash() {
+    mv "${1}" ~/.Trash;
+}
+
+function g() {
+    grep \
+        -RIn \
+        --exclude-dir node_modules \
+        --exclude-dir .cache \
+        --exclude-dir vendor \
+        "${1}" \
+        ./;
+}
 
 # example of how to sed over multiple files
 # grep -rl LIABILITYACCOUNTNAME ./* | xargs gsed -i 's/LIABILITYACCOUNTNAME/LIABILITYACCOUNT/g'

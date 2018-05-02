@@ -42,9 +42,11 @@ Plug 'peitalin/vim-jsx-typescript', { 'for': 'typescript' }
 Plug 'mhartington/nvim-typescript', { 'do': ':UpdateRemotePlugins', 'for': 'typescript'}
 
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
-Plug 'fenetikm/falcon'
 Plug 'chriskempson/base16-vim'
 
+" causes some weird window coloring behavior if uncommented, so leave this uncommented
+" unless you want to use it
+"Plug 'fenetikm/falcon'
 Plug 'jparise/vim-graphql'
 
 call plug#end()
