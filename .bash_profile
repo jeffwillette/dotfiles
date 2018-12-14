@@ -175,22 +175,6 @@ function renameExt() {
     done
 }
 
-# grep in the current directory, exlcuding normally unwanted files and dirs
-function g() {
-    grep \
-        -RIn \
-        --exclude-dir node_modules \
-        --exclude-dir .cache \
-        --exclude-dir vendor \
-        --exclude-dir public \
-        --exclude-dir build-test \
-        --exclude-dir coverage \
-        --exclude yarn-error.log \
-        --exclude yarn.lock \
-        "${1}" .;
-}
-export -f g
-
 # example of how to sed over multiple files
 # grep -rl LIABILITYACCOUNTNAME ./* | xargs gsed -i 's/LIABILITYACCOUNTNAME/LIABILITYACCOUNT/g'
 function replace() {

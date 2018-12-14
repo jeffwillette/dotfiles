@@ -138,7 +138,7 @@ endfunction
 augroup startup
     autocmd!
     " sourcing the vimrc on save of this file.
-    autocmd BufWritePost *.vim so $MYVIMRC | :AirlineRefresh | :call ChangeColors()
+    autocmd BufWritePost *.vim so $MYVIMRC | :AirlineRefresh | :call ChangeColors() 
     " making vim cd to the directory of the file that the cursor is active in
     "autocmd BufEnter * cd %:p:h
     " coloring column 91 with errmesg color
@@ -194,37 +194,39 @@ inoremap <expr><Up> pumvisible() ? "\<c-p>" : "\<Up>"
 nnoremap <leader>gs :Gstatus<CR>:resize +20<CR>
 
 " DENITE settings -----------------------------------------------------------
-call denite#custom#option('default', {
-      \ 'prompt': '❯'
-      \ })
+
+call denite#custom#option('default', 'prompt', '❯')
 
 call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
 call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
 call denite#custom#map('insert', 'jj', '<denite:toggle_insert_mode>', 'noremap')
 
-" define a custom grep that will ignore files I usually don't want to search,
-" the normal grep will still find all files if I need to do that
-call denite#custom#alias('source', 'grep/ignore', 'grep')
-call denite#custom#var('grep/ignore', 'default_opts', [
-      \ '-inH',
-      \'--exclude-dir', 'node_modules',
-      \'--exclude-dir', '.cache',
-      \'--exclude-dir', 'vendor',
-      \'--exclude-dir', 'public',
-      \'--exclude-dir', 'build-test',
-      \'--exclude-dir', 'coverage',
-      \])
+call denite#custom#var('file/rec', 'command', ['rg', '--files', '--hidden', '-g', '!.git'])
+
+call denite#custom#var('grep', 'command', ['rg'])
+call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep'])
+call denite#custom#var('grep', 'recursive_opts', [])
+call denite#custom#var('grep', 'pattern_opt', [])
+call denite#custom#var('grep', 'separator', ['--'])
+call denite#custom#var('grep', 'final_opts', [])
+
+" define a custom grep (ag) command that will unignore files I usually don't want to search,
+"call denite#custom#alias('source', 'ag/unignore', 'grep')
+"call denite#custom#var('ag/unignore', 'command', ['ag'])
+"call denite#custom#var('ag/unignore', 'default_opts',
+"    \ ['-it', '--vimgrep'])
+"call denite#custom#var('ag/unignore', 'recursive_opts', [])
+"call denite#custom#var('ag/unignore', 'pattern_opt', [])
+"call denite#custom#var('ag/unignore', 'separator', ['--'])
+"call denite#custom#var('ag/unignore', 'final_opts', [])
 
 nnoremap <leader><Space> :Denite -highlight-matched-range=NONE -highlight-matched-char=NONE file/rec<CR>
 nnoremap <leader>` :Denite -highlight-matched-range=NONE -highlight-matched-char=NONE -path=~/ file/rec<CR>
-nnoremap <leader>b :Denite buffer<CR>
-nnoremap <leader><Space><Space> :Denite grep/ignore:.<CR>
-nnoremap <leader><Space><Space><Space> :Denite grep:.<CR>
+nnoremap <leader><leader> :Denite -direction=topleft buffer<CR>
+"nnoremap <leader><Space><Space> :Denite grep/ignore:.<CR>
+nnoremap <leader><Space><Space> :Denite grep:.<CR>
 nnoremap <leader>c :DeniteCursorWord grep:.<CR>
 
-" netrw settings ------------------------------------------------------------
-
-nnoremap <leader>[ :Explore<CR>
 " adding to get line numbers
 let g:netrw_bufsettings = 'nomodifiable nomodified number nobuflisted nowrap readonly'
 
@@ -347,7 +349,8 @@ augroup html
     autocmd FileType html set tabstop=2 shiftwidth=2 expandtab
 augroup END
 
-" no sign column in the file explorer window
+" netrw settings ------------------------------------------------------------
+nnoremap <leader>[ :Explore<CR>
 augroup netrw
     autocmd FileType netrw setlocal signcolumn=no
 augroup END
