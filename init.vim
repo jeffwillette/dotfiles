@@ -1,19 +1,18 @@
 " Specify a directory for plugins
 " - Avoid using standard Vim directory names like 'plugin'
 call plug#begin('~/.config/nvim/plugged')
-"
-"TODO: add "for" statements to plugins for filetypes?
 
-Plug 'scrooloose/nerdtree'
+Plug 'tpope/vim-vinegar'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/neosnippet'
+Plug 'Shougo/neosnippet-snippets'
 Plug 'w0rp/ale'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'qpkorr/vim-bufkill'
 Plug 'xolox/vim-misc'
 Plug 'tpope/vim-fugitive'
-Plug 'Shougo/neosnippet'
-Plug 'Shougo/neosnippet-snippets'
 Plug 'honza/vim-snippets'
 
 Plug 'xolox/vim-colorscheme-switcher'
@@ -32,24 +31,32 @@ Plug 'sebdah/vim-delve', {'for': 'go'}
 
 Plug 'ternjs/tern_for_vim', { 'do': 'yarn install', 'for': 'javascript' }
 Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern', 'for': 'javascript' }
-Plug 'Galooshi/vim-import-js', {'for': 'javascript'}
-Plug 'pangloss/vim-javascript', {'for': 'javascript'}
-Plug 'mxw/vim-jsx', {'for': 'javascript'}
+Plug 'Galooshi/vim-import-js', {'for': ['javascript']}
+Plug 'pangloss/vim-javascript', {'for': ['javascript', 'javascript.jsx']}
+Plug 'mxw/vim-jsx', {'for': ['javascript', 'javascript.jsx']}
 Plug 'jaawerth/neomake-local-eslint-first'
 
-Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
-Plug 'peitalin/vim-jsx-typescript', { 'for': 'typescript' }
-Plug 'mhartington/nvim-typescript', { 'do': ':UpdateRemotePlugins', 'for': 'typescript'}
+"Plug 'HerringtonDarkholme/yats'
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
+Plug 'mhartington/nvim-typescript'
 
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
 Plug 'chriskempson/base16-vim'
 
-" causes some weird window coloring behavior if uncommented, so leave this uncommented
-" unless you want to use it
-"Plug 'fenetikm/falcon'
 Plug 'jparise/vim-graphql'
 
 call plug#end()
+
+" TODO: this might not work on a remote machine
+let g:python_host_prog = '/Users/Jeff/.virtualenvs/neovim2/bin/python2.7'
+let g:python3_host_prog = '/Users/Jeff/.virtualenvs/neovim3/bin/python3.7'
+let g:node_host_prog = '/usr/local/bin/neovim-node-host'
+let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
+"let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
+"let $NVIM_NODE_LOG_LEVEL='debug'
+"let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
+"let $NVIM_PYTHON_LOG_LEVEL='info'
 
 " :call ToggleVerbose() for writing a verbose log im tmp
 function! ToggleVerbose()
@@ -77,7 +84,7 @@ nnoremap <leader>+ :NextColorScheme<CR>
 nnoremap <leader>- :PrevColorScheme<CR>
 
 " set neovim to have normal vim cursor, guicursor& to restore default
-set guicursor=
+"set guicursor=
 
 " setting syntax and makeing colors better
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
@@ -88,15 +95,21 @@ colorscheme base16-tomorrow-night
 " status line is filename and right aligned column number 
 " hidden makes the buffer hidden when inactvie rather than essentially 'closing' it
 " I think there was a reason that this line is after the airline option, but IDK
+autocmd BufRead,BufNewFile * setlocal signcolumn=yes
 set number
 set tabstop=4
 set shiftwidth=4
 set nowrap
 set expandtab
+" set the grep command to my .bash_profile g() 
+set grepprg=g
+" make sure I can call stuff defined in my bash_profile
+set shellcmdflag=-ic
 set termguicolors
 set background=dark
 set hidden
 set ttyfast
+set shortmess=a
 set lazyredraw
 set mouse=a
 set directory=~/.config/nvim/tmp
@@ -126,10 +139,10 @@ augroup startup
     autocmd!
     " sourcing the vimrc on save of this file.
     autocmd BufWritePost *.vim so $MYVIMRC | :AirlineRefresh | :call ChangeColors()
-    " making vim cd to the directory of the file that teh cursor is active in
-    autocmd BufEnter * cd %:p:h
+    " making vim cd to the directory of the file that the cursor is active in
+    "autocmd BufEnter * cd %:p:h
     " coloring column 91 with errmesg color
-    autocmd FileType * set cc=90 tw=90
+    "autocmd FileType * set cc=90 tw=90
     autocmd VimEnter * call ChangeColors()
 augroup END
 
@@ -151,10 +164,14 @@ let g:tern_show_signature_in_pum = 1
 " DEOPLETE --------------------------------------------------------------
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_smart_case = 1
+let g:deoplete#file#enable_buffer_path = 1
+let g:deoplete#enable_debug = 1
+let g:deoplete#enable_profile = 1
+call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
 
 let g:deoplete#ignore_sources = {}
 " gathering text from around seems to be largely unnecessary
-let g:deoplete#ignore_sources._ = ['around']
+"let g:deoplete#ignore_sources._ = ['around']
 
 " shows type info in the completion, but dont confuse this with flow type info, tern and
 " flow serve different purposes https://github.com/ternjs/tern/issues/827
@@ -174,8 +191,42 @@ inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 inoremap <expr><Up> pumvisible() ? "\<c-p>" : "\<Up>"
 
 " VIM FUGITIVE MAPPINGS -----------------------------------------------------
-nnoremap <leader>c :Gcommit<CR>
-nnoremap <leader>a :Git add -A :/<CR>
+nnoremap <leader>gs :Gstatus<CR>:resize +20<CR>
+
+" DENITE settings -----------------------------------------------------------
+call denite#custom#option('default', {
+      \ 'prompt': '❯'
+      \ })
+
+call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
+call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
+call denite#custom#map('insert', 'jj', '<denite:toggle_insert_mode>', 'noremap')
+
+" define a custom grep that will ignore files I usually don't want to search,
+" the normal grep will still find all files if I need to do that
+call denite#custom#alias('source', 'grep/ignore', 'grep')
+call denite#custom#var('grep/ignore', 'default_opts', [
+      \ '-inH',
+      \'--exclude-dir', 'node_modules',
+      \'--exclude-dir', '.cache',
+      \'--exclude-dir', 'vendor',
+      \'--exclude-dir', 'public',
+      \'--exclude-dir', 'build-test',
+      \'--exclude-dir', 'coverage',
+      \])
+
+nnoremap <leader><Space> :Denite -highlight-matched-range=NONE -highlight-matched-char=NONE file/rec<CR>
+nnoremap <leader>` :Denite -highlight-matched-range=NONE -highlight-matched-char=NONE -path=~/ file/rec<CR>
+nnoremap <leader>b :Denite buffer<CR>
+nnoremap <leader><Space><Space> :Denite grep/ignore:.<CR>
+nnoremap <leader><Space><Space><Space> :Denite grep:.<CR>
+nnoremap <leader>c :DeniteCursorWord grep:.<CR>
+
+" netrw settings ------------------------------------------------------------
+
+nnoremap <leader>[ :Explore<CR>
+" adding to get line numbers
+let g:netrw_bufsettings = 'nomodifiable nomodified number nobuflisted nowrap readonly'
 
 " VIM-GO ---------------------------------------------------------------------
 augroup vimgo
@@ -222,14 +273,15 @@ let g:go_list_autoclose = 0
 let g:delve_new_command = 'new' "make a new window a hirizontal split
 
 " ALE ---------------------------------------------------------------------
-let g:ale_sign_column_always=1
+let g:ale_sign_column_always = 1
 let g:ale_sign_error = '✖'
 let g:ale_sign_warning = '⚠'
 let g:ale_fix_on_save = 1
 let g:ale_javascript_eslint_executable = 'eslint_d'
 let g:ale_javascript_eslint_use_global = 1
-let g:ale_javascript_prettier_executable = 'prettier_d'
-let g:ale_javascript_prettier_options = '--fallback'
+" for some reason it wasn't finding my project config files with prettier_d
+"let g:ale_javascript_prettier_executable = 'prettier_d'
+"let g:ale_javascript_prettier_options = '--fallback'
 let g:ale_javascript_prettier_use_global = 1
 let g:ale_open_list = 1
 let g:ale_set_loclist = 0
@@ -242,9 +294,9 @@ let g:ale_lint_on_insert_leave = 1
 let g:ale_fixers = {
 	\ 'javascript': ['prettier', 'eslint', 'importjs'],
 	\ 'graphql': ['prettier'],
-	\ 'typescript': ['prettier', 'tslint'],
 	\ 'python': ['autopep8'],
 	\ 'go': ['gofmt', 'goimports'], 
+  \ 'typescript': ['prettier'],
 	\}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
@@ -254,7 +306,8 @@ let g:ale_linters = {
    \ 'go': ['gometalinter'],
    \ 'proto': ['protoc-gen-lint'],
    \ 'graphql': ['gqlint'],
-   \ 'javascript': ['eslint']
+   \ 'javascript': ['eslint'],
+   \ 'typescript': [],
    \}
 
 let g:ale_go_gometalinter_options = '--fast --tests'
@@ -262,7 +315,6 @@ let g:ale_go_gometalinter_lint_package = 0
 
 " ReactJS stuff --------------------------------------------------------
 " react syntax will work on .js files
-let g:jsx_ext_required = 0
 let g:javascript_plugin_flow = 1
 
 augroup javascript
@@ -277,12 +329,16 @@ augroup END
 augroup typescript
     autocmd!
     " setting typescript things.
-    " TODO: just deleted ,*.jsx after *.tsx, if problems arise, put it back
+    let g:nvim_typescript#type_info_on_hold = 1
+    let g:nvim_typescript#signature_complete = 1
+
+    autocmd BufNewFile,BufRead *.ts set filetype=typescript
     autocmd BufNewFile,BufRead *.tsx set filetype=typescript.tsx
     autocmd FileType typescript set tabstop=2 shiftwidth=2 expandtab
     nnoremap <leader>i :TSImport<CR>
     nnoremap <leader>d :TSDefPreview<CR>
     nnoremap <leader>t :TSType<CR>
+    nnoremap <leader>f :TSGetCodeFix<CR> " this is called on insert leave
 augroup END
 
 " HTML FILES -----------------------------------------------------------
@@ -291,21 +347,10 @@ augroup html
     autocmd FileType html set tabstop=2 shiftwidth=2 expandtab
 augroup END
 
-" NERDTREE SETTINGS ---------------------------------------------------
-augroup nerdtree
-    autocmd!
-    autocmd VimEnter * NERDTree
-    autocmd VimEnter * wincmd p
-    autocmd FileType nerdtree 
-          \ nnoremap <buffer> <Left> <ESC> |
-          \ nnoremap <buffer> <Right> <ESC>
+" no sign column in the file explorer window
+augroup netrw
+    autocmd FileType netrw setlocal signcolumn=no
 augroup END
-
-
-nnoremap <leader>[ :NERDTreeToggle<CR>
-nnoremap <leader>e :vertical resize 25<CR>
-let g:NERDTreeWinSize=25
-let g:NERDTreeShowHidden=1
 
 " INSERT MODE MAPPINGS -------------------------------------------------
 
@@ -351,7 +396,6 @@ nnoremap <silent> <Right> :bnext!<CR>
 nnoremap <silent> <Down> <C-d>
 nnoremap <silent> <Up> <C-u>
 
-
 " moving windows with option arrow
 nnoremap <silent> <S-Up> :wincmd k<CR>
 nnoremap <silent> <S-Right> :wincmd l<CR>
@@ -387,10 +431,6 @@ nnoremap <leader>20 :b20<CR>
 " breaks the current line in two
 nnoremap <C-j> i<CR><Esc>
 
-" vimgrep the current dir (gd = grepdir) and drops the cursor in the proper spot to type
-" the identifier
-nnoremap <leader>s :lvimgrep  %:p:h/*<Left><Left><Left><Left><Left><Left><Left><Left>
-
 " VISUAL MODE MAPPINGS ------------------------------------------------
 " in visual mode, arrows will move text around
 vnoremap <Left> <gv
@@ -400,10 +440,23 @@ vnoremap <Down> :m '>+1<CR>==gv
 
 " location list open, close, next, previous wincmd's make it so that the cursor goes back
 " to the main buffer and not nerdtree
-nnoremap <leader>l :lopen<CR>:wincmd k<CR>:wincmd l<CR>
-nnoremap <leader>ll :lclose<CR>:wincmd l<CR>
+nnoremap <leader>' :lopen<CR>:wincmd k<CR>:wincmd l<CR>
+nnoremap <leader>'' :lclose<CR>:wincmd l<CR>
 nnoremap <leader>; :lnext<CR>
-nnoremap <leader>' :lprev<CR>
+nnoremap <leader>l :lprev<CR>
+" jump to the current error
+nnoremap <leader>;; :ll<CR>
+
+" quickfix window commands
+nnoremap <leader>/ :copen<CR>
+nnoremap <leader>// :cclose<CR>
+nnoremap <leader>. :cnext<CR>
+nnoremap <leader>, :cprevious<CR>
+" jump to quickfix current error number
+nnoremap <leader>.. :cc<CR>
+
+" insert the UTC date at the end of the line Sun May 13 13:06:42 UTC 2018
+nnoremap <leader>x :r! date -u "+\%Y-\%m-\%d \%H:\%M:\%S.000+00"<CR>k<S-j>h 
 
 " QUICKFIX WINDOW SETTINGS -------------------------------------------------
 " This trigger takes advantage of the fact that the quickfix window can be
@@ -415,11 +468,6 @@ augroup quickfix
     autocmd FileType qf setlocal wrap cc=
 augroup END
 
-nnoremap <leader>. :cnext<CR>
-nnoremap <leader>, :cprevious<CR>
-nnoremap <leader>/ :cc<CR>
-nnoremap <leader>mm :cclose<CR>
-nnoremap <leader>m :copen<CR>
 
 " toggle highlighting after search
 map  <leader>h :set hls!<CR>
@@ -440,7 +488,7 @@ hi Visual ctermfg=7 ctermbg=8 guibg=#373737
 hi Operator guifg=#E9E9E9
 hi Type guifg=#E9E9E9
 hi Boolean guifg=#e06c75
-hi Search guibg=#61afef
+hi Search guifg=NONE guibg=NONE
 hi ColorColumn guibg=#2b2b2b
 " to color the background of the vim-go testing errors
 hi ErrorMsg guifg=#cc6666 guibg=NONE
@@ -462,3 +510,12 @@ hi link typescriptCase Keyword
 hi link typescriptLabel Keyword
 hi link typescriptImport Function
 hi typescriptIdentifierName gui=BOLD
+hi link jsxTagName Function
+hi link jsxCloseString ErrorMsg
+
+hi tsxTagName guifg=#5098c4
+hi tsxCloseString guifg=#2974a1
+
+hi link graphqlString graphqlComment
+
+hi link deniteMatchedRange NONE

@@ -4,7 +4,7 @@
 - hosts: all
   become: yes
   become_user: root
-  gather_facts: no # next two lines install python2 on machiens where it is 3 by default
+  gather_facts: yes # next two lines install python2 on machiens where it is 3 by default
   pre_tasks:
     - name: Install Python 2
       raw: apt-get -y install python
@@ -22,6 +22,22 @@
       apt_repository: 
         repo: ppa:neovim-ppa/stable
       register: neovimppa
+
+    # postfix is an smtp server, right now I am only doing this so I can see mail from
+    # cronjobs on the local machine
+    - name: Set postfix option hostname # so that apt doesn't need any prompt 
+      debconf: 
+        name: postfix
+        question: postfix/main_mailer_type
+        value: Local Only
+        vtype: string
+
+    - name: Set postfix option hostname # so that apt doesn't need any prompt
+      debconf: 
+        name: postfix
+        question: postfix/mailname
+        value: "{{ ansible_fqdn }}"
+        vtype: string
 
     - name: Add yarn repo
       shell: |
@@ -41,6 +57,14 @@
     - name: Install docker
       apt:
         name: docker-ce
+
+    - name: Install postfix # mail client for receiving local mail
+      apt:
+        name: postfix
+
+    - name: Install s-nail # client for checking mail
+      apt: 
+        name: s-nail
 
     - name: Install neovim
       apt:
@@ -65,6 +89,10 @@
     - name: Install git
       apt:
         name: git
+
+    - name:  Install Ansible
+      apt: 
+        name: ansible
 
     - name: Install python3-pip
       apt:
