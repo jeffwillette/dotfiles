@@ -188,6 +188,7 @@ inoremap <expr><Up> pumvisible() ? "\<c-p>" : "\<Up>"
 " vim fugitive mappings -----------------------------------------------------
 
 nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>gl :Git --no-pager log<CR>
 " when cvc (git verbose commit) is called from status and there is too much
 " diff to see on the screen, a new buffer can be opened to compose the diff
 " message while scrolling through the diff.
