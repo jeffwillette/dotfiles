@@ -116,7 +116,7 @@ set laststatus=2
 set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
 " vim airline ------------------------------------------------------------------------
-let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#enabled = 0
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
 let g:airline_theme='tomorrow'
@@ -204,14 +204,20 @@ nnoremap <leader>tc :BD!<CR>:tabclose<CR>
 
 " denite settings -----------------------------------------------------------
 
+" set the prompt to a better symbol
 call denite#custom#option('default', 'prompt', '❯')
 
+" set some navigation commands
 call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
 call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
-call denite#custom#map('insert', 'jj', '<denite:toggle_insert_mode>', 'noremap')
+call denite#custom#map('insert', 'JJ', '<denite:toggle_insert_mode>', 'noremap')
+call denite#custom#map('insert', '<C-d>', '<denite:do_action:delete>', 'noremap')
 
-call denite#custom#var('file/rec', 'command', ['rg', '--files', '--hidden', '-g', '!.git'])
+" file search command shows hidden and ignores !.git and respected .gitignore
+call denite#custom#var('file/rec', 'command', 
+    \['rg', '--files', '--hidden', '-g', '!.git'])
 
+" grep command using rg for speed, respected .gitignore
 call denite#custom#var('grep', 'command', ['rg'])
 call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep'])
 call denite#custom#var('grep', 'recursive_opts', [])
@@ -219,24 +225,30 @@ call denite#custom#var('grep', 'pattern_opt', [])
 call denite#custom#var('grep', 'separator', ['--'])
 call denite#custom#var('grep', 'final_opts', [])
 
-" define a custom grep (ag) command that will unignore files I usually don't want to search,
-"call denite#custom#alias('source', 'ag/unignore', 'grep')
-"call denite#custom#var('ag/unignore', 'command', ['ag'])
-"call denite#custom#var('ag/unignore', 'default_opts',
-"    \ ['-it', '--vimgrep'])
-"call denite#custom#var('ag/unignore', 'recursive_opts', [])
-"call denite#custom#var('ag/unignore', 'pattern_opt', [])
-"call denite#custom#var('ag/unignore', 'separator', ['--'])
-"call denite#custom#var('ag/unignore', 'final_opts', [])
+" let the denite buffer window match by buffer number
+call denite#custom#var('buffer', 'date_format', '')
+call denite#custom#source('buffer', 'matchers', ['converter/abbr_word', 'matcher/substring'])
+
+" define a custom grep (rg) command that will unignore files I usually don't want to search,
+" -uu is the flag that searches everything excpet binary files
+call denite#custom#alias('source', 'rg/unignore', 'grep')
+call denite#custom#var('rg/unignore', 'command', ['rg'])
+call denite#custom#var('rg/unignore', 'default_opts',
+    \ ['-iuu', '--vimgrep'])
+call denite#custom#var('rg/unignore', 'recursive_opts', [])
+call denite#custom#var('rg/unignore', 'pattern_opt', [])
+call denite#custom#var('rg/unignore', 'separator', ['--'])
+call denite#custom#var('rg/unignore', 'final_opts', [])
 
 nnoremap <leader><Space> :Denite -highlight-matched-range=NONE -highlight-matched-char=NONE file/rec<CR>
 nnoremap <leader>` :Denite -highlight-matched-range=NONE -highlight-matched-char=NONE -path=~/ file/rec<CR>
-nnoremap <leader><leader> :Denite -direction=topleft buffer<CR>
+nnoremap <leader><leader> :Denite buffer<CR>
 "nnoremap <leader><Space><Space> :Denite grep/ignore:.<CR>
 nnoremap <leader><Space><Space> :Denite grep:.<CR>
 nnoremap <leader>c :DeniteCursorWord grep:.<CR>
 
 " vim go ---------------------------------------------------------------------
+
 augroup vimgo
     autocmd!
     " this is from the vim-go docs `go-guru-scope` which (I think) sets the scope for
@@ -357,9 +369,12 @@ augroup END
 
 " netrw settings ------------------------------------------------------------
 
-" adding to get line numbers
-let g:netrw_bufsettings = 'nomodifiable nomodified number nobuflisted nowrap readonly'
-nnoremap <leader>[ :Explore<CR>
+" making it display wide like an ls in a terminal
+let g:netrw_liststyle = 2
+" making the window height 10% of the main window
+let g:netrw_winsize   = 10
+
+nnoremap <leader>[ :Hexplore<CR>
 
 augroup netrw
     autocmd FileType netrw setlocal signcolumn=no
@@ -375,12 +390,22 @@ inoremap <S-Left> <Esc>bi
 " call the autocomplete semantic completion when needed.
 inoremap ;; <C-x><C-o>
 
-" NORMAL MODE MAPPINGS -------------------------------------------------------
+" terminal mode mappings -----------------------------------------------------
+
+autocmd TermOpen * set bufhidden=hide
+
+" when in the terminal, use the jj commands to get out of insert 
+tnoremap JJ <C-\><C-n> 
+" enter a buffer name after file so that the user can rename the terminal
+" buffer and keep track of multiple terminals
+nnoremap <leader>tn :keepalt file 
+
+" normal mode mappings -------------------------------------------------------
 
 " Reload the file from disk (forced so edits will be lost)
 nnoremap <leader>r :edit!<CR>
 " open a terminal with a window split and source bash profile
-nnoremap <leader>t :new<CR>:terminal<CR>i . ~/.bash_profile<CR>
+nnoremap <leader>tt :terminal<CR>i . ~/.bash_profile<CR>
 " add a space in normal mode
 nnoremap <space> i<space><esc>
 " call the bufkill plugin commad to delete buffer form list
