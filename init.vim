@@ -187,7 +187,8 @@ inoremap <expr><Up> pumvisible() ? "\<c-p>" : "\<Up>"
 
 " vim fugitive mappings -----------------------------------------------------
 
-nnoremap <leader>gs :Gstatus<CR>:botright new<CR>:resize -40<CR>:wincmd k<CR>:wincmd k<CR>
+nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>b :botright new<CR>:resize -40<CR>
 
 " denite settings -----------------------------------------------------------
 
@@ -378,8 +379,6 @@ nnoremap <leader>qa :bd *<C-a><CR>
 nnoremap <leader>w :w<CR>
 " close the preview window with leader p
 nnoremap <leader>p :pclose<CR>
-" move to the previous buffer
-nnoremap <leader>b <C-o>
 " in normal mode, the arrow keys will move tabs
 nnoremap <silent> <Left> :bprevious!<CR>
 nnoremap <silent> <Right> :bnext!<CR>
@@ -464,6 +463,7 @@ map fhi :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 " HIGHLIGHTING ----------------------------------------------------------------
+"
 hi link SignColumn LineNr
 hi Normal guibg=#212121
 hi Comment guifg=#595959
