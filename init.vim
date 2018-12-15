@@ -197,6 +197,9 @@ nnoremap <leader>b :botright new<CR>:resize -40<CR>
 " the curor is on the line. the file must be saved after this
 nnoremap <leader>dg :diffget<CR>
 nnoremap <leader>dp :diffpush<CR>
+" after running arbitraty git commands like :Git log, there is a tab and an
+" extra buffer
+nnoremap <leader>tc :BD!<CR>:tabclose<CR>
 
 " denite settings -----------------------------------------------------------
 
