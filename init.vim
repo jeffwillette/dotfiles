@@ -188,7 +188,15 @@ inoremap <expr><Up> pumvisible() ? "\<c-p>" : "\<Up>"
 " vim fugitive mappings -----------------------------------------------------
 
 nnoremap <leader>gs :Gstatus<CR>
+" when cvc (git verbose commit) is called from status and there is too much
+" diff to see on the screen, a new buffer can be opened to compose the diff
+" message while scrolling through the diff.
 nnoremap <leader>b :botright new<CR>:resize -40<CR>
+" for looking at diffs from the status window. left window is index, right
+" window is the current file. push or get the changes to the other file while
+" the curor is on the line. the file must be saved after this
+nnoremap <leader>dg :diffget<CR>
+nnoremap <leader>dp :diffpush<CR>
 
 " denite settings -----------------------------------------------------------
 
