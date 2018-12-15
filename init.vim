@@ -79,13 +79,6 @@ function! StopProfile()
     :profile stop
 endfunction
 
-" SETCOLORS -------------------------------------------------------------------------
-nnoremap <leader>+ :NextColorScheme<CR>
-nnoremap <leader>- :PrevColorScheme<CR>
-
-" set neovim to have normal vim cursor, guicursor& to restore default
-"set guicursor=
-
 " setting syntax and makeing colors better
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 syntax on
@@ -98,6 +91,8 @@ colorscheme base16-tomorrow-night
 autocmd BufRead,BufNewFile * setlocal signcolumn=yes
 set number
 set tabstop=4
+" set neovim to have normal vim cursor, guicursor& to restore default
+"set guicursor=
 set shiftwidth=4
 set nowrap
 set expandtab
@@ -120,7 +115,7 @@ set completeopt-=preview
 set laststatus=2
 set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
-" VIM AIRLINE ------------------------------------------------------------------------
+" vim airline ------------------------------------------------------------------------
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
@@ -146,22 +141,22 @@ augroup startup
     autocmd VimEnter * call ChangeColors()
 augroup END
 
-" NEOSNIPPETS ---------------------------------------------------------------------------
+" neosnippets ---------------------------------------------------------------------------
 " added for autocomplete-flow
 let g:neosnippet#enable_completed_snippet = 1
 imap qq <Plug>(neosnippet_expand_or_jump)
 let g:neosnippet#snippets_directory='~/.config/nvim/plugged/vim-snippets/snippets'
 
-" AUTO_PAIRS ----------------------------------------------------------------------------
+" auto pairs ----------------------------------------------------------------------------
 
 " do not make the line in the center of the page after pressing enter
 let g:AutoPairsCenterLine = 0
 let g:AutoPairsMapCR = 1
 
-" TERN-FOR-VIM --------------------------------------------------------------------------
+" tern for vim --------------------------------------------------------------------------
 let g:tern_show_signature_in_pum = 1
 
-" DEOPLETE --------------------------------------------------------------
+" deoplete --------------------------------------------------------------
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#enable_smart_case = 1
 let g:deoplete#file#enable_buffer_path = 1
@@ -190,10 +185,11 @@ let g:tern#command = ['custom-tern'] " for running tern commands
 inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 inoremap <expr><Up> pumvisible() ? "\<c-p>" : "\<Up>"
 
-" VIM FUGITIVE MAPPINGS -----------------------------------------------------
-nnoremap <leader>gs :Gstatus<CR>:resize +20<CR>
+" vim fugitive mappings -----------------------------------------------------
 
-" DENITE settings -----------------------------------------------------------
+nnoremap <leader>gs :Gstatus<CR>:botright new<CR>:resize -40<CR>:wincmd k<CR>:wincmd k<CR>
+
+" denite settings -----------------------------------------------------------
 
 call denite#custom#option('default', 'prompt', '❯')
 
@@ -227,10 +223,7 @@ nnoremap <leader><leader> :Denite -direction=topleft buffer<CR>
 nnoremap <leader><Space><Space> :Denite grep:.<CR>
 nnoremap <leader>c :DeniteCursorWord grep:.<CR>
 
-" adding to get line numbers
-let g:netrw_bufsettings = 'nomodifiable nomodified number nobuflisted nowrap readonly'
-
-" VIM-GO ---------------------------------------------------------------------
+" vim go ---------------------------------------------------------------------
 augroup vimgo
     autocmd!
     " this is from the vim-go docs `go-guru-scope` which (I think) sets the scope for
@@ -271,10 +264,10 @@ let g:go_list_type = "quickfix"
 let g:go_list_height = 10
 let g:go_list_autoclose = 0
 
-" VIM-DELVE -----------------------------------------------------------------------------
+" vim delve -----------------------------------------------------------------------------
 let g:delve_new_command = 'new' "make a new window a hirizontal split
 
-" ALE ---------------------------------------------------------------------
+" ale ---------------------------------------------------------------------
 let g:ale_sign_column_always = 1
 let g:ale_sign_error = '✖'
 let g:ale_sign_warning = '⚠'
@@ -343,72 +336,63 @@ augroup typescript
     nnoremap <leader>f :TSGetCodeFix<CR> " this is called on insert leave
 augroup END
 
-" HTML FILES -----------------------------------------------------------
+" html files ---------------------------------------------------------------
 augroup html
     autocmd!
     autocmd FileType html set tabstop=2 shiftwidth=2 expandtab
 augroup END
 
 " netrw settings ------------------------------------------------------------
+
+" adding to get line numbers
+let g:netrw_bufsettings = 'nomodifiable nomodified number nobuflisted nowrap readonly'
 nnoremap <leader>[ :Explore<CR>
+
 augroup netrw
     autocmd FileType netrw setlocal signcolumn=no
 augroup END
 
-" INSERT MODE MAPPINGS -------------------------------------------------
+" insert mode mappings ------------------------------------------------------
 
 " maps jj to escape to get out of insert mode
 inoremap jj <Esc>
-
 " make Shift + Forward/Back skip by word in insert mode
 inoremap <S-Right> <Esc>lwi
 inoremap <S-Left> <Esc>bi
-
 " call the autocomplete semantic completion when needed.
 inoremap ;; <C-x><C-o>
 
-" NORMAL MODE MAPPINGS ------------------------------------------------
+" NORMAL MODE MAPPINGS -------------------------------------------------------
 
 " Reload the file from disk (forced so edits will be lost)
 nnoremap <leader>r :edit!<CR>
-
 " open a terminal with a window split and source bash profile
 nnoremap <leader>t :new<CR>:terminal<CR>i . ~/.bash_profile<CR>
-
 " add a space in normal mode
 nnoremap <space> i<space><esc>
-
 " call the bufkill plugin commad to delete buffer form list
 nnoremap <leader>q :BD<CR>
-
 " delete all buffers
 nnoremap <leader>qa :bd *<C-a><CR>
-
 " write file (save)
 nnoremap <leader>w :w<CR>
-
 " close the preview window with leader p
 nnoremap <leader>p :pclose<CR>
-
 " move to the previous buffer
 nnoremap <leader>b <C-o>
-
 " in normal mode, the arrow keys will move tabs
 nnoremap <silent> <Left> :bprevious!<CR>
 nnoremap <silent> <Right> :bnext!<CR>
 nnoremap <silent> <Down> <C-d>
 nnoremap <silent> <Up> <C-u>
-
 " moving windows with option arrow
-nnoremap <silent> <S-Up> :wincmd k<CR>
-nnoremap <silent> <S-Right> :wincmd l<CR>
-nnoremap <silent> <S-Down> :wincmd j<CR>
-nnoremap <silent> <S-Left> :wincmd h<CR>
-
+nnoremap <silent> <c-k> :wincmd k<CR>
+nnoremap <silent> <c-l> :wincmd l<CR>
+nnoremap <silent> <c-j> :wincmd j<CR>
+nnoremap <silent> <c-h> :wincmd h<CR>
 " inserting newline without entering insert
 nnoremap _ O<Esc>
 nnoremap - o<Esc>
-
 " skip to the numbered buffer
 nnoremap <leader>1 :b1<CR>
 nnoremap <leader>2 :b2<CR>
@@ -429,18 +413,8 @@ nnoremap <leader>17 :b17<CR>
 nnoremap <leader>18 :b18<CR>
 nnoremap <leader>19 :b19<CR>
 nnoremap <leader>20 :b20<CR>
-
-" this complements the vim command <S-J> which joins current line to below line, this one
-" breaks the current line in two
-nnoremap <C-j> i<CR><Esc>
-
-" VISUAL MODE MAPPINGS ------------------------------------------------
-" in visual mode, arrows will move text around
-vnoremap <Left> <gv
-vnoremap <Right> >gv
-vnoremap <Up> :m.-2<CR>gv
-vnoremap <Down> :m '>+1<CR>==gv
-
+" this complements the vim command <S-J> which joins current line to below line, this one breaks the current line in two
+nnoremap K i<CR><Esc>
 " location list open, close, next, previous wincmd's make it so that the cursor goes back
 " to the main buffer and not nerdtree
 nnoremap <leader>' :lopen<CR>:wincmd k<CR>:wincmd l<CR>
@@ -449,7 +423,6 @@ nnoremap <leader>; :lnext<CR>
 nnoremap <leader>l :lprev<CR>
 " jump to the current error
 nnoremap <leader>;; :ll<CR>
-
 " quickfix window commands
 nnoremap <leader>/ :copen<CR>
 nnoremap <leader>// :cclose<CR>
@@ -457,11 +430,19 @@ nnoremap <leader>. :cnext<CR>
 nnoremap <leader>, :cprevious<CR>
 " jump to quickfix current error number
 nnoremap <leader>.. :cc<CR>
-
 " insert the UTC date at the end of the line Sun May 13 13:06:42 UTC 2018
 nnoremap <leader>x :r! date -u "+\%Y-\%m-\%d \%H:\%M:\%S.000+00"<CR>k<S-j>h 
 
-" QUICKFIX WINDOW SETTINGS -------------------------------------------------
+" VISUAL MODE MAPPINGS ------------------------------------------------
+
+" in visual mode, arrows will move text around
+vnoremap <Left> <gv
+vnoremap <Right> >gv
+vnoremap <Up> :m.-2<CR>gv
+vnoremap <Down> :m '>+1<CR>==gv
+
+" quickfix window settings -------------------------------------------------
+
 " This trigger takes advantage of the fact that the quickfix window can be
 " easily distinguished by its file-type, qf. The wincmd J command is
 " equivalent to the Ctrl+W, Shift+J shortcut telling Vim to move a window to
@@ -471,8 +452,8 @@ augroup quickfix
     autocmd FileType qf setlocal wrap cc=
 augroup END
 
-
 " toggle highlighting after search
+
 map  <leader>h :set hls!<CR>
 imap <leader>h <ESC>:set hls!<CR>a
 vmap <leader>h <ESC>:set hls!<CR>gv
@@ -491,7 +472,7 @@ hi Visual ctermfg=7 ctermbg=8 guibg=#373737
 hi Operator guifg=#E9E9E9
 hi Type guifg=#E9E9E9
 hi Boolean guifg=#e06c75
-hi Search guifg=NONE guibg=NONE
+hi Search guibg=#61afef
 hi ColorColumn guibg=#2b2b2b
 " to color the background of the vim-go testing errors
 hi ErrorMsg guifg=#cc6666 guibg=NONE
@@ -505,9 +486,7 @@ hi CursorLineNr gui=bold guifg=#81a2be
 hi CursorLine guibg=#2d2d2d
 " go methods only
 hi goMethodCall guifg=#81a2be
-
 hi jsFuncCall guifg=#81a2be
-
 " changes them to stand out more
 hi link typescriptCase Keyword
 hi link typescriptLabel Keyword
@@ -515,10 +494,7 @@ hi link typescriptImport Function
 hi typescriptIdentifierName gui=BOLD
 hi link jsxTagName Function
 hi link jsxCloseString ErrorMsg
-
 hi tsxTagName guifg=#5098c4
 hi tsxCloseString guifg=#2974a1
-
 hi link graphqlString graphqlComment
-
 hi link deniteMatchedRange NONE
