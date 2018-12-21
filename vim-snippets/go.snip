@@ -1,0 +1,18 @@
+snippet test
+alias ttt
+abbr func TestFunc{for _, tt := range ...}
+    func ${1:Func}(t *testing.T) {
+        tests := []struct{
+            name string
+        }{
+            {
+                name: ${2:Name},
+            },
+        }
+
+        for _, tt := range tests {
+            t.Run(tt.name, func(t *testing.T) {
+                
+            })
+        }
+    }

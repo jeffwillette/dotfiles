@@ -1,6 +1,6 @@
 export PATH=$HOME/bin:/usr/local/sbin:$PATH
 
-# these used to be in the format of \[\e[30m\] but using printf printed the brackets. 
+# these used to be in the format of \[\e[30m\] but using printf printed the brackets.
 # I am not sure why that was the format, but worth noting
 black='\e[30m'
 red='\e[31m'
@@ -25,6 +25,7 @@ export VISUAL=nvim
 export EDITOR="$VISUAL"
 
 export CLICOLOR=1;
+export TSS_LOG="-level verbose -file /tmp/tsserver.log"
 
 #for completing source commands
 complete -c source
@@ -73,7 +74,7 @@ if [ $SYSTEM == "Darwin" ]; then
     # fixing some weird inkscape error with xquartz
     # https://apple.stackexchange.com/questions/235279/inkscape-or-other-xquartz-window-disappears-when-using-external-screen
     alias fixInkscape='wmctrl -r Inkscape -e 0,1440,900,1200,700'
-    alias fixInkscapeExt='wmctrl -r Inkscape -e 0,0,0,1080,1920'   
+    alias fixInkscapeExt='wmctrl -r Inkscape -e 0,0,0,1080,1920'
 
     # turns off the writing of .DS_Store. I think this stays until there is an OS update,
     # so if you notice the files coming back you might need to run it again
@@ -107,7 +108,7 @@ if [ $SYSTEM == "Darwin" ]; then
     function update() {
         note "updating brew\n" ${blue}
         brew update
-        note "\nupgrading brew\n" ${blue} 
+        note "\nupgrading brew\n" ${blue}
         brew upgrade
         note "\ncleaning up brew\n" ${blue}
         brew cleanup
@@ -170,7 +171,7 @@ alias aplay='ansible-playbook'
 # rename file extensions in directory from 1 to 2
 function renameExt() {
     for file in *."${1}"
-    do 
+    do
         mv "$file" "${file%.${1}}.${2}"
     done
 }
@@ -188,5 +189,3 @@ function replace() {
         --exclude yarn.lock \
         "${1}" "${3}" | xargs gsed -i "s|${1}|${2}|g"
 }
-
-

@@ -1,10 +1,23 @@
+scriptencoding utf-8
+" starts a node pricess for debugging, it pairs with a chrome plugin that will
+" bring up a console
+"let $NVIM_NODE_HOST_DEBUG=1
+let g:python_host_prog = '/Users/Jeff/.virtualenvs/neovim2/bin/python2.7'
+let g:python3_host_prog = '/Users/Jeff/.virtualenvs/neovim3/bin/python3.7'
+let g:node_host_prog = '/usr/local/bin/neovim-node-host'
+let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
+let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
+let $NVIM_NODE_LOG_LEVEL='debug'
+let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
+let $NVIM_PYTHON_LOG_LEVEL='info'
+
 " Specify a directory for plugins
-" - Avoid using standard Vim directory names like 'plugin'
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'tpope/vim-vinegar'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/echodoc'
 Plug 'Shougo/neosnippet'
 Plug 'Shougo/neosnippet-snippets'
 Plug 'w0rp/ale'
@@ -36,10 +49,8 @@ Plug 'pangloss/vim-javascript', {'for': ['javascript', 'javascript.jsx']}
 Plug 'mxw/vim-jsx', {'for': ['javascript', 'javascript.jsx']}
 Plug 'jaawerth/neomake-local-eslint-first'
 
-"Plug 'HerringtonDarkholme/yats'
-Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript'
-Plug 'mhartington/nvim-typescript'
+Plug 'HerringtonDarkholme/yats'
+Plug 'mhartington/nvim-typescript', {'do': './install.sh', 'branch': 'deltaskelta/typescript3'}
 
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
 Plug 'chriskempson/base16-vim'
@@ -47,16 +58,6 @@ Plug 'chriskempson/base16-vim'
 Plug 'jparise/vim-graphql'
 
 call plug#end()
-
-" TODO: this might not work on a remote machine
-let g:python_host_prog = '/Users/Jeff/.virtualenvs/neovim2/bin/python2.7'
-let g:python3_host_prog = '/Users/Jeff/.virtualenvs/neovim3/bin/python3.7'
-let g:node_host_prog = '/usr/local/bin/neovim-node-host'
-let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
-"let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
-"let $NVIM_NODE_LOG_LEVEL='debug'
-"let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
-"let $NVIM_PYTHON_LOG_LEVEL='info'
 
 " :call ToggleVerbose() for writing a verbose log im tmp
 function! ToggleVerbose()
@@ -69,7 +70,7 @@ function! ToggleVerbose()
     endif
 endfunction
 
-function! StartProfile() 
+function! StartProfile()
     :profile start ~/vim-profile.log
     :profile func *
     :profile file *
@@ -85,18 +86,23 @@ syntax on
 filetype plugin indent on
 colorscheme base16-tomorrow-night
 
-" status line is filename and right aligned column number 
+" status line is filename and right aligned column number
 " hidden makes the buffer hidden when inactvie rather than essentially 'closing' it
 " I think there was a reason that this line is after the airline option, but IDK
-autocmd BufRead,BufNewFile * setlocal signcolumn=yes
+augroup all
+    autocmd BufRead,BufNewFile * setlocal signcolumn=yes
+augroup END
+
 set number
 set tabstop=4
 " set neovim to have normal vim cursor, guicursor& to restore default
 "set guicursor=
 set shiftwidth=4
 set nowrap
+" dont show the current mode in the command line
+set noshowmode
 set expandtab
-" set the grep command to my .bash_profile g() 
+" set the grep command to my .bash_profile g()
 set grepprg=g
 " make sure I can call stuff defined in my bash_profile
 set shellcmdflag=-ic
@@ -109,7 +115,7 @@ set lazyredraw
 set mouse=a
 set directory=~/.config/nvim/tmp
 set clipboard=unnamed
-set cursorline 
+set cursorline
 " do not show the scratch preview window when tabbing through completions
 set completeopt-=preview
 set laststatus=2
@@ -133,19 +139,17 @@ endfunction
 augroup startup
     autocmd!
     " sourcing the vimrc on save of this file.
-    autocmd BufWritePost *.vim so $MYVIMRC | :AirlineRefresh | :call ChangeColors() 
-    " making vim cd to the directory of the file that the cursor is active in
-    "autocmd BufEnter * cd %:p:h
+    autocmd BufWritePost *.vim so $MYVIMRC | :AirlineRefresh | :call ChangeColors()
     " coloring column 91 with errmesg color
-    "autocmd FileType * set cc=90 tw=90
+    "autocmd FileType * set cc=90 tw=9
     autocmd VimEnter * call ChangeColors()
 augroup END
 
 " neosnippets ---------------------------------------------------------------------------
-" added for autocomplete-flow
+
 let g:neosnippet#enable_completed_snippet = 1
 imap qq <Plug>(neosnippet_expand_or_jump)
-let g:neosnippet#snippets_directory='~/.config/nvim/plugged/vim-snippets/snippets'
+let g:neosnippet#snippets_directory='~/.config/nvim/plugged/vim-snippets/snippets,~/dotfiles/vim-snippets'
 
 " auto pairs ----------------------------------------------------------------------------
 
@@ -156,21 +160,25 @@ let g:AutoPairsMapCR = 1
 " tern for vim --------------------------------------------------------------------------
 let g:tern_show_signature_in_pum = 1
 
-" deoplete --------------------------------------------------------------
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_smart_case = 1
-let g:deoplete#file#enable_buffer_path = 1
-let g:deoplete#enable_debug = 1
-let g:deoplete#enable_profile = 1
-call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
+" deoplete --------------------------------------------------------------------------
 
-let g:deoplete#ignore_sources = {}
-" gathering text from around seems to be largely unnecessary
-"let g:deoplete#ignore_sources._ = ['around']
+let g:deoplete#enable_at_startup = 1
+
+call deoplete#custom#option({
+  \ 'smart_case': v:true,
+  \ 'profile': v:true,
+  \ })
+
+call deoplete#custom#source(
+  \ 'file', 'enable_buffer_path', v:false)
+
+call deoplete#enable_logging('INFO', '/tmp/deoplete.log')
+
+" deoplete-ternjs ----------------------------------------------------------------
 
 " shows type info in the completion, but dont confuse this with flow type info, tern and
 " flow serve different purposes https://github.com/ternjs/tern/issues/827
-let g:deoplete#sources#ternjs#types = 1 
+let g:deoplete#sources#ternjs#types = 1
 let g:deoplete#sources#ternjs#case_insensitive = 1
 
 " in order to have tern go through and resolve all of the modules and imports in a webpack
@@ -192,7 +200,7 @@ nnoremap <leader>gl :Git --no-pager log<CR>
 " when cvc (git verbose commit) is called from status and there is too much
 " diff to see on the screen, a new buffer can be opened to compose the diff
 " message while scrolling through the diff.
-nnoremap <leader>b :botright new<CR>:resize -40<CR>
+nnoremap <leader>n :new<CR>:resize -40<CR>
 " for looking at diffs from the status window. left window is index, right
 " window is the current file. push or get the changes to the other file while
 " the curor is on the line. the file must be saved after this
@@ -214,12 +222,12 @@ call denite#custom#map('insert', 'JJ', '<denite:toggle_insert_mode>', 'noremap')
 call denite#custom#map('insert', '<C-d>', '<denite:do_action:delete>', 'noremap')
 
 " file search command shows hidden and ignores !.git and respected .gitignore
-call denite#custom#var('file/rec', 'command', 
-    \['rg', '--files', '--hidden', '-g', '!.git'])
+call denite#custom#var('file/rec', 'command',
+    \['rg', '--follow', '--files', '--hidden', '-g', '!.git'])
 
 " grep command using rg for speed, respected .gitignore
 call denite#custom#var('grep', 'command', ['rg'])
-call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep'])
+call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep', '--iglob', '!yarn.lock'])
 call denite#custom#var('grep', 'recursive_opts', [])
 call denite#custom#var('grep', 'pattern_opt', [])
 call denite#custom#var('grep', 'separator', ['--'])
@@ -285,7 +293,7 @@ let g:go_auto_type_info = 1
 let g:go_fmt_autosave = 0
 " vim-go uses the location list by default. This clashes with gometalinter through ale
 " plugin and erases test output when there are errors. Set vim-go to use quickfix
-let g:go_list_type = "quickfix"
+let g:go_list_type = 'quickfix'
 let g:go_list_height = 10
 let g:go_list_autoclose = 0
 
@@ -302,7 +310,6 @@ let g:ale_javascript_eslint_use_global = 1
 " for some reason it wasn't finding my project config files with prettier_d
 "let g:ale_javascript_prettier_executable = 'prettier_d'
 "let g:ale_javascript_prettier_options = '--fallback'
-let g:ale_javascript_prettier_use_global = 1
 let g:ale_open_list = 1
 let g:ale_set_loclist = 0
 let g:ale_set_quickfix = 1
@@ -312,11 +319,12 @@ let g:ale_lint_on_text_changed = 'normal'
 let g:ale_lint_on_insert_leave = 1
 
 let g:ale_fixers = {
+    \ '*': ['remove_trailing_lines', 'trim_whitespace'],
 	\ 'javascript': ['prettier', 'eslint', 'importjs'],
 	\ 'graphql': ['prettier'],
 	\ 'python': ['autopep8'],
-	\ 'go': ['gofmt', 'goimports'], 
-  \ 'typescript': ['prettier'],
+	\ 'go': ['gofmt', 'goimports'],
+    \ 'typescript': ['prettier', 'tslint'],
 	\}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
@@ -328,6 +336,7 @@ let g:ale_linters = {
    \ 'graphql': ['gqlint'],
    \ 'javascript': ['eslint'],
    \ 'typescript': [],
+   \ 'vim': ['vint'],
    \}
 
 let g:ale_go_gometalinter_options = '--fast --tests'
@@ -349,14 +358,10 @@ augroup END
 augroup typescript
     autocmd!
     " setting typescript things.
-    let g:nvim_typescript#type_info_on_hold = 1
-    let g:nvim_typescript#signature_complete = 1
-
-    autocmd BufNewFile,BufRead *.ts set filetype=typescript
-    autocmd BufNewFile,BufRead *.tsx set filetype=typescript.tsx
     autocmd FileType typescript set tabstop=2 shiftwidth=2 expandtab
-    nnoremap <leader>i :TSImport<CR>
     nnoremap <leader>d :TSDefPreview<CR>
+    nnoremap <leader>g :TSGetDiagnostics<CR>
+    nnoremap <leader>rp :TSReloadProject<CR>
     nnoremap <leader>t :TSType<CR>
     nnoremap <leader>f :TSGetCodeFix<CR> " this is called on insert leave
 augroup END
@@ -370,11 +375,11 @@ augroup END
 " netrw settings ------------------------------------------------------------
 
 " making it display wide like an ls in a terminal
-let g:netrw_liststyle = 2
+let g:netrw_liststyle = 3
 " making the window height 10% of the main window
 let g:netrw_winsize   = 10
 
-nnoremap <leader>[ :Hexplore<CR>
+nnoremap <leader>[ :Explore<CR>
 
 augroup netrw
     autocmd FileType netrw setlocal signcolumn=no
@@ -387,21 +392,26 @@ inoremap jj <Esc>
 " make Shift + Forward/Back skip by word in insert mode
 inoremap <S-Right> <Esc>lwi
 inoremap <S-Left> <Esc>bi
-" call the autocomplete semantic completion when needed.
+" for some reason Shift or Control is not working <Del> if fn+backspace
+inoremap <Del> <C-W>
+" call the autocomplete semantic completion when needed
 inoremap ;; <C-x><C-o>
 
 " terminal mode mappings -----------------------------------------------------
 
 autocmd TermOpen * set bufhidden=hide
 
-" when in the terminal, use the jj commands to get out of insert 
-tnoremap JJ <C-\><C-n> 
+" when in the terminal, use the jj commands to get out of insert
+tnoremap JJ <C-\><C-n>
 " enter a buffer name after file so that the user can rename the terminal
 " buffer and keep track of multiple terminals
-nnoremap <leader>tn :keepalt file 
+nnoremap <leader>tn :keepalt file
 
 " normal mode mappings -------------------------------------------------------
 
+nnoremap <leader>cp :let @+ = expand("%:p")<CR>
+" open two terminals and let the user name them
+nnoremap <leader>sh :terminal<CR>i . ~/.bash_profile<CR><C-\><C-n>:keepalt file
 " Reload the file from disk (forced so edits will be lost)
 nnoremap <leader>r :edit!<CR>
 " open a terminal with a window split and source bash profile
@@ -451,23 +461,22 @@ nnoremap <leader>19 :b19<CR>
 nnoremap <leader>20 :b20<CR>
 " this complements the vim command <S-J> which joins current line to below line, this one breaks the current line in two
 nnoremap K i<CR><Esc>
-" location list open, close, next, previous wincmd's make it so that the cursor goes back
-" to the main buffer and not nerdtree
-nnoremap <leader>' :lopen<CR>:wincmd k<CR>:wincmd l<CR>
-nnoremap <leader>'' :lclose<CR>:wincmd l<CR>
+" location list open, close, next, previous wincmd's make it so that the cursor goes back to the main buffer
+nnoremap <leader>' :lopen<CR>:wincmd k<CR>
+nnoremap <leader>'' :lclose<CR>
 nnoremap <leader>; :lnext<CR>
 nnoremap <leader>l :lprev<CR>
 " jump to the current error
 nnoremap <leader>;; :ll<CR>
 " quickfix window commands
-nnoremap <leader>/ :copen<CR>
+nnoremap <leader>/ :copen<CR>:wincmd k<CR>
 nnoremap <leader>// :cclose<CR>
 nnoremap <leader>. :cnext<CR>
 nnoremap <leader>, :cprevious<CR>
 " jump to quickfix current error number
 nnoremap <leader>.. :cc<CR>
 " insert the UTC date at the end of the line Sun May 13 13:06:42 UTC 2018
-nnoremap <leader>x :r! date -u "+\%Y-\%m-\%d \%H:\%M:\%S.000+00"<CR>k<S-j>h 
+nnoremap <leader>x :r! date -u "+\%Y-\%m-\%d \%H:\%M:\%S.000+00"<CR>k<S-j>h
 
 " VISUAL MODE MAPPINGS ------------------------------------------------
 
@@ -500,8 +509,10 @@ map fhi :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 " HIGHLIGHTING ----------------------------------------------------------------
-"
-hi link SignColumn LineNr
+
+" link is not working in tmux for some reason on the LineNr and SignColumn
+hi LineNr guibg=#2d2d2d
+hi SignColumn guibg=#2d2d2d
 hi Normal guibg=#212121
 hi Comment guifg=#595959
 hi VertSplit ctermbg=NONE ctermfg=8 cterm=NONE guibg=NONE guifg=#3a3a3a gui=NONE
@@ -517,7 +528,7 @@ hi ErrorMsg guifg=#cc6666 guibg=NONE
 hi Error guibg=NONE guifg=#cc6666
 " to change the color of the autocomplete menu
 hi Pmenu guifg=#a6a6a6 guibg=#373737
-hi PmenuSel guifg=#4d4d4d guibg=#81a2be 
+hi PmenuSel guifg=#4d4d4d guibg=#81a2be
 " changes the color of the line number that the cursor is on
 hi CursorLineNr gui=bold guifg=#81a2be
 hi CursorLine guibg=#2d2d2d

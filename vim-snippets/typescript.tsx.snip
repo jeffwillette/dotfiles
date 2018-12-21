@@ -1,0 +1,41 @@
+snippet reactImport
+alias importReact
+abbr import React from 'react';
+    import React from 'react';
+
+snippet funcComponent-mui
+alias funcComponent
+abbr () => React.Node;
+    import React from 'react';
+    import { createStyles, WithStyles, withStyles, Theme } from '@material-ui/core'
+
+    const styles = (theme: Theme) => createStyles({})
+
+    interface Props extends WithStyles<typeof styles>{}
+
+    const ${1} = ({ classes }: Props) => ()
+
+    export const ${2} = withStyles(styles)(${1})
+
+snippet classComponent-mui
+alias classComponent
+abbr () => React.Node;
+    import React from 'react';
+    import { createStyles, WithStyles, withStyles, Theme } from '@material-ui/core'
+
+    const styles = (theme: Theme) => createStyles({})
+
+    interface Props extends WithStyles<typeof styles>{}
+
+    interface State {}
+
+    class ${1} extends React.Component<Props, State> {
+      render() {
+        const { classes } = this.props;
+        return (
+
+        )
+      }
+    }
+
+    export const ${2} = withStyles(styles)(${1})
