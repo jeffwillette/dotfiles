@@ -9,31 +9,31 @@
     - name: Install Python 2
       raw: apt-get -y install python
 
-  tasks: 
+  tasks:
     - name: Add Docker GPG Key
       apt_key: url=https://download.docker.com/linux/ubuntu/gpg
 
     - name: Add Docker Repository
-      apt_repository: 
+      apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu artful stable
       register: dockerppa
 
     - name: Add Neovim Repository
-      apt_repository: 
+      apt_repository:
         repo: ppa:neovim-ppa/stable
       register: neovimppa
 
     # postfix is an smtp server, right now I am only doing this so I can see mail from
     # cronjobs on the local machine
-    - name: Set postfix option hostname # so that apt doesn't need any prompt 
-      debconf: 
+    - name: Set postfix option hostname # so that apt doesn't need any prompt
+      debconf:
         name: postfix
         question: postfix/main_mailer_type
         value: Local Only
         vtype: string
 
     - name: Set postfix option hostname # so that apt doesn't need any prompt
-      debconf: 
+      debconf:
         name: postfix
         question: postfix/mailname
         value: "{{ ansible_fqdn }}"
@@ -63,7 +63,7 @@
         name: postfix
 
     - name: Install s-nail # client for checking mail
-      apt: 
+      apt:
         name: s-nail
 
     - name: Install neovim
@@ -91,7 +91,7 @@
         name: git
 
     - name:  Install Ansible
-      apt: 
+      apt:
         name: ansible
 
     - name: Install python3-pip
@@ -99,22 +99,23 @@
         name: python3-pip
 
     - name: Install yarn
-      apt: 
+      apt:
         name: yarn
 
     - name: Install htop
       apt:
         name: htop
 
+    # python -c 'import crypt; print crypt.crypt("This is my Password", "$1$SomeSalt$")'
     - name: Create User
-      user: 
+      user:
         name: jeff
         groups: sudo,docker
-        password: gTb2G10SJYcbg
+        password: somehash
         shell: /bin/bash
 
     - name: Create user ssh folder
-      file: 
+      file:
         path: /home/jeff/.ssh
         state: directory
         owner: jeff
@@ -122,7 +123,7 @@
         mode: 0700
 
     - name: Upload SSH key
-      copy: 
+      copy:
         src: ~/.ssh/id_rsa.pub
         dest: /home/jeff/.ssh/authorized_keys
         owner: jeff
@@ -132,22 +133,22 @@
     - name: Clone dotfiles, setup Go, setup NeoVim, setup Git
       become: yes
       become_user: jeff
-      args: 
+      args:
         executable: /bin/bash
       shell: |
         cd ~
         mkdir ~/.Trash
         mkdir -p ./bin ./go/bin ./go/src ./go/pkg
-        mkdir -p ./.config/nvim/plugged ./.config/nvim/autoload ./.config/nvim/tmp 
+        mkdir -p ./.config/nvim/plugged ./.config/nvim/autoload ./.config/nvim/tmp
         curl -fLo ./.config/nvim/autoload/plug.vim --create-dirs \
           https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-        
+
         # cloning dotfiles from git repository
-        git clone https://github.com/deltaskelta/dotfiles.git 
-        
+        git clone https://github.com/deltaskelta/dotfiles.git
+
         # link the file so nvim can find the config when it starts
-        ln -s /home/jeff/dotfiles/init.vim /home/jeff/.config/nvim/init.vim 
-        ln -s /home/jeff/dotfiles/.bash_profile /home/jeff/.bash_profile 
+        ln -s /home/jeff/dotfiles/init.vim /home/jeff/.config/nvim/init.vim
+        ln -s /home/jeff/dotfiles/.bash_profile /home/jeff/.bash_profile
 
         source /home/jeff/.bash_profile
 

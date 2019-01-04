@@ -2,19 +2,19 @@ scriptencoding utf-8
 " starts a node pricess for debugging, it pairs with a chrome plugin that will
 " bring up a console
 "let $NVIM_NODE_HOST_DEBUG=1
-let g:python_host_prog = '/Users/Jeff/.virtualenvs/neovim2/bin/python2.7'
-let g:python3_host_prog = '/Users/Jeff/.virtualenvs/neovim3/bin/python3.7'
+let g:python_host_prog = '/usr/local/bin/python2'
+let g:python3_host_prog = '/Users/Jeff/bin/python'
 let g:node_host_prog = '/usr/local/bin/neovim-node-host'
 let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
 let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
-let $NVIM_NODE_LOG_LEVEL='debug'
+let $NVIM_NODE_LOG_LEVEL='error'
 let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
 let $NVIM_PYTHON_LOG_LEVEL='info'
 
 " Specify a directory for plugins
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'tpope/vim-vinegar'
+Plug 'scrooloose/nerdtree'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/echodoc'
@@ -23,17 +23,9 @@ Plug 'Shougo/neosnippet-snippets'
 Plug 'w0rp/ale'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
-Plug 'qpkorr/vim-bufkill'
 Plug 'xolox/vim-misc'
 Plug 'tpope/vim-fugitive'
 Plug 'honza/vim-snippets'
-
-Plug 'xolox/vim-colorscheme-switcher'
-Plug 'rakr/vim-one'
-Plug 'gosukiwi/vim-atom-dark'
-Plug 'nanotech/jellybeans.vim'
-Plug 'morhetz/gruvbox'
-Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
@@ -47,15 +39,22 @@ Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern', 'for': 'javascr
 Plug 'Galooshi/vim-import-js', {'for': ['javascript']}
 Plug 'pangloss/vim-javascript', {'for': ['javascript', 'javascript.jsx']}
 Plug 'mxw/vim-jsx', {'for': ['javascript', 'javascript.jsx']}
-Plug 'jaawerth/neomake-local-eslint-first'
 
 Plug 'HerringtonDarkholme/yats'
-Plug 'mhartington/nvim-typescript', {'do': './install.sh', 'branch': 'deltaskelta/typescript3'}
+Plug 'mhartington/nvim-typescript', {'do': './install.sh', 'for': ['typescript', 'typescript.tsx']}
 
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
-Plug 'chriskempson/base16-vim'
 
 Plug 'jparise/vim-graphql'
+
+Plug 'xolox/vim-colorscheme-switcher'
+Plug 'chriskempson/base16-vim'
+Plug 'rakr/vim-one'
+Plug 'gosukiwi/vim-atom-dark'
+Plug 'nanotech/jellybeans.vim'
+Plug 'morhetz/gruvbox'
+Plug 'sonph/onehalf', {'rtp': 'vim/'}
+Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
 
@@ -93,32 +92,15 @@ augroup all
     autocmd BufRead,BufNewFile * setlocal signcolumn=yes
 augroup END
 
-set number
-set tabstop=4
 " set neovim to have normal vim cursor, guicursor& to restore default
-"set guicursor=
-set shiftwidth=4
-set nowrap
-" dont show the current mode in the command line
-set noshowmode
-set expandtab
-" set the grep command to my .bash_profile g()
-set grepprg=g
+set guicursor=
 " make sure I can call stuff defined in my bash_profile
 set shellcmdflag=-ic
-set termguicolors
-set background=dark
-set hidden
-set ttyfast
-set shortmess=a
-set lazyredraw
-set mouse=a
-set directory=~/.config/nvim/tmp
-set clipboard=unnamed
-set cursorline
+
+set number tabstop=4 shiftwidth=4 nowrap noshowmode expandtab termguicolors background=dark hidden shortmess=atT
+set lazyredraw mouse=a directory=~/.config/nvim/tmp clipboard=unnamed cursorline
 " do not show the scratch preview window when tabbing through completions
-set completeopt-=preview
-set laststatus=2
+set completeopt-=preview laststatus=2
 set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
 " vim airline ------------------------------------------------------------------------
@@ -140,8 +122,7 @@ augroup startup
     autocmd!
     " sourcing the vimrc on save of this file.
     autocmd BufWritePost *.vim so $MYVIMRC | :AirlineRefresh | :call ChangeColors()
-    " coloring column 91 with errmesg color
-    "autocmd FileType * set cc=90 tw=9
+    autocmd FileType gitcommit set cc=72 tw=72
     autocmd VimEnter * call ChangeColors()
 augroup END
 
@@ -167,6 +148,8 @@ let g:deoplete#enable_at_startup = 1
 call deoplete#custom#option({
   \ 'smart_case': v:true,
   \ 'profile': v:true,
+  \ 'auto_complete_delay': 100,
+  \ 'auto_refresh_delay': 100,
   \ })
 
 call deoplete#custom#source(
@@ -208,7 +191,7 @@ nnoremap <leader>dg :diffget<CR>
 nnoremap <leader>dp :diffpush<CR>
 " after running arbitraty git commands like :Git log, there is a tab and an
 " extra buffer
-nnoremap <leader>tc :BD!<CR>:tabclose<CR>
+nnoremap <leader>tc :bdelete!<CR>:tabclose<CR>
 
 " denite settings -----------------------------------------------------------
 
@@ -307,6 +290,11 @@ let g:ale_sign_warning = '⚠'
 let g:ale_fix_on_save = 1
 let g:ale_javascript_eslint_executable = 'eslint_d'
 let g:ale_javascript_eslint_use_global = 1
+let g:ale_completion_enabled = 1
+
+" using global prettier because the local one has graphql version conflicts
+let g:ale_javascript_prettier_use_global = 1
+
 " for some reason it wasn't finding my project config files with prettier_d
 "let g:ale_javascript_prettier_executable = 'prettier_d'
 "let g:ale_javascript_prettier_options = '--fallback'
@@ -319,12 +307,12 @@ let g:ale_lint_on_text_changed = 'normal'
 let g:ale_lint_on_insert_leave = 1
 
 let g:ale_fixers = {
-    \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+  \ '*': ['remove_trailing_lines', 'trim_whitespace'],
 	\ 'javascript': ['prettier', 'eslint', 'importjs'],
 	\ 'graphql': ['prettier'],
 	\ 'python': ['autopep8'],
 	\ 'go': ['gofmt', 'goimports'],
-    \ 'typescript': ['prettier', 'tslint'],
+  \ 'typescript': ['prettier', 'tslint'],
 	\}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
@@ -335,7 +323,7 @@ let g:ale_linters = {
    \ 'proto': ['protoc-gen-lint'],
    \ 'graphql': ['gqlint'],
    \ 'javascript': ['eslint'],
-   \ 'typescript': [],
+   \ 'typescript': ['tslint'],
    \ 'vim': ['vint'],
    \}
 
@@ -358,12 +346,11 @@ augroup END
 augroup typescript
     autocmd!
     " setting typescript things.
-    autocmd FileType typescript set tabstop=2 shiftwidth=2 expandtab
-    nnoremap <leader>d :TSDefPreview<CR>
-    nnoremap <leader>g :TSGetDiagnostics<CR>
-    nnoremap <leader>rp :TSReloadProject<CR>
-    nnoremap <leader>t :TSType<CR>
-    nnoremap <leader>f :TSGetCodeFix<CR> " this is called on insert leave
+    let g:nvim_typescript#diagnostics_enable = 1
+    autocmd FileType typescript,typescript.tsx set tabstop=2 shiftwidth=2 expandtab
+    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>i :TSGetCodeFix<CR>
+    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>d :TSDefPreview<CR>
+    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>t :TSType<CR>
 augroup END
 
 " html files ---------------------------------------------------------------
@@ -374,15 +361,11 @@ augroup END
 
 " netrw settings ------------------------------------------------------------
 
-" making it display wide like an ls in a terminal
-let g:netrw_liststyle = 3
-" making the window height 10% of the main window
-let g:netrw_winsize   = 10
-
-nnoremap <leader>[ :Explore<CR>
+nnoremap <leader>[ :NERDTreeToggle<CR>
+let g:NERDTReeWinSize=50
 
 augroup netrw
-    autocmd FileType netrw setlocal signcolumn=no
+    autocmd FileType nerdtree setlocal signcolumn=no
 augroup END
 
 " insert mode mappings ------------------------------------------------------
@@ -409,6 +392,7 @@ nnoremap <leader>tn :keepalt file
 
 " normal mode mappings -------------------------------------------------------
 
+" copy the current buffer filepath into the clipboard
 nnoremap <leader>cp :let @+ = expand("%:p")<CR>
 " open two terminals and let the user name them
 nnoremap <leader>sh :terminal<CR>i . ~/.bash_profile<CR><C-\><C-n>:keepalt file
@@ -419,7 +403,8 @@ nnoremap <leader>tt :terminal<CR>i . ~/.bash_profile<CR>
 " add a space in normal mode
 nnoremap <space> i<space><esc>
 " call the bufkill plugin commad to delete buffer form list
-nnoremap <leader>q :BD<CR>
+nnoremap <leader>q :bdelete<CR>
+nnoremap <leader>qq :bdelete!<CR>
 " delete all buffers
 nnoremap <leader>qa :bd *<C-a><CR>
 " write file (save)
@@ -439,26 +424,7 @@ nnoremap <silent> <c-h> :wincmd h<CR>
 " inserting newline without entering insert
 nnoremap _ O<Esc>
 nnoremap - o<Esc>
-" skip to the numbered buffer
-nnoremap <leader>1 :b1<CR>
-nnoremap <leader>2 :b2<CR>
-nnoremap <leader>3 :b3<CR>
-nnoremap <leader>4 :b4<CR>
-nnoremap <leader>5 :b5<CR>
-nnoremap <leader>6 :b6<CR>
-nnoremap <leader>7 :b7<CR>
-nnoremap <leader>8 :b8<CR>
-nnoremap <leader>10 :b10<CR>
-nnoremap <leader>11 :b11<CR>
-nnoremap <leader>12 :b12<CR>
-nnoremap <leader>13 :b13<CR>
-nnoremap <leader>14 :b14<CR>
-nnoremap <leader>15 :b15<CR>
-nnoremap <leader>16 :b16<CR>
-nnoremap <leader>17 :b17<CR>
-nnoremap <leader>18 :b18<CR>
-nnoremap <leader>19 :b19<CR>
-nnoremap <leader>20 :b20<CR>
+
 " this complements the vim command <S-J> which joins current line to below line, this one breaks the current line in two
 nnoremap K i<CR><Esc>
 " location list open, close, next, previous wincmd's make it so that the cursor goes back to the main buffer
@@ -546,3 +512,9 @@ hi tsxTagName guifg=#5098c4
 hi tsxCloseString guifg=#2974a1
 hi link graphqlString graphqlComment
 hi link deniteMatchedRange NONE
+
+"
+hi DiffChange guifg=#b294bb guibg=#373737
+hi DiffText guifg=#8abeb7 gui=bold guibg=#373737
+hi DiffAdd guifg=#b5bd68 guibg=#373737
+hi DiffDelete gui=bold guifg=#cc6666 guibg=#373737

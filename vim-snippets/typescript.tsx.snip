@@ -9,13 +9,13 @@ abbr () => React.Node;
     import React from 'react';
     import { createStyles, WithStyles, withStyles, Theme } from '@material-ui/core'
 
-    const styles = (theme: Theme) => createStyles({})
+    const styles = (_: Theme) => createStyles({})
 
     interface Props extends WithStyles<typeof styles>{}
 
-    const ${1} = ({ classes }: Props) => ()
+    const ${0:TARGET} = ({ classes }: Props) => ()
 
-    export const ${2} = withStyles(styles)(${1})
+    export const ${1:#:Export} = withStyles(styles)(${1:#:funcName})
 
 snippet classComponent-mui
 alias classComponent
@@ -23,13 +23,13 @@ abbr () => React.Node;
     import React from 'react';
     import { createStyles, WithStyles, withStyles, Theme } from '@material-ui/core'
 
-    const styles = (theme: Theme) => createStyles({})
+    const styles = (_: Theme) => createStyles({})
 
     interface Props extends WithStyles<typeof styles>{}
 
     interface State {}
 
-    class ${1} extends React.Component<Props, State> {
+    class ${0:TARGET} extends React.Component<Props, State> {
       render() {
         const { classes } = this.props;
         return (
@@ -38,4 +38,17 @@ abbr () => React.Node;
       }
     }
 
-    export const ${2} = withStyles(styles)(${1})
+    export const ${1:#:Export} = withStyles(styles)(${2:#:className})
+
+snippet enzymeTest
+alias test
+abbr test() = expect(shallow(...))
+    import React from 'react';
+
+    import { shallow } from 'enzyme';
+
+    describe('${1}',  () => {
+      test('${2}', () => {
+        expect(shallow(${0:TARGET}))
+      })
+    })

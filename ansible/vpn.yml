@@ -1,0 +1,302 @@
+---
+# Setup a server for what I usually need
+# ansible-playbook -i "<host>," -u root dotfiles/ansible/vpn.yml
+# this follows the tutorial here: https://www.digitalocean.com/community/tutorials/how-to-set-up-an-openvpn-server-on-ubuntu-16-04
+#
+# there seems to be a problem with the ip routing, I had to run the command from
+# https://ubuntuforums.org/showthread.php?t=2378684&p=13715413#post13715413
+#
+# in order to get it to work after this script. I think this is a problem with the step
+# that gets the network interface as eth0
+- hosts: all
+  become: yes
+  become_user: root
+  gather_facts: no # next two lines install python2 on machiens where it is 3 by default
+  pre_tasks:
+    - name: Install Python 2
+      raw: apt-get -y install python
+
+  tasks: 
+  #    - name: Update apt-get
+  #      apt:
+  #        update_cache: yes
+  #  
+  #    - name: Install openvpn
+  #      apt:
+  #        name: openvpn
+  #  
+  #    - name: Install easy-rsa
+  #      apt:
+  #        name: easy-rsa
+  #
+  #    - name: Make dir and copy files
+  #      shell: |
+  #        mkdir -p /etc/openvpn/easy-rsa/
+  #        cp -r /usr/share/easy-rsa/* /etc/openvpn/easy-rsa
+  #      args: 
+  #        executable: /bin/bash
+  #
+  #    - name: Write to vars file
+  #      lineinfile:
+  #        dest: /etc/openvpn/easy-rsa/vars
+  #        regexp: "{{ item.regexp }}"
+  #        line: "{{ item.line }}"
+  #      with_items:
+  #        - { regexp: '^export KEY_COUNTRY=', line: 'export KEY_COUNTRY="US"' }
+  #        - { regexp: '^export KEY_PROVINCE=', line: 'export KEY_PROVINCE="CA"' }
+  #        - { regexp: '^export KEY_CITY=', line: 'export KEY_CITY="San Francisco"' }
+  #        - { regexp: '^export KEY_ORG=', line: 'export KEY_ORG="someorg"' }
+  #        - { regexp: '^export KEY_EMAIL=', line: 'export KEY_EMAIL="me@example.net"' }
+  #        - { regexp: '^export KEY_OU=', line: 'export KEY_OU="bigunit"' }
+  #        - { regexp: '^export KEY_NAME=', line: 'export KEY_NAME="server"' }
+  #
+  #    - name: Init PKI
+  #      shell: |
+  #        mv openssl-1.0.0.cnf openssl.cnf
+  #        source vars 
+  #        ./clean-all
+  #        printf "\n\n\n\n\n\n\n\n" | ./build-ca
+  #        ./build-key-server --batch server
+  #        ./build-dh
+  #        cd keys
+  #        cp server.crt server.key ca.crt dh2048.pem /etc/openvpn
+  #        cd /etc/openvpn/easy-rsa
+  #        source vars
+  #        ./build-key client
+  #      args: 
+  #        executable: /bin/bash
+  #        chdir: /etc/openvpn/easy-rsa
+
+  #    - name: Copy files to client
+  #      shell: |
+  #        mkdir ~/vpn
+  #        cp /etc/openvpn/ca.crt ~/vpn
+  #        cp /etc/openvpn/easy-rsa/keys/client.crt ~/vpn
+  #        cp /etc/openvpn/easy-rsa/keys/client.key ~/vpn
+  #        tar -cvf vpn.tgz ~/vpn
+  #      args: 
+  #       executable: /bin/bash
+
+    - name: copy config 
+      fetch:
+        src: ~/vpn.tgz
+        dest: ~/vpn.tgz
+        flat: yes
+
+    - name: Server config
+      shell: |
+        cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz /etc/openvpn
+        gzip -d /etc/openvpn/server.conf.gz
+      args: 
+        executable: /bin/bash
+
+    - name: Point to proper certs
+      lineinfile:
+        dest: /etc/openvpn/server.conf
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: '^ca ', line: 'ca ca.crt' }
+        - { regexp: '^cert ', line: 'cert server.crt' }
+        - { regexp: '^key ', line: 'key server.key' }
+        - { regexp: '^dh ', line: 'dh dh2048.pem' }
+        - { regexp: '^tls-auth ta.key 0', line: '^#tls-auth ta.key 0 # This file is secret' }
+
+    - name: Point to proper certs
+      lineinfile:
+        dest: /etc/sysctl.conf
+        regexp: "#net.ipv4.ip_forward=1"
+        line: "net.ipv4.ip_forward=1"
+
+    - name: reload sysctl
+      shell: |
+        sysctl -p /etc/sysctl.conf
+      args: 
+        executable: /bin/bash
+
+    - name: start the vpn service
+      shell: |
+        systemctl start openvpn@server
+      args: 
+        executable: /bin/bash
+
+        #    - name: Source vars
+        #      args: 
+        #        executable: /bin/bash
+        #      shell: |
+        #        cd ~/openvpn-ca
+        #        source ./vars
+        #        ./clean-all
+        #  
+        #    - name: build ca
+        #      shell: |
+        #        source vars
+        #        ./build-ca --batch
+        #        ./build-key-server --batch server
+        #      args:
+        #        executable: /bin/bash
+        #        chdir: ~/openvpn-ca
+        #  
+        #    - name: build dh
+        #      args: 
+        #        executable: /bin/bash
+        #        chdir: ~/openvpn-ca
+        #      shell: |
+        #        source ./vars
+        #        ./build-dh
+        #       
+        #    - name: genkey
+        #      shell: |
+        #        cd ~/openvpn-ca
+        #        openvpn --genkey --secret keys/ta.key 
+        #  
+        #    - name: generate cert pair
+        #      shell: |
+        #        source vars
+        #        ./build-key --batch client
+        #      args: 
+        #        executable: /bin/bash
+        #        chdir: ~/openvpn-ca
+        #  
+        #    - name: copy files to the openvpn directory
+        #      shell: |
+        #        cd ~/openvpn-ca/keys
+        #        cp ca.crt server.crt server.key ta.key dh2048.pem /etc/openvpn
+        #        gunzip -c /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz | sudo tee /etc/openvpn/server.conf
+        #  
+        #    - name: adjust openvpn conf
+        #      lineinfile:
+        #        dest: /etc/openvpn/server.conf
+        #        regexp: "{{ item.regexp }}"
+        #        line: "{{ item.line }}"
+        #      with_items:
+        #        - { regexp: 'tls-auth ta.key', line: 'tls-auth ta.key 0 # This file is secret' }
+        #        - { regexp: '^key-direction 0', line: 'key-direction 0' }
+        #        - { regexp: '^cipher AES-128-CBC', line: 'cipher AES-128-CBC' }
+        #        - { regexp: '^auth SHA256', line: 'auth SHA256' }
+        #        - { regexp: '^user nobody', line: 'user nobody' }
+        #        - { regexp: '^group nogroup', line: 'group nogroup' }
+        #        - { regexp: '^push "redirect-gateway def1 bypass-dhcp"', line: 'push "redirect-gateway def1 bypass-dhcp"' }
+        #        - { regexp: '^push "dhcp-option DNS 208.67.222.222"', line: 'push "dhcp-option DNS 208.67.222.222"' }
+        #        - { regexp: '^push "dhcp-option DNS 208.67.220.220"', line: 'push "dhcp-option DNS 208.67.220.220"' }
+        #        - { regexp: '^port', line: 'port 443' }
+        #        - { regexp: '^proto tcp', line: 'proto tcp' }
+        #  
+        #    - name: allow IP forwarding
+        #      lineinfile:
+        #        dest: /etc/sysctl.conf
+        #        regexp: "{{ item.regexp }}"
+        #        line: "{{ item.line }}"
+        #      with_items:
+        #        - { regexp: 'net.ipv4.ip_forward=1', line: 'net.ipv4.ip_forward=1' }
+        #  
+        #    - name: adjust for file above
+        #      shell: sysctl -p
+        #  
+        #    # output looks like this, I want wlp11s0
+        #    # default via 203.0.113.1 dev wlp11s0  proto static  metric 600
+        #    - name: get device
+        #      shell: ip route | grep default
+        #      register: device
+        #
+        #    - name: add to firewall rules
+        #      blockinfile:
+        #        path: /etc/ufw/before.rules
+        #        insertbefore: BOF
+        #        content: |
+        #          # START OPENVPN RULES
+        #          # NAT table rules
+        #          *nat
+        #          :POSTROUTING ACCEPT [0:0] 
+        #          # Allow traffic from OpenVPN client to wlp11s0 (change to the interface you discovered!)
+        #          -A POSTROUTING -s 10.8.0.0/8 -o {{ device.stdout.split()[4] }} -j MASQUERADE
+        #          COMMIT
+        #          # END OPENVPN RULES
+        #
+        #    - name: change default forward policy
+        #      lineinfile:
+        #        dest: /etc/default/ufw
+        #        regexp: "^DEFAULT_FORWARD_POLICY="
+        #        line: "DEFAULT_FORWARD_POLICY=\"ACCEPT\""
+        #
+        #    - name: allow port and protocol and OpenSSH
+        #      shell: |
+        #        ufw allow 443/tcp
+        #        ufw allow OpenSSH
+        #        ufw disable
+        #        ufw enable
+        #        systemctl start openvpn@server
+        #        systemctl status openvpn@server
+        #        systemctl enable openvpn@server
+        #
+        #    - name: make client config dir
+        #      file:
+        #        path: ~/client-configs/files
+        #        state: directory
+        #        mode: 0700
+        #
+        #    - name: copy config file to home
+        #      copy: 
+        #        remote_src: yes
+        #        src: /usr/share/doc/openvpn/examples/sample-config-files/client.conf
+        #        dest: ~/client-configs/base.conf
+        #
+        #    - name: get IP address
+        #      shell: |
+        #        ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | awk '{ print $1 }'
+        #      register: ip
+        #
+        #    - name: make config file
+        #      lineinfile:
+        #        dest: ~/client-configs/base.conf
+        #        regexp: "{{ item.regexp }}"
+        #        line: "{{ item.line }}"
+        #      with_items:
+        #        - { regexp: 'proto', line: 'proto tcp' }
+        #        - { regexp: 'remote my-server-1 1194', line: 'remote {{ ip.stdout }} 443' }
+        #        - { regexp: 'ca ca.crt', line: '#ca ca.crt' }
+        #        - { regexp: 'cert client.crt', line: '#cert client.crt' }
+        #        - { regexp: 'key client.key', line: '#key client.key' }
+        #        - { regexp: 'cipher AES-128-CBC', line: 'cipher AES-128-CBC' }
+        #        - { regexp: 'auth SHA256', line: 'auth SHA256' }
+        #        - { regexp: 'key-direction 1', line: 'key-direction 1' }
+
+          #    - name: make script to auto generate configs
+          #      copy: 
+          #        dest: ~/client-configs/make_config.sh
+          #        content: |
+          #          #!/bin/bash
+          #
+          #          # First argument: Client identifier
+          #
+          #          KEY_DIR=~/openvpn-ca/keys
+          #          OUTPUT_DIR=~/client-configs/files
+          #          BASE_CONFIG=~/client-configs/base.conf
+          #
+          #          cat ${BASE_CONFIG} \
+          #              <(echo -e '<ca>') \
+          #              ${KEY_DIR}/ca.crt \
+          #              <(echo -e '</ca>\n<cert>') \
+          #              ${KEY_DIR}/${1}.crt \
+          #              <(echo -e '</cert>\n<key>') \
+          #              ${KEY_DIR}/${1}.key \
+          #              <(echo -e '</key>\n<tls-auth>') \
+          #              ${KEY_DIR}/ta.key \
+          #              <(echo -e '</tls-auth>') \
+          #              > ${OUTPUT_DIR}/${1}.ovpn
+          #        mode: 0700
+          #
+          #    # this should be the same as the "Server in ./build-key command
+          #    - name: make client config
+          #      shell: |
+          #        cd ~/client-configs
+          #        ./make_config.sh client
+          #
+          #    - name: copy config 
+          #      fetch:
+          #        src: ~/client-configs/files/client.ovpn
+          #        dest: ~/.client.ovpn
+          #        flat: yes
+          #
+          #    - name: reboot
+          #      shell: /sbin/shutdown -r now "ANSIBLE RESTART" && sleep 2
