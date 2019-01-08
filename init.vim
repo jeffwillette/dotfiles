@@ -11,9 +11,18 @@ let $NVIM_NODE_LOG_LEVEL='error'
 let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
 let $NVIM_PYTHON_LOG_LEVEL='info'
 
+augroup vimplug
+    if empty(glob('~/.config/nvim/autoload/plug.vim'))
+      silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+      autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+    endif
+augroup END
+
 " Specify a directory for plugins
 call plug#begin('~/.config/nvim/plugged')
 
+Plug 'file:///Users/Jeff/dotfiles', {'rtp': 'nvim-deltaskelta', 'do': ':UpdateRemotePlugins'}
 Plug 'scrooloose/nerdtree'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -41,7 +50,12 @@ Plug 'pangloss/vim-javascript', {'for': ['javascript', 'javascript.jsx']}
 Plug 'mxw/vim-jsx', {'for': ['javascript', 'javascript.jsx']}
 
 Plug 'HerringtonDarkholme/yats'
+" 'branch': 'TSDeoplete',
 Plug 'mhartington/nvim-typescript', {'do': './install.sh', 'for': ['typescript', 'typescript.tsx']}
+"Plug 'autozimu/LanguageClient-neovim', {
+"    \ 'branch': 'next',
+"    \ 'do': 'bash install.sh',
+"    \ }
 
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
 
@@ -57,6 +71,12 @@ Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
+
+"let g:LanguageClient_serverCommands = {
+"    \ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
+"    \ 'typescript.tsx': ['tcp://127.0.0.1:31988'],
+"    \ 'python': ['/usr/local/bin/pyls'],
+"    \ }
 
 " :call ToggleVerbose() for writing a verbose log im tmp
 function! ToggleVerbose()
@@ -117,6 +137,10 @@ function! ChangeColors()
     hi airline_tabmod_unsel guifg=#61afef guibg=#2c323c
 endfunction
 
+" this is called to avoid square brackets on icons after refreshing the vimrc
+if exists('g:loaded_webdevicons')
+	call webdevicons#refresh()
+endif
 " refresh the .vimrc on a save so vim does not have to be restarted
 augroup startup
     autocmd!
@@ -148,8 +172,8 @@ let g:deoplete#enable_at_startup = 1
 call deoplete#custom#option({
   \ 'smart_case': v:true,
   \ 'profile': v:true,
-  \ 'auto_complete_delay': 100,
-  \ 'auto_refresh_delay': 100,
+  \ 'auto_complete_delay': 0,
+  \ 'auto_refresh_delay': 20,
   \ })
 
 call deoplete#custom#source(
@@ -306,6 +330,13 @@ let g:ale_list_window_size = 10
 let g:ale_lint_on_text_changed = 'normal'
 let g:ale_lint_on_insert_leave = 1
 
+" I had to hack on the main typescript repo so I adde dthis to not run
+" prettier on their code and mess up the formatting
+let g:ale_pattern_options = {
+  \ 'TypeScript': {'ale_fixers': ['tslint']},
+  \ 'nvim-typescript': {'ale_fixers': ['tslint']}
+  \}
+
 let g:ale_fixers = {
   \ '*': ['remove_trailing_lines', 'trim_whitespace'],
 	\ 'javascript': ['prettier', 'eslint', 'importjs'],
@@ -343,13 +374,17 @@ augroup javascript
     autocmd FileType javascript set tabstop=2 shiftwidth=2 expandtab
 augroup END
 
+let g:nvim_typescript#server_path = '/Users/Jeff/typescript/TypeScript/bin/tsserver'
+let g:nvim_typescript#diagnostics_enable = 1
+
 augroup typescript
     autocmd!
-    " setting typescript things.
-    let g:nvim_typescript#diagnostics_enable = 1
+    " special binary for hacking on the Typescript server
+    autocmd FileType typescript,typescript.tsx set omnifunc=TSComplete
     autocmd FileType typescript,typescript.tsx set tabstop=2 shiftwidth=2 expandtab
     autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>i :TSGetCodeFix<CR>
-    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>d :TSDefPreview<CR>
+    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>dp :TSDefPreview<CR>
+    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>d :TSDef<CR>
     autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>t :TSType<CR>
 augroup END
 
@@ -359,13 +394,18 @@ augroup html
     autocmd FileType html set tabstop=2 shiftwidth=2 expandtab
 augroup END
 
-" netrw settings ------------------------------------------------------------
+" nerdtree settings ------------------------------------------------------------
+
+let g:NERDTreeDirArrowExpandable = '  '
+let g:NERDTreeDirArrowCollapsible = '  '
 
 nnoremap <leader>[ :NERDTreeToggle<CR>
-let g:NERDTReeWinSize=50
+let g:NERDTreeWinSize = 50
+let g:NERDTreeQuitOnOpen = 1
+let g:NERDTreeAutoDeleteBuffer = 1
 
-augroup netrw
-    autocmd FileType nerdtree setlocal signcolumn=no
+augroup nerdtree
+    autocmd FileType nerdtree setlocal signcolumn=no modifiable
 augroup END
 
 " insert mode mappings ------------------------------------------------------
@@ -518,3 +558,7 @@ hi DiffChange guifg=#b294bb guibg=#373737
 hi DiffText guifg=#8abeb7 gui=bold guibg=#373737
 hi DiffAdd guifg=#b5bd68 guibg=#373737
 hi DiffDelete gui=bold guifg=#cc6666 guibg=#373737
+
+hi NERDTreeOpenable guifg=#b294bb gui=bold
+hi link NERDTreeClosable NERDTreeOpenable
+hi NERDTreeDir guifg=#ffffff gui=bold

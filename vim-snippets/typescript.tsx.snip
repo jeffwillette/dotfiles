@@ -6,22 +6,22 @@ abbr import React from 'react';
 snippet funcComponent-mui
 alias funcComponent
 abbr () => React.Node;
+    import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core';
     import React from 'react';
-    import { createStyles, WithStyles, withStyles, Theme } from '@material-ui/core'
 
     const styles = (_: Theme) => createStyles({})
 
     interface Props extends WithStyles<typeof styles>{}
 
-    const ${0:TARGET} = ({ classes }: Props) => ()
+    const ${0:TARGET} = (_: Props) => ()
 
     export const ${1:#:Export} = withStyles(styles)(${1:#:funcName})
 
 snippet classComponent-mui
 alias classComponent
 abbr () => React.Node;
+    import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core';
     import React from 'react';
-    import { createStyles, WithStyles, withStyles, Theme } from '@material-ui/core'
 
     const styles = (_: Theme) => createStyles({})
 
@@ -31,7 +31,6 @@ abbr () => React.Node;
 
     class ${0:TARGET} extends React.Component<Props, State> {
       render() {
-        const { classes } = this.props;
         return (
 
         )
