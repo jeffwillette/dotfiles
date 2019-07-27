@@ -1,9 +1,13 @@
 scriptencoding utf-8
+
 " starts a node pricess for debugging, it pairs with a chrome plugin that will
 " bring up a console
-"let $NVIM_NODE_HOST_DEBUG=1
-let g:python_host_prog = '/usr/local/bin/python2'
-let g:python3_host_prog = '/Users/Jeff/bin/python'
+"let g:python_host_prog = substitute(system('which python2'), '\n', '', 'g')
+"let g:python3_host_prog = substitute(system('which python3'), '\n', '', 'g')
+
+" disable python 2
+let g:loaded_python_provider = 1
+let g:python3_host_prog = '/Users/Jeff/.py_venvs/neovim/bin/python'
 let g:node_host_prog = '/usr/local/bin/neovim-node-host'
 let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
 let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
@@ -22,7 +26,6 @@ augroup END
 " Specify a directory for plugins
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'file:///Users/Jeff/dotfiles', {'rtp': 'nvim-deltaskelta', 'do': ':UpdateRemotePlugins'}
 Plug 'scrooloose/nerdtree'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -36,12 +39,25 @@ Plug 'xolox/vim-misc'
 Plug 'tpope/vim-fugitive'
 Plug 'honza/vim-snippets'
 
+Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
+
+Plug 'jvirtanen/vim-octave'
+
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
+
+Plug 'Shougo/deoplete-clangx', { 'for': ['cpp'] }
+Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['cpp'] }
 
 Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go'}
 Plug 'fatih/vim-go', {'for': 'go'}
 Plug 'sebdah/vim-delve', {'for': 'go'}
+
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ 'for': 'javascript',
+    \ }
 
 Plug 'ternjs/tern_for_vim', { 'do': 'yarn install', 'for': 'javascript' }
 Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern', 'for': 'javascript' }
@@ -50,12 +66,7 @@ Plug 'pangloss/vim-javascript', {'for': ['javascript', 'javascript.jsx']}
 Plug 'mxw/vim-jsx', {'for': ['javascript', 'javascript.jsx']}
 
 Plug 'HerringtonDarkholme/yats'
-" 'branch': 'TSDeoplete',
-Plug 'mhartington/nvim-typescript', {'do': './install.sh', 'for': ['typescript', 'typescript.tsx']}
-"Plug 'autozimu/LanguageClient-neovim', {
-"    \ 'branch': 'next',
-"    \ 'do': 'bash install.sh',
-"    \ }
+Plug 'mhartington/nvim-typescript', {'branch': 'master', 'do': './install.sh'}
 
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
 
@@ -70,13 +81,13 @@ Plug 'morhetz/gruvbox'
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'ryanoasis/vim-devicons'
 
+Plug 'deltaskelta/nvim-deltaskelta', {'do': ':UpdateRemotePlugins'}
+
 call plug#end()
 
-"let g:LanguageClient_serverCommands = {
-"    \ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
-"    \ 'typescript.tsx': ['tcp://127.0.0.1:31988'],
-"    \ 'python': ['/usr/local/bin/pyls'],
-"    \ }
+let g:LanguageClient_serverCommands = {
+    \ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
+    \ }
 
 " :call ToggleVerbose() for writing a verbose log im tmp
 function! ToggleVerbose()
@@ -119,9 +130,11 @@ set shellcmdflag=-ic
 
 set number tabstop=4 shiftwidth=4 nowrap noshowmode expandtab termguicolors background=dark hidden shortmess=atT
 set lazyredraw mouse=a directory=~/.config/nvim/tmp clipboard=unnamed cursorline
-" do not show the scratch preview window when tabbing through completions
-set completeopt-=preview laststatus=2
+set laststatus=2
 set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+
+" vim-latex-preview ------------------------------------------------------------------
+let g:livepreview_previewer = 'open -a Preview'
 
 " vim airline ------------------------------------------------------------------------
 let g:airline#extensions#tabline#enabled = 0
@@ -141,12 +154,14 @@ endfunction
 if exists('g:loaded_webdevicons')
 	call webdevicons#refresh()
 endif
+
 " refresh the .vimrc on a save so vim does not have to be restarted
 augroup startup
     autocmd!
     " sourcing the vimrc on save of this file.
     autocmd BufWritePost *.vim so $MYVIMRC | :AirlineRefresh | :call ChangeColors()
-    autocmd FileType gitcommit set cc=72 tw=72
+    autocmd FileType gitcommit setlocal cc=72 tw=72
+    autocmd BufEnter *.md,*.mdx setlocal tw=120
     autocmd VimEnter * call ChangeColors()
 augroup END
 
@@ -179,6 +194,7 @@ call deoplete#custom#option({
 call deoplete#custom#source(
   \ 'file', 'enable_buffer_path', v:false)
 
+let g:deoplete#enable_profile = 1
 call deoplete#enable_logging('INFO', '/tmp/deoplete.log')
 
 " deoplete-ternjs ----------------------------------------------------------------
@@ -220,13 +236,29 @@ nnoremap <leader>tc :bdelete!<CR>:tabclose<CR>
 " denite settings -----------------------------------------------------------
 
 " set the prompt to a better symbol
-call denite#custom#option('default', 'prompt', '❯')
+"call denite#custom#option('default', 'prompt', '❯')
 
-" set some navigation commands
-call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
-call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
-call denite#custom#map('insert', 'JJ', '<denite:toggle_insert_mode>', 'noremap')
-call denite#custom#map('insert', '<C-d>', '<denite:do_action:delete>', 'noremap')
+function! s:denite_filter_my_settings() abort
+  imap <silent><buffer> <C-o> <Plug>(denite_filter_quit)
+  "imap <silent><buffer> <ESC> denite#do_map('quit')
+endfunction
+
+function! s:denite_my_settings() abort
+    " set some navigation commands
+    inoremap <C-j> denite#do_map('<denite:move_to_next_line>')
+
+      nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+      nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
+      nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
+      nnoremap <silent><buffer><expr> q denite#do_map('quit')
+      nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
+      nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
+endfunction
+
+augroup denite
+  autocmd FileType denite call s:denite_my_settings()
+  autocmd FileType denite-filter call s:denite_filter_my_settings()
+augroup END
 
 " file search command shows hidden and ignores !.git and respected .gitignore
 call denite#custom#var('file/rec', 'command',
@@ -255,12 +287,13 @@ call denite#custom#var('rg/unignore', 'pattern_opt', [])
 call denite#custom#var('rg/unignore', 'separator', ['--'])
 call denite#custom#var('rg/unignore', 'final_opts', [])
 
-nnoremap <leader><Space> :Denite -highlight-matched-range=NONE -highlight-matched-char=NONE file/rec<CR>
-nnoremap <leader>` :Denite -highlight-matched-range=NONE -highlight-matched-char=NONE -path=~/ file/rec<CR>
-nnoremap <leader><leader> :Denite buffer<CR>
+nnoremap <leader><Space> :Denite -split=floating -prompt=❯ -start-filter -highlight-matched-range=NONE -highlight-matched-char=NONE file/rec<CR>
+nnoremap <leader>` :Denite -split=floating -prompt=❯ -start-filter -highlight-matched-range=NONE -highlight-matched-char=NONE -path=~/ file/rec<CR>
+nnoremap <leader><leader> :Denite -split=floating buffer<CR>
 "nnoremap <leader><Space><Space> :Denite grep/ignore:.<CR>
-nnoremap <leader><Space><Space> :Denite grep:.<CR>
-nnoremap <leader>c :DeniteCursorWord grep:.<CR>
+nnoremap <leader><Space><Space> :Denite -split=floating grep:.<CR>
+nnoremap <leader>c :DeniteCursorWord -split=floating grep:.<CR>
+nnoremap <leader><Space>a :Denite -split=floating -highlight-matched-range=NONE -highlight-matched-char=NONE rg/unignore<CR>
 
 " vim go ---------------------------------------------------------------------
 
@@ -339,31 +372,51 @@ let g:ale_pattern_options = {
 
 let g:ale_fixers = {
   \ '*': ['remove_trailing_lines', 'trim_whitespace'],
-	\ 'javascript': ['prettier', 'eslint', 'importjs'],
-	\ 'graphql': ['prettier'],
-	\ 'python': ['autopep8'],
-	\ 'go': ['gofmt', 'goimports'],
+  \ 'cpp': ['clang-format'],
+  \ 'go': ['gofmt', 'goimports'],
+  \ 'graphql': ['prettier'],
+  \ 'javascript': ['prettier', 'eslint', 'importjs'],
+  \ 'python': ['yapf'],
   \ 'typescript': ['prettier', 'tslint'],
-	\}
+  \}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
 " which can be misleading because it seems like it should be running these linters on save
 " \ 'go': ['golint', 'go vet', 'go build', 'gometalinter'],
+"\ 'typescript': ['tslint'],
 let g:ale_linters = {
-   \ 'go': ['gometalinter'],
+   \ 'go': ['golangci-lint'],
    \ 'proto': ['protoc-gen-lint'],
    \ 'graphql': ['gqlint'],
    \ 'javascript': ['eslint'],
-   \ 'typescript': ['tslint'],
    \ 'vim': ['vint'],
+   \ 'cpp': ['clang'],
+   \ 'python': ['pylint', 'yapf']
    \}
 
-let g:ale_go_gometalinter_options = '--fast --tests'
-let g:ale_go_gometalinter_lint_package = 0
+let g:ale_go_golangci_lint_options = '--fast'
+let g:ale_go_golangci_lint_package = 1
+
+call deoplete#custom#var('clangx', 'clang', '/usr/bin/clang')
+augroup cpp
+    autocmd!
+    autocmd FileType cpp set tabstop=2 shiftwidth=2 expandtab
+augroup END
+
+" Python
+
+let g:deoplete#sources#jedi#show_docstring = 1
+let g:deoplete#sources#jedi#enable_typeinfo = 1
+
+augroup python
+    autocmd!
+    autocmd FileType python set tabstop=2 shiftwidth=2 expandtab
+augroup END
 
 " ReactJS stuff --------------------------------------------------------
 " react syntax will work on .js files
 let g:javascript_plugin_flow = 1
+
 
 augroup javascript
     autocmd!
@@ -374,12 +427,11 @@ augroup javascript
     autocmd FileType javascript set tabstop=2 shiftwidth=2 expandtab
 augroup END
 
-let g:nvim_typescript#server_path = '/Users/Jeff/typescript/TypeScript/bin/tsserver'
+" let g:nvim_typescript#server_path = '/Users/Jeff/typescript/TypeScript/bin/tsserver'
 let g:nvim_typescript#diagnostics_enable = 1
 
 augroup typescript
     autocmd!
-    " special binary for hacking on the Typescript server
     autocmd FileType typescript,typescript.tsx set omnifunc=TSComplete
     autocmd FileType typescript,typescript.tsx set tabstop=2 shiftwidth=2 expandtab
     autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>i :TSGetCodeFix<CR>
@@ -396,8 +448,9 @@ augroup END
 
 " nerdtree settings ------------------------------------------------------------
 
-let g:NERDTreeDirArrowExpandable = '  '
-let g:NERDTreeDirArrowCollapsible = '  '
+let g:NERDTreeDirArrowExpandable = ''
+let g:NERDTreeDirArrowCollapsible = ''
+let g:webdevicons_enable_nerdtree = 0
 
 nnoremap <leader>[ :NERDTreeToggle<CR>
 let g:NERDTreeWinSize = 50
@@ -422,10 +475,13 @@ inoremap ;; <C-x><C-o>
 
 " terminal mode mappings -----------------------------------------------------
 
-autocmd TermOpen * set bufhidden=hide
+augroup terminal
+  autocmd TermOpen * set bufhidden=hide
+  autocmd BufEnter term://* startinsert
+augroup END
 
 " when in the terminal, use the jj commands to get out of insert
-tnoremap JJ <C-\><C-n>
+tnoremap jj <C-\><C-n>
 " enter a buffer name after file so that the user can rename the terminal
 " buffer and keep track of multiple terminals
 nnoremap <leader>tn :keepalt file
@@ -448,7 +504,7 @@ nnoremap <leader>qq :bdelete!<CR>
 " delete all buffers
 nnoremap <leader>qa :bd *<C-a><CR>
 " write file (save)
-nnoremap <leader>w :w<CR>
+nnoremap <leader>w :w!<CR>
 " close the preview window with leader p
 nnoremap <leader>p :pclose<CR>
 " in normal mode, the arrow keys will move tabs
@@ -505,9 +561,9 @@ augroup END
 
 " toggle highlighting after search
 
-map  <leader>h :set hls!<CR>
-imap <leader>h <ESC>:set hls!<CR>a
-vmap <leader>h <ESC>:set hls!<CR>gv
+map  <leader>h :noh<CR>
+imap <leader>h <ESC>:noh<CR>a
+vmap <leader>h <ESC>:noh<CR>gv
 
 " Highlight the highlight group name under the cursor
 map fhi :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
@@ -526,7 +582,7 @@ hi Visual ctermfg=7 ctermbg=8 guibg=#373737
 hi Operator guifg=#E9E9E9
 hi Type guifg=#E9E9E9
 hi Boolean guifg=#e06c75
-hi Search guibg=#61afef
+hi Search guibg=#0059b3 guifg=#ffffff
 hi ColorColumn guibg=#2b2b2b
 " to color the background of the vim-go testing errors
 hi ErrorMsg guifg=#cc6666 guibg=NONE
@@ -553,7 +609,7 @@ hi tsxCloseString guifg=#2974a1
 hi link graphqlString graphqlComment
 hi link deniteMatchedRange NONE
 
-"
+
 hi DiffChange guifg=#b294bb guibg=#373737
 hi DiffText guifg=#8abeb7 gui=bold guibg=#373737
 hi DiffAdd guifg=#b5bd68 guibg=#373737

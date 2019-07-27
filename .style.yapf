@@ -1,0 +1,7 @@
+[style]
+based_on_style = pep8
+column_limit = 140
+dedent_closing_brackets = True
+indent_width = 4
+split_before_dot = True
+coalesce_brackets = True

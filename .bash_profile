@@ -60,7 +60,6 @@ if [ $SYSTEM == "Darwin" ]; then
     alias hidef='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder \
         /System/Library/CoreServices/Finder.app'
     alias upgrade='brew update && brew upgrade'
-    alias mvim='/Applications/MacVim.app/Contents/MacOS/MacVim'
     alias adb='/Users/Jeff/Library/Android/sdk/platform-tools/adb'
     alias deltaskelta-ssh='ssh jeff@$DELTASKELTA_SERVER -p 31988'
     alias cdgo='cd ~/go/src/github.com/deltaskelta'
@@ -85,12 +84,6 @@ if [ $SYSTEM == "Darwin" ]; then
 
     # for making the gopass tty work correctly
     export GPG_TTY=$(tty)
-
-    # so that it finds the right python when using venv wrapper
-    VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
-
-    #This is for the virtualenvwrapper for python
-    source /usr/local/bin/virtualenvwrapper.sh
 
     # get gopass completion
     source /dev/stdin <<<"$(gopass completion bash)"
