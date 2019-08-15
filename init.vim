@@ -32,7 +32,7 @@ Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/echodoc'
 Plug 'Shougo/neosnippet'
 Plug 'Shougo/neosnippet-snippets'
-Plug 'w0rp/ale'
+Plug 'dense-analysis/ale'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'xolox/vim-misc'
@@ -53,12 +53,6 @@ Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go'}
 Plug 'fatih/vim-go', {'for': 'go'}
 Plug 'sebdah/vim-delve', {'for': 'go'}
 
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ 'for': 'javascript',
-    \ }
-
 Plug 'ternjs/tern_for_vim', { 'do': 'yarn install', 'for': 'javascript' }
 Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern', 'for': 'javascript' }
 Plug 'Galooshi/vim-import-js', {'for': ['javascript']}
@@ -69,6 +63,8 @@ Plug 'HerringtonDarkholme/yats'
 Plug 'mhartington/nvim-typescript', {'branch': 'master', 'do': './install.sh'}
 
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
+Plug 'davidhalter/jedi-vim', { 'for': 'python' }
+Plug 'vim-python/python-syntax'
 
 Plug 'jparise/vim-graphql'
 
@@ -84,10 +80,6 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'deltaskelta/nvim-deltaskelta', {'do': ':UpdateRemotePlugins'}
 
 call plug#end()
-
-let g:LanguageClient_serverCommands = {
-    \ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
-    \ }
 
 " :call ToggleVerbose() for writing a verbose log im tmp
 function! ToggleVerbose()
@@ -163,6 +155,8 @@ augroup startup
     autocmd FileType gitcommit setlocal cc=72 tw=72
     autocmd BufEnter *.md,*.mdx setlocal tw=120
     autocmd VimEnter * call ChangeColors()
+    autocmd FileType denite call s:denite_my_settings()
+    autocmd FileType denite-filter call s:denite_filter_my_settings()
 augroup END
 
 " neosnippets ---------------------------------------------------------------------------
@@ -182,6 +176,10 @@ let g:tern_show_signature_in_pum = 1
 
 " deoplete --------------------------------------------------------------------------
 
+let g:deoplete#enable_profile = 1
+call deoplete#enable_logging('INFO', '/tmp/deoplete.log')
+call deoplete#custom#source('jedi', 'is_debug_enabled', v:true)
+
 let g:deoplete#enable_at_startup = 1
 
 call deoplete#custom#option({
@@ -194,8 +192,6 @@ call deoplete#custom#option({
 call deoplete#custom#source(
   \ 'file', 'enable_buffer_path', v:false)
 
-let g:deoplete#enable_profile = 1
-call deoplete#enable_logging('INFO', '/tmp/deoplete.log')
 
 " deoplete-ternjs ----------------------------------------------------------------
 
@@ -235,30 +231,25 @@ nnoremap <leader>tc :bdelete!<CR>:tabclose<CR>
 
 " denite settings -----------------------------------------------------------
 
-" set the prompt to a better symbol
-"call denite#custom#option('default', 'prompt', '❯')
 
+" called in startup augrouph
 function! s:denite_filter_my_settings() abort
   imap <silent><buffer> <C-o> <Plug>(denite_filter_quit)
-  "imap <silent><buffer> <ESC> denite#do_map('quit')
+  imap <silent><buffer> JJ denite#do_map('quit')
 endfunction
 
+" called in startup augroup
 function! s:denite_my_settings() abort
     " set some navigation commands
     inoremap <C-j> denite#do_map('<denite:move_to_next_line>')
 
-      nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
-      nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
-      nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
-      nnoremap <silent><buffer><expr> q denite#do_map('quit')
-      nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
-      nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
+    nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+    nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
+    nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
+    nnoremap <silent><buffer><expr> q denite#do_map('quit')
+    nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
+    nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
 endfunction
-
-augroup denite
-  autocmd FileType denite call s:denite_my_settings()
-  autocmd FileType denite-filter call s:denite_filter_my_settings()
-augroup END
 
 " file search command shows hidden and ignores !.git and respected .gitignore
 call denite#custom#var('file/rec', 'command',
@@ -391,12 +382,12 @@ let g:ale_linters = {
    \ 'javascript': ['eslint'],
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['pylint', 'yapf']
+   \ 'python': ['mypy', 'pylint', 'yapf']
    \}
-
 let g:ale_go_golangci_lint_options = '--fast'
 let g:ale_go_golangci_lint_package = 1
 
+" CPP ------------------------------------------------------------------
 call deoplete#custom#var('clangx', 'clang', '/usr/bin/clang')
 augroup cpp
     autocmd!
@@ -406,11 +397,23 @@ augroup END
 " Python
 
 let g:deoplete#sources#jedi#show_docstring = 1
-let g:deoplete#sources#jedi#enable_typeinfo = 1
+let g:deoplete#sources#jedi#enable_typeinfo = 1 " for faster results
+
+let g:python_highlight_all = 1
+
+let g:jedi#completions_enabled = 0 " use deoplete for completions, vim-jedi for other commands
+let g:jedi#use_splits_not_buffers = 'top'
+let g:jedi#goto_command = '<leader>g'
+let g:jedi#goto_assignments_command = ''
+let g:jedi#goto_definitions_command = 'gd'
+let g:jedi#documentation_command = '<leader>d'
+let g:jedi#usages_command = '<leader>u'
+let g:jedi#completions_command = ''
+let g:jedi#rename_command = '<leader>r'
 
 augroup python
     autocmd!
-    autocmd FileType python set tabstop=2 shiftwidth=2 expandtab
+    autocmd FileType python set tabstop=4 shiftwidth=0 expandtab
 augroup END
 
 " ReactJS stuff --------------------------------------------------------
@@ -494,8 +497,8 @@ nnoremap <leader>cp :let @+ = expand("%:p")<CR>
 nnoremap <leader>sh :terminal<CR>i . ~/.bash_profile<CR><C-\><C-n>:keepalt file
 " Reload the file from disk (forced so edits will be lost)
 nnoremap <leader>r :edit!<CR>
-" open a terminal with a window split and source bash profile
-nnoremap <leader>tt :terminal<CR>i . ~/.bash_profile<CR>
+" open a terminal, source bash profile and let user name it
+nnoremap <leader>te :terminal<CR>i . ~/.bash_profile<CR><C-\><C-n>:keepalt file
 " add a space in normal mode
 nnoremap <space> i<space><esc>
 " call the bufkill plugin commad to delete buffer form list
