@@ -1,12 +1,7 @@
 scriptencoding utf-8
 
-" starts a node pricess for debugging, it pairs with a chrome plugin that will
-" bring up a console
-"let g:python_host_prog = substitute(system('which python2'), '\n', '', 'g')
-"let g:python3_host_prog = substitute(system('which python3'), '\n', '', 'g')
-
 " disable python 2
-let g:loaded_python_provider = 1
+let g:loaded_python_provider = 0
 let g:python3_host_prog = '/Users/Jeff/.py_venvs/neovim/bin/python'
 let g:node_host_prog = '/usr/local/bin/neovim-node-host'
 let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
@@ -367,7 +362,7 @@ let g:ale_fixers = {
   \ 'go': ['gofmt', 'goimports'],
   \ 'graphql': ['prettier'],
   \ 'javascript': ['prettier', 'eslint', 'importjs'],
-  \ 'python': ['yapf'],
+  \ 'python': ['yapf', 'isort'],
   \ 'typescript': ['prettier', 'tslint'],
   \}
 
@@ -384,6 +379,7 @@ let g:ale_linters = {
    \ 'cpp': ['clang'],
    \ 'python': ['mypy', 'pylint', 'yapf']
    \}
+
 let g:ale_go_golangci_lint_options = '--fast'
 let g:ale_go_golangci_lint_package = 1
 
@@ -405,7 +401,7 @@ let g:jedi#completions_enabled = 0 " use deoplete for completions, vim-jedi for 
 let g:jedi#use_splits_not_buffers = 'top'
 let g:jedi#goto_command = '<leader>g'
 let g:jedi#goto_assignments_command = ''
-let g:jedi#goto_definitions_command = 'gd'
+let g:jedi#goto_definitions_command = '<leader>gd'
 let g:jedi#documentation_command = '<leader>d'
 let g:jedi#usages_command = '<leader>u'
 let g:jedi#completions_command = ''

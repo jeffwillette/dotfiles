@@ -118,6 +118,11 @@ if [ $SYSTEM == "Darwin" ]; then
         yarn outdated
         yarn upgrade --latest
         cd -
+
+        note "\nupdating neovim python\n" ${blue}
+        source ~/.py_venvs/neovim/bin/activate
+        pip install -U pip neovim
+        deactivate
     }
 
     # to search an entire git history for a word, if you want to re-write the line in history exec the cmd below
