@@ -2,17 +2,31 @@ scriptencoding utf-8
 
 " disable python 2
 let g:loaded_python_provider = 0
-let g:python3_host_prog = '/Users/Jeff/.py_venvs/neovim/bin/python'
-let g:node_host_prog = '/usr/local/bin/neovim-node-host'
-let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
-let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
-let $NVIM_NODE_LOG_LEVEL='error'
-let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
-let $NVIM_PYTHON_LOG_LEVEL='info'
+
+if has('mac')
+    let g:python3_host_prog = '/Users/Jeff/.py_venvs/neovim/bin/python'
+    let g:node_host_prog = '/usr/local/bin/neovim-node-host'
+    let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
+    let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
+    let $NVIM_NODE_LOG_LEVEL='error'
+    let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
+    let $NVIM_PYTHON_LOG_LEVEL='info'
+else
+    " right now this is for linux a server without node stuff, if I want to
+    " handle a linux environment that I control as well, then something will
+    " have to change
+    let g:python3_host_prog = '/home/jeff/.py_venvs/neovim/bin/python'
+    "let g:node_host_prog = '/usr/local/bin/neovim-node-host'
+    "let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
+    "let $NVIM_NODE_LOG_FILE='/home/jeff/tmp/nvim-node.log'
+    "let $NVIM_NODE_LOG_LEVEL='error'
+    let $NVIM_PYTHON_LOG_FILE='/home/jeff/tmp/nvim-python.log'
+    let $NVIM_PYTHON_LOG_LEVEL='info'
+endif
 
 augroup vimplug
     if empty(glob('~/.config/nvim/autoload/plug.vim'))
-      silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+      silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
         \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
       autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
     endif
@@ -44,19 +58,6 @@ Plug 'vim-airline/vim-airline'
 Plug 'Shougo/deoplete-clangx', { 'for': ['cpp'] }
 Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['cpp'] }
 
-Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go'}
-Plug 'fatih/vim-go', {'for': 'go'}
-Plug 'sebdah/vim-delve', {'for': 'go'}
-
-Plug 'ternjs/tern_for_vim', { 'do': 'yarn install', 'for': 'javascript' }
-Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern', 'for': 'javascript' }
-Plug 'Galooshi/vim-import-js', {'for': ['javascript']}
-Plug 'pangloss/vim-javascript', {'for': ['javascript', 'javascript.jsx']}
-Plug 'mxw/vim-jsx', {'for': ['javascript', 'javascript.jsx']}
-
-Plug 'HerringtonDarkholme/yats'
-Plug 'mhartington/nvim-typescript', {'branch': 'master', 'do': './install.sh'}
-
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
 Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'vim-python/python-syntax'
@@ -72,7 +73,25 @@ Plug 'morhetz/gruvbox'
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'ryanoasis/vim-devicons'
 
-Plug 'deltaskelta/nvim-deltaskelta', {'do': ':UpdateRemotePlugins'}
+if executable('go')
+    Plug 'fatih/vim-go', {'for': 'go'}
+    Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go'}
+    Plug 'fatih/vim-go', {'for': 'go'}
+    Plug 'sebdah/vim-delve', {'for': 'go'}
+endif
+
+if executable('node')
+    Plug 'ternjs/tern_for_vim', { 'do': 'yarn install', 'for': 'javascript' }
+    Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern', 'for': 'javascript' }
+    Plug 'Galooshi/vim-import-js', {'for': ['javascript']}
+    Plug 'pangloss/vim-javascript', {'for': ['javascript', 'javascript.jsx']}
+    Plug 'mxw/vim-jsx', {'for': ['javascript', 'javascript.jsx']}
+
+    Plug 'HerringtonDarkholme/yats'
+    Plug 'mhartington/nvim-typescript', {'branch': 'master', 'do': './install.sh'}
+
+    Plug 'deltaskelta/nvim-deltaskelta', {'do': ':UpdateRemotePlugins'}
+endif
 
 call plug#end()
 

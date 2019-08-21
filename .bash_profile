@@ -40,18 +40,13 @@ function note() {
     printf "$2$1${reset}"
 }
 
-function _update_ps1() {
-    PS1="$(~/go/bin/powerline-go \
-        -error $? \
-        -cwd-max-depth 1 \
-        -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
-}
-
 if [ "$TERM" != "linux" ]; then
     PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
 fi
 
 SYSTEM=`uname -a | cut -d" " -f1`
+HOSTNAME=`hostname`
+
 # These things are system specific
 if [ $SYSTEM == "Darwin" ]; then
     #Making an alias to show/hide hidden files in the finder
@@ -69,6 +64,7 @@ if [ $SYSTEM == "Darwin" ]; then
     alias delve='/usr/local/bin/dlv'
     alias make='gmake'
     alias sed='gsed'
+    alias vim='nvim'
 
     # fixing some weird inkscape error with xquartz
     # https://apple.stackexchange.com/questions/235279/inkscape-or-other-xquartz-window-disappears-when-using-external-screen
@@ -97,6 +93,13 @@ if [ $SYSTEM == "Darwin" ]; then
         . "$file"
       fi
     done
+
+    function _update_ps1() {
+        PS1="$(~/go/bin/powerline-go \
+            -error $? \
+            -cwd-max-depth 1 \
+            -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
+    }
 
     function update() {
         note "updating brew\n" ${blue}
@@ -136,7 +139,40 @@ if [ $SYSTEM == "Darwin" ]; then
         defaults write com.apple.desktopservices DSDontWriteNetworkStores true
     }
 
-elif [ $SYSTEM == "Linux" ]; then
+elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
+    echo "KAIST"
+    export PATH=$PATH:~/bin
+    alias vim='~/bin/nvim.appimage'
+    alias ls='ls --color'
+
+    LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:";
+    export LS_COLORS
+
+    function update() {
+        note "\ndownloading nvim appimage\n" ${blue}
+    	curl -Lo ~/bin/nvim.appimage https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
+        chmod u+x ~/bin/nvim.appimage
+
+        note "\ndownloading powerline go\n" ${blue}
+        curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.13.0/powerline-go-linux-amd64
+        chmod +x ~/bin/powerline-go
+
+        note "\ndownloading and extracting ripgrep\n" ${blue}
+        curl -Lo ~/bin/rg.tar.gz https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep-11.0.2-x86_64-unknown-linux-musl.tar.gz
+        cd ~/bin
+        tar -xvf rg.tar.gz
+        cp ~/bin/ripgrep-11.0.2-x86_64-unknown-linux-musl/rg ~/bin
+    }
+
+    function _update_ps1() {
+        PS1="$(powerline-go \
+            -error $? \
+            -cwd-max-depth 1 \
+            -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
+    }
+
+elif [[ $SYSTEM == "Linux" && ! $HOSTNAME =~ ^ai[0-9] ]]; then
+    echo "My server"
     alias upgrade='sudo apt-get update && sudo apt-get upgrade'
 
     # ansible installs go from the source download
@@ -150,6 +186,13 @@ elif [ $SYSTEM == "Linux" ]; then
         cp -R "${1}" ~/.Trash;
         rm -rf "${1}";
     }
+
+    function _update_ps1() {
+        PS1="$(~/go/bin/powerline-go \
+            -error $? \
+            -cwd-max-depth 1 \
+            -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
+    }
 fi
 
 # These things are regardless of system
@@ -161,7 +204,6 @@ alias gc='git commit'
 alias gs='git status'
 alias gac='ga && gc'
 alias gmend='git commit --amend --no-edit'
-alias vim='nvim'
 alias docker-rm-none='docker rmi $(docker images -f "dangling=true" -q)'
 alias dsize='du -hcs'
 alias aplay='ansible-playbook'
