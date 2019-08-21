@@ -40,18 +40,13 @@ function note() {
     printf "$2$1${reset}"
 }
 
-function _update_ps1() {
-    PS1="$(~/go/bin/powerline-go \
-        -error $? \
-        -cwd-max-depth 1 \
-        -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
-}
-
 if [ "$TERM" != "linux" ]; then
     PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
 fi
 
 SYSTEM=`uname -a | cut -d" " -f1`
+HOSTNAME=`hostname`
+
 # These things are system specific
 if [ $SYSTEM == "Darwin" ]; then
     #Making an alias to show/hide hidden files in the finder
@@ -69,6 +64,7 @@ if [ $SYSTEM == "Darwin" ]; then
     alias delve='/usr/local/bin/dlv'
     alias make='gmake'
     alias sed='gsed'
+    alias vim='nvim'
 
     # fixing some weird inkscape error with xquartz
     # https://apple.stackexchange.com/questions/235279/inkscape-or-other-xquartz-window-disappears-when-using-external-screen
@@ -97,6 +93,13 @@ if [ $SYSTEM == "Darwin" ]; then
         . "$file"
       fi
     done
+
+    function _update_ps1() {
+        PS1="$(~/go/bin/powerline-go \
+            -error $? \
+            -cwd-max-depth 1 \
+            -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
+    }
 
     function update() {
         note "updating brew\n" ${blue}
@@ -136,7 +139,36 @@ if [ $SYSTEM == "Darwin" ]; then
         defaults write com.apple.desktopservices DSDontWriteNetworkStores true
     }
 
-elif [ $SYSTEM == "Linux" ]; then
+elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
+    echo "KAIST"
+    export PATH=$PATH:~/bin
+    alias vim='~/bin/nvim.appimage'
+
+    function update() {
+        note "\ndownloading nvim appimage\n" ${blue}
+    	curl -Lo ~/bin/nvim.appimage https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
+        chmod u+x ~/bin/nvim.appimage
+
+        note "\ndownloading powerline go\n" ${blue}
+        curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.13.0/powerline-go-linux-amd64
+        chmod +x ~/bin/powerline-go
+
+        note "\ndownloading and extracting ripgrep\n" ${blue}
+        curl -Lo ~/bin/rg.tar.gz https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep-11.0.2-x86_64-unknown-linux-musl.tar.gz
+        cd ~/bin
+        tar -xvf rg.tar.gz
+        cp ~/bin/ripgrep-11.0.2-x86_64-unknown-linux-musl/rg ~/bin
+    }
+
+    function _update_ps1() {
+        PS1="$(powerline-go \
+            -error $? \
+            -cwd-max-depth 1 \
+            -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
+    }
+
+elif [[ $SYSTEM == "Linux" && ! $HOSTNAME =~ ^ai[0-9] ]]; then
+    echo "My server"
     alias upgrade='sudo apt-get update && sudo apt-get upgrade'
 
     # ansible installs go from the source download
@@ -150,6 +182,13 @@ elif [ $SYSTEM == "Linux" ]; then
         cp -R "${1}" ~/.Trash;
         rm -rf "${1}";
     }
+
+    function _update_ps1() {
+        PS1="$(~/go/bin/powerline-go \
+            -error $? \
+            -cwd-max-depth 1 \
+            -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
+    }
 fi
 
 # These things are regardless of system
@@ -161,7 +200,6 @@ alias gc='git commit'
 alias gs='git status'
 alias gac='ga && gc'
 alias gmend='git commit --amend --no-edit'
-alias vim='nvim'
 alias docker-rm-none='docker rmi $(docker images -f "dangling=true" -q)'
 alias dsize='du -hcs'
 alias aplay='ansible-playbook'
