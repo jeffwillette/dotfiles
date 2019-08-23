@@ -381,7 +381,7 @@ let g:ale_fixers = {
   \ 'go': ['gofmt', 'goimports'],
   \ 'graphql': ['prettier'],
   \ 'javascript': ['prettier', 'eslint', 'importjs'],
-  \ 'python': ['yapf', 'isort'],
+  \ 'python': ['black', 'isort'],
   \ 'typescript': ['prettier', 'tslint'],
   \}
 
@@ -396,7 +396,7 @@ let g:ale_linters = {
    \ 'javascript': ['eslint'],
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['mypy', 'pylint', 'yapf']
+   \ 'python': ['mypy']
    \}
 
 let g:ale_go_golangci_lint_options = '--fast'
@@ -495,7 +495,9 @@ inoremap ;; <C-x><C-o>
 
 augroup terminal
   autocmd TermOpen * set bufhidden=hide
-  autocmd BufEnter term://* startinsert
+  " commenting to see if it fixes problem with going to insert on the other
+  " non terminal buffers
+  "autocmd BufEnter term://* startinsert
 augroup END
 
 " when in the terminal, use the jj commands to get out of insert
