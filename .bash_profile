@@ -20,8 +20,9 @@ lcyan='\e[96m'
 white='\e[97m'
 reset='\e[0m' # reset to default color
 
-# programs which search for a text editor will use this editor by default
-export VISUAL=nvim
+# programs which search for a text editor will use this editor by default,
+# vim should be aliased to neovim somewhere later in here
+export VISUAL=vim
 export EDITOR="$VISUAL"
 
 export CLICOLOR=1;
