@@ -16,10 +16,6 @@ else
     " handle a linux environment that I control as well, then something will
     " have to change
     let g:python3_host_prog = '/home/jeff/.py_venvs/neovim/bin/python'
-    "let g:node_host_prog = '/usr/local/bin/neovim-node-host'
-    "let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
-    "let $NVIM_NODE_LOG_FILE='/home/jeff/tmp/nvim-node.log'
-    "let $NVIM_NODE_LOG_LEVEL='error'
     let $NVIM_PYTHON_LOG_FILE='/home/jeff/tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
 endif
@@ -71,7 +67,8 @@ Plug 'gosukiwi/vim-atom-dark'
 Plug 'nanotech/jellybeans.vim'
 Plug 'morhetz/gruvbox'
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
-Plug 'ryanoasis/vim-devicons'
+" removed because it interferes with denite somehow
+"Plug 'ryanoasis/vim-devicons'
 
 if executable('go')
     Plug 'fatih/vim-go', {'for': 'go'}
