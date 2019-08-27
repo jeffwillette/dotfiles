@@ -145,6 +145,19 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export PATH=~/bin:$PATH
     alias ls='ls --color'
 
+    function trash () {
+        note "moving ${@} to trash\n" ${blue}
+        now="$(date +%Y%m%d_%H%M%S)"
+        mkdir -p ~/.Trash/$now
+        mv "$@" ~/.Trash/$now
+    }
+
+    function emptytrash() {
+        note "emptying trash\n" ${blue}
+        rm -rf ~/.Trash
+        mkdir ~/.Trash
+    }
+
     function update() {
         note "\ndownloading nvim appimage\n" ${blue}
     	curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
