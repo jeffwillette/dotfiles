@@ -4,7 +4,7 @@ scriptencoding utf-8
 let g:loaded_python_provider = 0
 
 if has('mac')
-    let g:python3_host_prog = '/Users/Jeff/.py_venvs/neovim/bin/python'
+    let g:python3_host_prog = '/Users/Jeff/.venv/neovim/bin/python'
     let g:node_host_prog = '/usr/local/bin/neovim-node-host'
     let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
     let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
@@ -15,7 +15,7 @@ else
     " right now this is for linux a server without node stuff, if I want to
     " handle a linux environment that I control as well, then something will
     " have to change
-    let g:python3_host_prog = '/home/jeff/.py_venvs/neovim/bin/python'
+    let g:python3_host_prog = '/home/jeff/.venv/neovim/bin/python'
     let $NVIM_PYTHON_LOG_FILE='/home/jeff/tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
 endif
@@ -40,8 +40,8 @@ Plug 'Shougo/neosnippet-snippets'
 Plug 'dense-analysis/ale'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
-Plug 'xolox/vim-misc'
 Plug 'tpope/vim-fugitive'
+Plug 'xolox/vim-misc'
 Plug 'honza/vim-snippets'
 
 Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
