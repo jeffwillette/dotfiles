@@ -304,6 +304,8 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     note "Linux\n" ${blue}
 
+    source ~/.venv/env/bin/activate
+
     function update() {
 	note "apt update\n" ${blue}
 	sudo apt -y update && sudo apt-y upgrade
