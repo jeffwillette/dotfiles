@@ -292,7 +292,6 @@ call denite#custom#var('rg/unignore', 'final_opts', [])
 nnoremap <leader><Space> :Denite -split=floating -prompt=❯ -start-filter -highlight-matched-range=NONE -highlight-matched-char=NONE file/rec<CR>
 nnoremap <leader>` :Denite -split=floating -prompt=❯ -start-filter -highlight-matched-range=NONE -highlight-matched-char=NONE -path=~/ file/rec<CR>
 nnoremap <leader><leader> :Denite -split=floating buffer<CR>
-"nnoremap <leader><Space><Space> :Denite grep/ignore:.<CR>
 nnoremap <leader><Space><Space> :Denite -split=floating grep:.<CR>
 nnoremap <leader>c :DeniteCursorWord -split=floating grep:.<CR>
 nnoremap <leader><Space>a :Denite -split=floating -highlight-matched-range=NONE -highlight-matched-char=NONE rg/unignore<CR>
