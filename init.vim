@@ -462,10 +462,6 @@ augroup END
 
 " nerdtree settings ------------------------------------------------------------
 
-let g:NERDTreeDirArrowExpandable = ''
-let g:NERDTreeDirArrowCollapsible = ''
-let g:webdevicons_enable_nerdtree = 0
-
 nnoremap <leader>[ :NERDTreeToggle<CR>
 let g:NERDTreeWinSize = 50
 let g:NERDTreeQuitOnOpen = 1
