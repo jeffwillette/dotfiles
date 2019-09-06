@@ -95,7 +95,7 @@ call plug#end()
 " :call ToggleVerbose() for writing a verbose log im tmp
 function! ToggleVerbose()
     if !&verbose
-        set verbosefile=/tmp/vim.log
+        set verbosefile=/home/jeff/tmp/vim.log
         set verbose=9
     else
         set verbose=0
