@@ -129,7 +129,7 @@ augroup END
 " set neovim to have normal vim cursor, guicursor& to restore default
 set guicursor=
 " make sure I can call stuff defined in my bash_profile
-set shellcmdflag=-ic
+set shellcmdflag=-c
 
 set number tabstop=4 shiftwidth=4 nowrap noshowmode expandtab termguicolors background=dark hidden shortmess=atT
 set lazyredraw mouse=a directory=~/.config/nvim/tmp clipboard=unnamed cursorline
@@ -630,3 +630,6 @@ hi DiffDelete gui=bold guifg=#cc6666 guibg=#373737
 hi NERDTreeOpenable guifg=#b294bb gui=bold
 hi link NERDTreeClosable NERDTreeOpenable
 hi NERDTreeDir guifg=#ffffff gui=bold
+
+" italics was interfering with some latex
+hi markdownItalic guifg=None
