@@ -289,6 +289,8 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export PATH=~/bin:$PATH
     alias ls='ls --color'
 
+    source ~/.venv/env/bin/activate
+
     function update() {
 	    download_nvim
         download_rg
