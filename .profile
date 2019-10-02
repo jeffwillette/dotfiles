@@ -25,3 +25,8 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
+
+# if we are running i3 then we need to start the keyring in order to use ssh keys
+if [ $DESKTOP_SESSION = "i3" ]; then
+    export $(gnome-keyring-daemon)
+fi
