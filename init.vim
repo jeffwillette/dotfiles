@@ -136,7 +136,8 @@ set guicursor=
 set shellcmdflag=-c
 
 set number tabstop=4 shiftwidth=4 nowrap noshowmode expandtab termguicolors background=dark hidden shortmess=atT
-set lazyredraw mouse=a directory=~/.config/nvim/tmp clipboard=unnamed cursorline
+set lazyredraw mouse=a directory=~/.config/nvim/tmp cursorline
+set clipboard+=unnamedplus
 set laststatus=2
 set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
@@ -533,6 +534,7 @@ nnoremap <silent> <c-k> :wincmd k<CR>
 nnoremap <silent> <c-l> :wincmd l<CR>
 nnoremap <silent> <c-j> :wincmd j<CR>
 nnoremap <silent> <c-h> :wincmd h<CR>
+
 " inserting newline without entering insert
 nnoremap _ O<Esc>
 nnoremap - o<Esc>
