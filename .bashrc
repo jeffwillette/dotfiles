@@ -286,10 +286,24 @@ if [ $SYSTEM == "Darwin" ]; then
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST"
+    export XDG_CACHE_HOME=/st2/jeff/.cache
+    export TMPDIR=/st2/jeff/.tmp
+    export WORKPLACE=KAIST
     export PATH=~/bin:$PATH
     alias ls='ls --color'
 
-    source ~/.venv/env/bin/activate
+    function trash () {
+        note "moving ${@} to trash\n" ${blue}
+        now="$(date +%Y%m%d_%H%M%S)"
+        mkdir -p /st2/jeff/.trash/$now
+        mv "$@" /st2/jeff/.trash/$now
+    }
+
+    function emptytrash() {
+        note "emptying trash\n" ${blue}
+        rm -rf /st2/jeff/.trash
+        mkdir /st2/jeff/.trash
+    }
 
     function update() {
 	    download_nvim
@@ -355,3 +369,18 @@ function replace() {
         --exclude yarn.lock \
         "${1}" "${3}" | xargs gsed -i "s|${1}|${2}|g"
 }
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/st2/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/st2/jeff/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/st2/jeff/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/st2/jeff/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<

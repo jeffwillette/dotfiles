@@ -11,6 +11,10 @@ if has('mac')
     let $NVIM_NODE_LOG_LEVEL='error'
     let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
+elseif $WORKPLACE == 'KAIST'
+    let g:python3_host_prog='/st2/jeff/anaconda3/envs/jeff/bin/python'
+    let $NVIM_PYTHON_LOG_FILE='/st2/jeff/.tmp/nvim-python.log'
+    let $NVIM_PYTHON_LOG_LEVEL='info'
 else
     " right now this is for linux a server without node stuff, if I want to
     " handle a linux environment that I control as well, then something will
