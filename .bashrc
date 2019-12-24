@@ -2,6 +2,11 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+# tensorflow for CS548 project
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64
+export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}
+export HDF5_USE_FILE_LOCKING='FALSE'
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -176,7 +181,8 @@ function _update_ps1() {
     PS1="$(powerline-go \
     	-error $? \
         -cwd-max-depth 1 \
-        -modules venv,user,ssh,cwd,perms,git,hg,jobs,exit,root)"
+        -colorize-hostname \
+        -modules venv,user,host,cwd,perms,git,hg,jobs,exit,root)"
 }
 
 function download_nvim() {
@@ -200,6 +206,7 @@ fi
 
 SYSTEM=`uname -a | cut -d" " -f1`
 HOSTNAME=`hostname`
+
 
 # These things are system specific
 if [ $SYSTEM == "Darwin" ]; then
@@ -287,10 +294,31 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST"
     export XDG_CACHE_HOME=/st2/jeff/.cache
+    export XDG_CONFIG_HOME=/st2/jeff/.config
+    export HOME=/st2/jeff
     export TMPDIR=/st2/jeff/.tmp
     export WORKPLACE=KAIST
-    export PATH=~/bin:$PATH
+    export PATH=/st2/jeff/bin:$PATH
     alias ls='ls --color'
+    alias ssh-desktop='ssh jeff@143.248.137.44'
+
+    # >>> conda initialize >>>
+    # !! Contents within this block are managed by 'conda init' !!
+    __conda_setup="$('/st2/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        if [ -f "/st2/jeff/anaconda3/etc/profile.d/conda.sh" ]; then
+            . "/st2/jeff/anaconda3/etc/profile.d/conda.sh"
+        else
+            export PATH="/st2/jeff/anaconda3/bin:$PATH"
+        fi
+    fi
+    unset __conda_setup
+    # <<< conda initialize <<<
+
+    conda activate jeff
+    alias pip=/st2/jeff/anaconda3/envs/jeff/bin/pip
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}
@@ -369,18 +397,3 @@ function replace() {
         --exclude yarn.lock \
         "${1}" "${3}" | xargs gsed -i "s|${1}|${2}|g"
 }
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/st2/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/st2/jeff/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/st2/jeff/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/st2/jeff/anaconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<

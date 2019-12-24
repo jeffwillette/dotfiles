@@ -1,3 +1,5 @@
 . ~/.profile
 
-if [[ $- == *i* ]]; then . ~/.bashrc; fi
+if [[ $- =~ i ]]
+  then . ~/.bashrc
+fi
