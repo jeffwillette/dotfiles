@@ -348,11 +348,45 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     note "Linux\n" ${blue}
 
+    function gpus() {
+        RESULTS=$(ssh jeff@ai1.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        2ESULTS=$(ssh jeff@ai2.kaist.ac.kr -p80 nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai3.kaist.ac.kr -p80 nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai4.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai5.kaist.ac.kr -p80 nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai5.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai6.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai7.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai8.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai9.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai10.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai11.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai12.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai13.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+        RESULTS=$(ssh jeff@ai14.kaist.ac.kr nvidia-smi)
+        echo $RESULTS
+    }
+
     source ~/.venv/env/bin/activate
+    export WORKPLACE=Linux
 
     function update() {
 	note "apt update\n" ${blue}
-	sudo apt -y update && sudo apt-y upgrade
+	sudo apt -y update && sudo apt -y upgrade
 
 	download_nvim
     download_rg

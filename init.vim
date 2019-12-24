@@ -142,7 +142,13 @@ set laststatus=2
 set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
 " vim-latex-preview ------------------------------------------------------------------
-let g:livepreview_previewer = 'open -a Preview'
+" on linux there is a different command to open the files
+if $WORKPLACE == 'Linux'
+    let g:livepreview_previewer = 'vprerex'
+else
+    let g:livepreview_previewer = 'open -a Preview'
+endif
+
 
 " vim airline ------------------------------------------------------------------------
 let g:airline#extensions#tabline#enabled = 0
@@ -383,7 +389,7 @@ let g:ale_fixers = {
   \ 'graphql': ['prettier'],
   \ 'javascript': ['prettier', 'eslint', 'importjs'],
   \ 'python': ['black', 'isort'],
-  \ 'typescript': ['prettier', 'tslint'],
+  \ 'typescript': ['eslint',  'prettier'],
   \}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
@@ -397,7 +403,8 @@ let g:ale_linters = {
    \ 'javascript': ['eslint'],
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['mypy']
+   \ 'python': ['mypy'],
+   \ 'typescript': ['eslint']
    \}
 
 let g:ale_go_golangci_lint_options = '--fast'
@@ -425,7 +432,7 @@ let g:jedi#goto_definitions_command = '<leader>gd'
 let g:jedi#documentation_command = '<leader>d'
 let g:jedi#usages_command = '<leader>u'
 let g:jedi#completions_command = ''
-let g:jedi#rename_command = '<leader>r'
+let g:jedi#rename_command = '<leader>rn'
 
 augroup python
     autocmd!
@@ -476,8 +483,15 @@ augroup nerdtree
     autocmd FileType nerdtree setlocal signcolumn=no modifiable
 augroup END
 
-" insert mode mappings ------------------------------------------------------
+" TeX settings
 
+augroup TeX
+    autocmd!
+    autocmd FileType tex setlocal wrap
+    autocmd FileType tex setlocal textwidth=120
+augroup END
+
+" insert mode mappings ------------------------------------------------------
 " maps jj to escape to get out of insert mode
 inoremap jj <Esc>
 " make Shift + Forward/Back skip by word in insert mode
