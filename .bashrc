@@ -182,7 +182,7 @@ function _update_ps1() {
     	-error $? \
         -cwd-max-depth 1 \
         -colorize-hostname \
-        -modules venv,user,host,cwd,perms,git,hg,jobs,exit,root)"
+        -modules venv,host,cwd,perms,git,hg,jobs,exit,root)"
 }
 
 function download_nvim() {
@@ -351,13 +351,11 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     function gpus() {
         RESULTS=$(ssh jeff@ai1.kaist.ac.kr nvidia-smi)
         echo $RESULTS
-        2ESULTS=$(ssh jeff@ai2.kaist.ac.kr -p80 nvidia-smi)
+        2ESULTS=$(ssh jeff@ai2.kaist.ac.kr nvidia-smi)
         echo $RESULTS
-        RESULTS=$(ssh jeff@ai3.kaist.ac.kr -p80 nvidia-smi)
+        RESULTS=$(ssh jeff@ai3.kaist.ac.kr nvidia-smi)
         echo $RESULTS
         RESULTS=$(ssh jeff@ai4.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai5.kaist.ac.kr -p80 nvidia-smi)
         echo $RESULTS
         RESULTS=$(ssh jeff@ai5.kaist.ac.kr nvidia-smi)
         echo $RESULTS
