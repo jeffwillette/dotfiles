@@ -92,11 +92,6 @@ fi
 # colored GCC warnings and errors
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
@@ -181,7 +176,6 @@ function _update_ps1() {
     PS1="$(powerline-go \
     	-error $? \
         -cwd-max-depth 1 \
-        -colorize-hostname \
         -modules venv,host,cwd,perms,git,hg,jobs,exit,root)"
 }
 
@@ -215,7 +209,6 @@ if [ $SYSTEM == "Darwin" ]; then
         /System/Library/CoreServices/Finder.app'
     alias hidef='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder \
         /System/Library/CoreServices/Finder.app'
-    alias upgrade='brew update && brew upgrade'
     alias adb='/Users/Jeff/Library/Android/sdk/platform-tools/adb'
     alias deltaskelta-ssh='ssh jeff@$DELTASKELTA_SERVER -p 31988'
     alias cdgo='cd ~/go/src/github.com/deltaskelta'
@@ -396,8 +389,9 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
 fi
 
 # These things are regardless of system
-alias ll='ls -l'
-alias la='ls -la'
+alias ll='ls -alF'
+alias la='ls -lA --block-size=K'
+alias l='ls -CF'
 alias gitl='git log --oneline'
 alias ga='git add -A :/'
 alias gc='git commit'
