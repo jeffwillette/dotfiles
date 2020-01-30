@@ -286,6 +286,7 @@ if [ $SYSTEM == "Darwin" ]; then
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST"
+    export CUDA_DEVICE_ORDER=PCI_BUS_ID
     export XDG_CACHE_HOME=/st2/jeff/.cache
     export XDG_CONFIG_HOME=/st2/jeff/.config
     export HOME=/st2/jeff
