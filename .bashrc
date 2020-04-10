@@ -343,37 +343,30 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     note "Linux\n" ${blue}
 
-    function gpus() {
-        RESULTS=$(ssh jeff@ai1.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        2ESULTS=$(ssh jeff@ai2.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai3.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai4.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai5.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai6.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai7.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai8.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai9.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai10.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai11.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai12.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai13.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
-        RESULTS=$(ssh jeff@ai14.kaist.ac.kr nvidia-smi)
-        echo $RESULTS
+    SSH_ENV="$HOME/.ssh/environment"
+
+    function start_agent {
+        echo "Initialising new SSH agent..."
+        /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+        echo succeeded
+        chmod 600 "${SSH_ENV}"
+        . "${SSH_ENV}" > /dev/null
+        /usr/bin/ssh-add ~/.ssh/*rsa
     }
 
+    # Source SSH settings, if applicable
+
+    if [ -f "${SSH_ENV}" ]; then
+        . "${SSH_ENV}" > /dev/null
+        #ps ${SSH_AGENT_PID} doesn't work under cywgin
+        ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+            start_agent;
+        }
+    else
+        start_agent;
+    fi
+
+    alias lock='i3lock -c 000000'
     source ~/.venv/env/bin/activate
     export WORKPLACE=Linux
 

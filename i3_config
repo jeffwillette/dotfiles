@@ -156,3 +156,8 @@ bar {
 }
 
 exec_always ~/dotfiles/gnome-keyring.sh
+exec_always xrandr --output DP-0 --right-of HDMI-0 --output DP-0 --rotate right
+bindsym Control+Mod1+4 exec gnome-screenshot -i
+
+bindsym $mod+p exec amixer -q sset Master 4dB+ unmute
+bindsym $mod+o exec amixer -q sset Master 4dB- unmute

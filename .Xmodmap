@@ -1,0 +1,2 @@
+! this is for remapping the mac keyboard eject key to delete (needed for thunderbird mail)
+keycode 169 = Delete
