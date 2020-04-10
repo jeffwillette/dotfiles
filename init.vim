@@ -121,7 +121,7 @@ endfunction
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 syntax on
 filetype plugin indent on
-colorscheme base16-tomorrow-night
+colorscheme base16-classic-dark
 
 " status line is filename and right aligned column number
 " hidden makes the buffer hidden when inactvie rather than essentially 'closing' it
@@ -403,10 +403,11 @@ let g:ale_linters = {
    \ 'javascript': ['eslint'],
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['mypy'],
+   \ 'python': ['mypy', 'flake8'],
    \ 'typescript': ['eslint']
    \}
 
+let g:ale_python_flake8_options = '--ignore E501,E203,W503'
 let g:ale_go_golangci_lint_options = '--fast'
 let g:ale_go_golangci_lint_package = 1
 
