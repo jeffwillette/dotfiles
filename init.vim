@@ -589,7 +589,8 @@ vnoremap <Down> :m '>+1<CR>==gv
 " the very bottom (see :help :wincmd and :help ^WJ).
 augroup quickfix
     autocmd!
-    autocmd FileType qf setlocal wrap cc=
+    autocmd! FileType qf setlocal wrap cc=
+    autocmd! FileType qf wincmd J
 augroup END
 
 " toggle highlighting after search

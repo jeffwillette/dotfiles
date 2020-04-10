@@ -205,6 +205,8 @@ HOSTNAME=`hostname`
 # These things are system specific
 if [ $SYSTEM == "Darwin" ]; then
     #Making an alias to show/hide hidden files in the finder
+    export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
+    export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
     alias showf='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder \
         /System/Library/CoreServices/Finder.app'
     alias hidef='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder \
@@ -293,7 +295,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export TMPDIR=/st2/jeff/.tmp
     export WORKPLACE=KAIST
     export PATH=/st2/jeff/bin:$PATH
-    alias ls='ls --color'
     alias ssh-desktop='ssh jeff@143.248.137.44'
 
     # >>> conda initialize >>>
