@@ -198,7 +198,6 @@ let g:tern_show_signature_in_pum = 1
 
 " deoplete --------------------------------------------------------------------------
 
-let g:deoplete#enable_profile = 1
 call deoplete#enable_logging('INFO', '/tmp/deoplete.log')
 call deoplete#custom#source('jedi', 'is_debug_enabled', v:true)
 
