@@ -11,6 +11,10 @@ if has('mac')
     let $NVIM_NODE_LOG_LEVEL='error'
     let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
+    " if this is uncommented, vim will freeze and you have to go into the
+    " chromer dev console and click the green button and hit run on the
+    " debugger
+    "let $NVIM_NODE_HOST_DEBUG=1
 elseif $WORKPLACE == 'KAIST'
     let g:python3_host_prog='/st2/jeff/anaconda3/envs/jeff/bin/python'
     let $NVIM_PYTHON_LOG_FILE='/st2/jeff/.tmp/nvim-python.log'
@@ -357,15 +361,17 @@ let g:ale_sign_error = '✖'
 let g:ale_sign_warning = '⚠'
 let g:ale_fix_on_save = 1
 let g:ale_javascript_eslint_executable = 'eslint_d'
-let g:ale_javascript_eslint_use_global = 1
+let g:ale_javascript_eslint_use_global = 0
 let g:ale_completion_enabled = 1
 
 " using global prettier because the local one has graphql version conflicts
-let g:ale_javascript_prettier_use_global = 1
+let g:ale_javascript_prettier_use_global = 0
 
 " for some reason it wasn't finding my project config files with prettier_d
 "let g:ale_javascript_prettier_executable = 'prettier_d'
 "let g:ale_javascript_prettier_options = '--fallback'
+let g:ale_typescript_prettier_options = '--fix'
+let g:ale_typescript_prettier_use_local_config = 1
 let g:ale_open_list = 1
 let g:ale_set_loclist = 0
 let g:ale_set_quickfix = 1
@@ -377,25 +383,27 @@ let g:ale_lint_on_insert_leave = 1
 " I had to hack on the main typescript repo so I adde dthis to not run
 " prettier on their code and mess up the formatting
 let g:ale_pattern_options = {
-  \ 'TypeScript': {'ale_fixers': ['tslint']},
   \ 'nvim-typescript': {'ale_fixers': ['tslint']}
   \}
 
 let g:ale_fixers = {
+  \ 'typescript': ['prettier', 'eslint'],
+  \ 'typescriptreact': ['prettier', 'eslint'],
   \ '*': ['remove_trailing_lines', 'trim_whitespace'],
   \ 'cpp': ['clang-format'],
   \ 'go': ['gofmt', 'goimports'],
   \ 'graphql': ['prettier'],
   \ 'javascript': ['prettier', 'eslint', 'importjs'],
   \ 'python': ['black', 'isort'],
-  \ 'typescript': ['eslint',  'prettier'],
   \}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
 " which can be misleading because it seems like it should be running these linters on save
 " \ 'go': ['golint', 'go vet', 'go build', 'gometalinter'],
-"\ 'typescript': ['tslint'],
+"\ 'typescript': ['eslint'],
+"\ 'typescriptreact': ['eslint'],
 let g:ale_linters = {
+   \ 'typescriptreact': [],
    \ 'go': ['golangci-lint'],
    \ 'proto': ['protoc-gen-lint'],
    \ 'graphql': ['gqlint'],
@@ -403,7 +411,6 @@ let g:ale_linters = {
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
    \ 'python': ['mypy', 'flake8'],
-   \ 'typescript': ['eslint']
    \}
 
 let g:ale_python_flake8_options = '--ignore E501,E203,W503'
@@ -458,12 +465,12 @@ let g:nvim_typescript#diagnostics_enable = 1
 
 augroup typescript
     autocmd!
-    autocmd FileType typescript,typescript.tsx set omnifunc=TSComplete
-    autocmd FileType typescript,typescript.tsx set tabstop=2 shiftwidth=2 expandtab
-    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>i :TSGetCodeFix<CR>
-    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>dp :TSDefPreview<CR>
-    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>d :TSDef<CR>
-    autocmd FileType typescript,typescript.tsx nnoremap <buffer><leader>t :TSType<CR>
+    autocmd FileType typescript,typescriptreact,typescript.tsx set omnifunc=TSComplete
+    autocmd FileType typescript,typescripreact,typescript.tsx set tabstop=2 shiftwidth=2 expandtab
+    autocmd FileType typescript,typescripreact,typescript.tsx nnoremap <buffer><leader>i :TSGetCodeFix<CR>
+    autocmd FileType typescript,typescripreact,typescript.tsx nnoremap <buffer><leader>dp :TSDefPreview<CR>
+    autocmd FileType typescript,typescripreact,typescript.tsx nnoremap <buffer><leader>d :TSDef<CR>
+    autocmd FileType typescript,typescripreact,typescript.tsx nnoremap <buffer><leader>t :TSType<CR>
 augroup END
 
 " html files ---------------------------------------------------------------

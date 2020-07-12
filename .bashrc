@@ -269,7 +269,7 @@ if [ $SYSTEM == "Darwin" ]; then
         cd -
 
         note "\nupdating neovim python\n" ${blue}
-        source ~/.venvs/neovim/bin/activate
+        source ~/.venv/neovim/bin/activate
         pip install -U pip neovim
         deactivate
     }
