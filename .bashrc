@@ -223,6 +223,8 @@ if [ $SYSTEM == "Darwin" ]; then
     alias sed='gsed'
     alias vim='nvim'
 
+    source ~/.venv/env/bin/activate
+
     # fixing some weird inkscape error with xquartz
     # https://apple.stackexchange.com/questions/235279/inkscape-or-other-xquartz-window-disappears-when-using-external-screen
     alias fixInkscape='wmctrl -r Inkscape -e 0,1440,900,1200,700'
