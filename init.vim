@@ -16,8 +16,8 @@ if has('mac')
     " debugger
     "let $NVIM_NODE_HOST_DEBUG=1
 elseif $WORKPLACE == 'KAIST'
-    let g:python3_host_prog='/st2/jeff/anaconda3/envs/jeff/bin/python'
-    let $NVIM_PYTHON_LOG_FILE='/st2/jeff/.tmp/nvim-python.log'
+    let g:python3_host_prog='/home/jeff/anaconda3/envs/env/bin/python'
+    let $NVIM_PYTHON_LOG_FILE='/home/jeff/.tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
 else
     " right now this is for linux a server without node stuff, if I want to

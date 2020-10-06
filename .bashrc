@@ -290,30 +290,30 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     echo "KAIST"
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
     export XDG_CACHE_HOME=/st2/jeff/.cache
-    export XDG_CONFIG_HOME=/st2/jeff/.config
-    export HOME=/st2/jeff
-    export TMPDIR=/st2/jeff/.tmp
+    export XDG_CONFIG_HOME=/home/jeff/.config
+    export HOME=/home/jeff
+    export TMPDIR=/tmp
     export WORKPLACE=KAIST
-    export PATH=/st2/jeff/bin:$PATH
+    export PATH=/home/jeff/bin:$PATH
     alias ssh-desktop='ssh jeff@143.248.137.44'
 
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('/st2/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    __conda_setup="$("$HOME/anaconda3/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
     if [ $? -eq 0 ]; then
         eval "$__conda_setup"
     else
-        if [ -f "/st2/jeff/anaconda3/etc/profile.d/conda.sh" ]; then
-            . "/st2/jeff/anaconda3/etc/profile.d/conda.sh"
+        if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
+		. "$HOME/anaconda3/etc/profile.d/conda.sh"
         else
-            export PATH="/st2/jeff/anaconda3/bin:$PATH"
+		export PATH="$HOME/anaconda3/bin:$PATH"
         fi
     fi
     unset __conda_setup
     # <<< conda initialize <<<
 
-    conda activate jeff
-    alias pip=/st2/jeff/anaconda3/envs/jeff/bin/pip
+    conda activate env
+    alias pip=$HOME/anaconda3/envs/env/bin/pip
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}
@@ -367,7 +367,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     fi
 
     alias lock='i3lock -c 000000'
-    source ~/.venv/env/bin/activate
+# source ~/.venv/env/bin/activate  # commented out by conda initialize
     export WORKPLACE=Linux
 
     function update() {
