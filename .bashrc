@@ -212,7 +212,7 @@ if [ $SYSTEM == "Darwin" ]; then
     alias hidef='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder \
         /System/Library/CoreServices/Finder.app'
     alias adb='/Users/Jeff/Library/Android/sdk/platform-tools/adb'
-    alias login-kasit-desktop='ssh jeff@143.248.137.44'
+    alias login-kaist-desktop='ssh jeff@143.248.137.44'
     alias deltaskelta-ssh='ssh jeff@$DELTASKELTA_SERVER -p 31988'
     alias cdgo='cd ~/go/src/github.com/deltaskelta'
     # this is for deleting files from git repository history
@@ -222,6 +222,8 @@ if [ $SYSTEM == "Darwin" ]; then
     alias make='gmake'
     alias sed='gsed'
     alias vim='nvim'
+
+    source ~/.venv/env/bin/activate
 
     # fixing some weird inkscape error with xquartz
     # https://apple.stackexchange.com/questions/235279/inkscape-or-other-xquartz-window-disappears-when-using-external-screen
