@@ -394,7 +394,7 @@ let g:ale_fixers = {
   \ 'go': ['gofmt', 'goimports'],
   \ 'graphql': ['prettier'],
   \ 'javascript': ['prettier', 'eslint', 'importjs'],
-  \ 'python': ['black', 'isort'],
+  \ 'python': ['isort'],
   \}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,

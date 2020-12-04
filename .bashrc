@@ -4,6 +4,8 @@
 
 # tensorflow for CS548 project
 export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64
+# NOTE: this is a temporary add to make something for CS572 work
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia-440
 export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}
 export HDF5_USE_FILE_LOCKING='FALSE'
 
@@ -289,6 +291,8 @@ if [ $SYSTEM == "Darwin" ]; then
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST"
+    # this was first added for the rl experiments for my CS572 project
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
     export XDG_CACHE_HOME=/st2/jeff/.cache
     export XDG_CONFIG_HOME=/home/jeff/.config
@@ -314,7 +318,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # <<< conda initialize <<<
 
     conda activate env
-    alias pip=$HOME/anaconda3/envs/env/bin/pip
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}
