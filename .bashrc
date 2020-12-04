@@ -2,10 +2,9 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-# tensorflow for CS548 project
-export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64
-export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}
-export HDF5_USE_FILE_LOCKING='FALSE'
+# for pytorch 1.7.0 and cuda 11.0
+export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
+export PATH=/usr/local/cuda-11.0/bin:$PATH
 
 # If not running interactively, don't do anything
 case $- in
@@ -76,6 +75,7 @@ xterm*|rxvt*)
 *)
     ;;
 esac
+
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -345,6 +345,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     note "Linux\n" ${blue}
 
     SSH_ENV="$HOME/.ssh/environment"
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
 
     function start_agent {
         echo "Initialising new SSH agent..."
@@ -368,7 +369,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     fi
 
     alias lock='i3lock -c 000000'
-# source ~/.venv/env/bin/activate  # commented out by conda initialize
+    source ~/.venv/env/bin/activate  # commented out by conda initialize
     export WORKPLACE=Linux
 
     function update() {

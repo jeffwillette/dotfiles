@@ -383,7 +383,8 @@ let g:ale_lint_on_insert_leave = 1
 " I had to hack on the main typescript repo so I adde dthis to not run
 " prettier on their code and mess up the formatting
 let g:ale_pattern_options = {
-  \ 'nvim-typescript': {'ale_fixers': ['tslint']}
+  \ 'nvim-typescript': {'ale_fixers': ['tslint']},
+  \ 'ContinualDBB': {'ale_fixers': [], 'ale_linters': []},
   \}
 
 let g:ale_fixers = {
@@ -394,7 +395,7 @@ let g:ale_fixers = {
   \ 'go': ['gofmt', 'goimports'],
   \ 'graphql': ['prettier'],
   \ 'javascript': ['prettier', 'eslint', 'importjs'],
-  \ 'python': ['black', 'isort'],
+  \ 'python': [],
   \}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
