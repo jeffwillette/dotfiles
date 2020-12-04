@@ -9,6 +9,10 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia-440
 export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}
 export HDF5_USE_FILE_LOCKING='FALSE'
 
+# for pytorch 1.7.0 and cuda 11.0
+export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
+export PATH=/usr/local/cuda-11.0/bin:$PATH
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -78,6 +82,7 @@ xterm*|rxvt*)
 *)
     ;;
 esac
+
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -214,7 +219,7 @@ if [ $SYSTEM == "Darwin" ]; then
     alias hidef='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder \
         /System/Library/CoreServices/Finder.app'
     alias adb='/Users/Jeff/Library/Android/sdk/platform-tools/adb'
-    alias login-kasit-desktop='ssh jeff@143.248.137.44'
+    alias login-kaist-desktop='ssh jeff@143.248.137.44'
     alias deltaskelta-ssh='ssh jeff@$DELTASKELTA_SERVER -p 31988'
     alias cdgo='cd ~/go/src/github.com/deltaskelta'
     # this is for deleting files from git repository history
@@ -224,6 +229,8 @@ if [ $SYSTEM == "Darwin" ]; then
     alias make='gmake'
     alias sed='gsed'
     alias vim='nvim'
+
+    source ~/.venv/env/bin/activate
 
     # fixing some weird inkscape error with xquartz
     # https://apple.stackexchange.com/questions/235279/inkscape-or-other-xquartz-window-disappears-when-using-external-screen
@@ -348,6 +355,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     note "Linux\n" ${blue}
 
     SSH_ENV="$HOME/.ssh/environment"
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
 
     function start_agent {
         echo "Initialising new SSH agent..."
@@ -371,7 +379,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     fi
 
     alias lock='i3lock -c 000000'
-# source ~/.venv/env/bin/activate  # commented out by conda initialize
+    source ~/.venv/env/bin/activate  # commented out by conda initialize
     export WORKPLACE=Linux
 
     function update() {
