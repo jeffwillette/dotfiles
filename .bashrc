@@ -280,7 +280,7 @@ if [ $SYSTEM == "Darwin" ]; then
 
         note "\nupdating neovim python\n" ${blue}
         source ~/.venv/neovim/bin/activate
-        pip install -U pip neovim
+        pip install -U pip neovim jedi
         deactivate
     }
 
@@ -306,25 +306,9 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export HOME=/home/jeff
     export TMPDIR=/tmp
     export WORKPLACE=KAIST
-    export PATH=/home/jeff/bin:$PATH
+    export PYENV_ROOT=$HOME/.pyenv
+    export PATH=$PYENV_ROOT/bin:/home/jeff/bin:$PATH
     alias ssh-desktop='ssh jeff@143.248.137.44'
-
-    # >>> conda initialize >>>
-    # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$("$HOME/anaconda3/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
-    if [ $? -eq 0 ]; then
-        eval "$__conda_setup"
-    else
-        if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
-		. "$HOME/anaconda3/etc/profile.d/conda.sh"
-        else
-		export PATH="$HOME/anaconda3/bin:$PATH"
-        fi
-    fi
-    unset __conda_setup
-    # <<< conda initialize <<<
-
-    conda activate env
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}
@@ -348,6 +332,8 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
         chmod +x ~/bin/powerline-go
 
     }
+
+    source /home/jeff/.venv/env/bin/activate
 
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
 
@@ -379,7 +365,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     fi
 
     alias lock='i3lock -c 000000'
-    source ~/.venv/env/bin/activate  # commented out by conda initialize
+    source ~/.venv/env/bin/activate
     export WORKPLACE=Linux
 
     function update() {

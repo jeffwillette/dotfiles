@@ -16,7 +16,7 @@ if has('mac')
     " debugger
     "let $NVIM_NODE_HOST_DEBUG=1
 elseif $WORKPLACE == 'KAIST'
-    let g:python3_host_prog='/home/jeff/anaconda3/envs/env/bin/python'
+    let g:python3_host_prog='/home/jeff/.venv/nvim/bin/python'
     let $NVIM_PYTHON_LOG_FILE='/home/jeff/.tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
 else
@@ -411,7 +411,7 @@ let g:ale_linters = {
    \ 'javascript': ['eslint'],
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['mypy', 'flake8'],
+   \ 'python': ['flake8'],
    \}
 
 let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605'
