@@ -385,6 +385,8 @@ let g:ale_lint_on_insert_leave = 1
 let g:ale_pattern_options = {
   \ 'nvim-typescript': {'ale_fixers': ['tslint']},
   \ 'ContinualDBB': {'ale_fixers': [], 'ale_linters': []},
+  \ 'SetEncoding': {'ale_fixers': [], 'ale_linters': []},
+  \ 'MiniBatchSetEncoding': {'ale_fixers': [], 'ale_linters': []},
   \}
 
 let g:ale_fixers = {
@@ -395,7 +397,7 @@ let g:ale_fixers = {
   \ 'go': ['gofmt', 'goimports'],
   \ 'graphql': ['prettier'],
   \ 'javascript': ['prettier', 'eslint', 'importjs'],
-  \ 'python': [],
+  \ 'python': ['isort'],
   \}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
@@ -411,7 +413,7 @@ let g:ale_linters = {
    \ 'javascript': ['eslint'],
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['flake8'],
+   \ 'python': ['mypy', 'flake8'],
    \}
 
 let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605'

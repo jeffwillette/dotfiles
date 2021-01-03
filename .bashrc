@@ -2,17 +2,6 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-# tensorflow for CS548 project
-export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64
-# NOTE: this is a temporary add to make something for CS572 work
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia-440
-export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}
-export HDF5_USE_FILE_LOCKING='FALSE'
-
-# for pytorch 1.7.0 and cuda 11.0
-export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
-export PATH=/usr/local/cuda-11.0/bin:$PATH
-
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -298,8 +287,10 @@ if [ $SYSTEM == "Darwin" ]; then
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST"
-    # this was first added for the rl experiments for my CS572 project
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
+
+    # this was added for the rl experiments for my CS572 project
+    export PATH=/usr/local/cuda-10.1/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
     export XDG_CACHE_HOME=/st2/jeff/.cache
     export XDG_CONFIG_HOME=/home/jeff/.config
@@ -308,7 +299,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export WORKPLACE=KAIST
     export PYENV_ROOT=$HOME/.pyenv
     export PATH=$PYENV_ROOT/bin:/home/jeff/bin:$PATH
-    alias ssh-desktop='ssh jeff@143.248.137.44'
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}
@@ -340,8 +330,13 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     note "Linux\n" ${blue}
 
+    # for pytorch 1.7.0 and cuda 11.0
+    export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
+    export PATH=/usr/local/cuda-11.0/bin:$PATH
+
     SSH_ENV="$HOME/.ssh/environment"
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
+
 
     function start_agent {
         echo "Initialising new SSH agent..."
