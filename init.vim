@@ -16,6 +16,7 @@ if has('mac')
     " debugger
     "let $NVIM_NODE_HOST_DEBUG=1
 elseif $WORKPLACE == 'KAIST'
+    " this is for KAIST ai servers
     let g:python3_host_prog='/home/jeff/.venv/nvim/bin/python'
     let $NVIM_PYTHON_LOG_FILE='/home/jeff/.tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
@@ -416,7 +417,7 @@ let g:ale_linters = {
    \ 'python': ['mypy', 'flake8'],
    \}
 
-let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605,E741'
+let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605,E741,E127'
 let g:ale_go_golangci_lint_options = '--fast'
 let g:ale_go_golangci_lint_package = 1
 
