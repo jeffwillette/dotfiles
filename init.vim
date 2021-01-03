@@ -416,7 +416,7 @@ let g:ale_linters = {
    \ 'python': ['mypy', 'flake8'],
    \}
 
-let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605'
+let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605,E741'
 let g:ale_go_golangci_lint_options = '--fast'
 let g:ale_go_golangci_lint_package = 1
 
