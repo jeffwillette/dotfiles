@@ -398,7 +398,7 @@ let g:ale_fixers = {
   \ 'go': ['gofmt', 'goimports'],
   \ 'graphql': ['prettier'],
   \ 'javascript': ['prettier', 'eslint', 'importjs'],
-  \ 'python': ['isort'],
+  \ 'python': [],
   \}
 
 " gometalinter only checks the file on disk, so it is only run when the file is saved,
@@ -418,6 +418,7 @@ let g:ale_linters = {
    \}
 
 let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605,E741,E127'
+let g:ale_python_isort_options = '--skip __init__.py --filter-files'
 let g:ale_go_golangci_lint_options = '--fast'
 let g:ale_go_golangci_lint_package = 1
 
