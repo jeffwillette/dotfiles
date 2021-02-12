@@ -388,6 +388,7 @@ let g:ale_pattern_options = {
   \ 'ContinualDBB': {'ale_fixers': [], 'ale_linters': []},
   \ 'SetEncoding': {'ale_fixers': [], 'ale_linters': []},
   \ 'MiniBatchSetEncoding': {'ale_fixers': [], 'ale_linters': []},
+  \ 'set_transformer': {'ale_fixers': [], 'ale_linters': []},
   \}
 
 let g:ale_fixers = {
