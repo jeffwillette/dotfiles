@@ -359,6 +359,8 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
         start_agent;
     fi
 
+    # run tmux with systemd so that I can logout and still have tmux running (https://unix.stackexchange.com/questions/490267/prevent-logoff-from-killing-tmux-session)
+    alias tmux='systemd-run --scope --user tmux'
     alias lock='i3lock -c 000000'
     source ~/.venv/env/bin/activate
     export WORKPLACE=Linux
