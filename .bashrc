@@ -286,7 +286,7 @@ if [ $SYSTEM == "Darwin" ]; then
 
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
-    echo "KAIST"
+    echo "KAIST AI SERVER"
 
     # this was added for the rl experiments for my CS572 project
     export PATH=/usr/local/cuda-10.1/bin:$PATH
@@ -299,6 +299,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export WORKPLACE=KAIST
     export PYENV_ROOT=$HOME/.pyenv
     export PATH=$PYENV_ROOT/bin:/home/jeff/bin:$PATH
+    export DATADIR=/st2/jeff/datasets
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}
@@ -328,12 +329,12 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
 
 elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
-    note "Linux\n" ${blue}
+    note "Linux Desktop\n" ${blue}
 
     # for pytorch 1.7.0 and cuda 11.0
     export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
-    export PATH=/usr/local/cuda-11.0/bin:$PATH
-
+    export PATH=/usr/local/cuda-11.0/bin:/home/jeff/.gem/ruby/2.7.0/bin:$PATH
+    export DATADIR=/home/jeff/datasets
     SSH_ENV="$HOME/.ssh/environment"
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
 
