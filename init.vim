@@ -126,7 +126,7 @@ endfunction
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 syntax on
 filetype plugin indent on
-colorscheme base16-classic-dark
+colorscheme base16-material-darker
 
 " status line is filename and right aligned column number
 " hidden makes the buffer hidden when inactvie rather than essentially 'closing' it
