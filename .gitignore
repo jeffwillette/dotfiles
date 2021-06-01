@@ -1,2 +1,4 @@
 .DS_Store
 lib/
+__pycache__/*
+data/examples/*

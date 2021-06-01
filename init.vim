@@ -44,31 +44,19 @@ Plug 'scrooloose/nerdtree'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/echodoc'
-Plug 'Shougo/neosnippet'
-Plug 'Shougo/neosnippet-snippets'
 Plug 'dense-analysis/ale'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
-Plug 'xolox/vim-misc'
-Plug 'honza/vim-snippets'
-
-Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
-
-Plug 'jvirtanen/vim-octave'
 
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
-
-Plug 'Shougo/deoplete-clangx', { 'for': ['cpp'] }
-Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['cpp'] }
 
 Plug 'zchee/deoplete-jedi', { 'for': 'python' }
 Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'vim-python/python-syntax'
 
-Plug 'jparise/vim-graphql'
-
+Plug 'xolox/vim-misc'
 Plug 'xolox/vim-colorscheme-switcher'
 Plug 'chriskempson/base16-vim'
 Plug 'rakr/vim-one'
@@ -76,28 +64,6 @@ Plug 'gosukiwi/vim-atom-dark'
 Plug 'nanotech/jellybeans.vim'
 Plug 'morhetz/gruvbox'
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
-" removed because it interferes with denite somehow
-"Plug 'ryanoasis/vim-devicons'
-
-if executable('go')
-    Plug 'fatih/vim-go', {'for': 'go'}
-    Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go'}
-    Plug 'fatih/vim-go', {'for': 'go'}
-    Plug 'sebdah/vim-delve', {'for': 'go'}
-endif
-
-if executable('node')
-    Plug 'ternjs/tern_for_vim', { 'do': 'yarn install', 'for': 'javascript' }
-    Plug 'carlitux/deoplete-ternjs', { 'do': 'yarn global add tern', 'for': 'javascript' }
-    Plug 'Galooshi/vim-import-js', {'for': ['javascript']}
-    Plug 'pangloss/vim-javascript', {'for': ['javascript', 'javascript.jsx']}
-    Plug 'mxw/vim-jsx', {'for': ['javascript', 'javascript.jsx']}
-
-    Plug 'HerringtonDarkholme/yats'
-    Plug 'mhartington/nvim-typescript', {'branch': 'master', 'do': './install.sh'}
-
-    Plug 'deltaskelta/nvim-deltaskelta', {'do': ':UpdateRemotePlugins'}
-endif
 
 call plug#end()
 
@@ -146,21 +112,12 @@ set clipboard+=unnamedplus
 set laststatus=2
 set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
-" vim-latex-preview ------------------------------------------------------------------
-" on linux there is a different command to open the files
-if $WORKPLACE == 'Linux'
-    let g:livepreview_previewer = 'vprerex'
-else
-    let g:livepreview_previewer = 'open -a Preview'
-endif
-
 
 " vim airline ------------------------------------------------------------------------
 let g:airline#extensions#tabline#enabled = 0
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
 let g:airline_theme='tomorrow'
-"let g:airline#extensions#tabline#buffer_idx_mode = 0
 let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#buffer_nr_format = '%s: '
 
@@ -168,11 +125,6 @@ let g:airline#extensions#tabline#buffer_nr_format = '%s: '
 function! ChangeColors()
     hi airline_tabmod_unsel guifg=#61afef guibg=#2c323c
 endfunction
-
-" this is called to avoid square brackets on icons after refreshing the vimrc
-if exists('g:loaded_webdevicons')
-	call webdevicons#refresh()
-endif
 
 " refresh the .vimrc on a save so vim does not have to be restarted
 augroup startup
@@ -186,20 +138,11 @@ augroup startup
     autocmd FileType denite-filter call s:denite_filter_my_settings()
 augroup END
 
-" neosnippets ---------------------------------------------------------------------------
-
-let g:neosnippet#enable_completed_snippet = 1
-imap qq <Plug>(neosnippet_expand_or_jump)
-let g:neosnippet#snippets_directory='~/.config/nvim/plugged/vim-snippets/snippets,~/dotfiles/vim-snippets'
-
 " auto pairs ----------------------------------------------------------------------------
 
 " do not make the line in the center of the page after pressing enter
 let g:AutoPairsCenterLine = 0
 let g:AutoPairsMapCR = 1
-
-" tern for vim --------------------------------------------------------------------------
-let g:tern_show_signature_in_pum = 1
 
 " deoplete --------------------------------------------------------------------------
 
@@ -218,21 +161,6 @@ call deoplete#custom#option({
 call deoplete#custom#source(
   \ 'file', 'enable_buffer_path', v:false)
 
-
-" deoplete-ternjs ----------------------------------------------------------------
-
-" shows type info in the completion, but dont confuse this with flow type info, tern and
-" flow serve different purposes https://github.com/ternjs/tern/issues/827
-let g:deoplete#sources#ternjs#types = 1
-let g:deoplete#sources#ternjs#case_insensitive = 1
-
-" in order to have tern go through and resolve all of the modules and imports in a webpack
-" project, it needs the path to the webpack config. I am usually using create-react-app
-" which bundles it in node_modules (path in the project level .tern-project file) If I
-" don't want to eject the react-scripts, the references webpack file looks for NODE_ENV
-" variable which is unset, this script sets it.
-let g:deoplete#sources#ternjs#tern_bin = 'custom-tern' " for tern autocompleting
-let g:tern#command = ['custom-tern'] " for running tern commands
 
 " letting tab scroll through the autocomplete list, up to go backwards
 inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
@@ -256,7 +184,6 @@ nnoremap <leader>dp :diffpush<CR>
 nnoremap <leader>tc :bdelete!<CR>:tabclose<CR>
 
 " denite settings -----------------------------------------------------------
-
 
 " called in startup augrouph
 function! s:denite_filter_my_settings() abort
@@ -311,68 +238,14 @@ nnoremap <leader><Space><Space> :Denite -split=floating grep:.<CR>
 nnoremap <leader>c :DeniteCursorWord -split=floating grep:.<CR>
 nnoremap <leader><Space>a :Denite -split=floating -highlight-matched-range=NONE -highlight-matched-char=NONE rg/unignore<CR>
 
-" vim go ---------------------------------------------------------------------
-
-augroup vimgo
-    autocmd!
-    " this is from the vim-go docs `go-guru-scope` which (I think) sets the scope for
-    " go-guru to the current project directory
-    autocmd BufRead /Users/Jeff/go/src/*.go
-        \  let s:tmp = matchlist(expand('%:p'),
-            \ '/Users/Jeff/go/src/\(github.com/user/[^/]\+\)')
-        \| if len(s:tmp) > 1 |  exe 'silent :GoGuruScope ' . s:tmp[1] | endif
-        \| unlet s:tmp
-    autocmd FileType go nmap <leader>ds <Plug>(go-def-split)
-    autocmd FileType go nmap <leader>gb <Plug>(go-build)
-    autocmd FileType go nmap <leader>dt <Plug>(go-def-tab)
-    autocmd FileType go nmap <leader>d <Plug>(go-def)
-    autocmd FileType go nmap <leader>gt <Plug>(go-test)
-    autocmd FileType go nmap <leader>gl :call GoLinting()<CR>
-    autocmd FileType go nmap <leader>gc :GoCoverage<CR><CR>
-    autocmd FileType go nmap <leader>gcc :GoCoverageToggle<CR>
-    autocmd FileType go nmap <leader>gtf <Plug>(go-test-func)
-    autocmd FileType go nmap <leader>gd <Plug>(go-doc)
-    autocmd FileType go nmap <leader>gr <Plug>(go-rename)
-    autocmd FileType go nmap <leader>da :DlvAddBreakpoint<CR>
-    autocmd FileType go nmap <leader>dr :DlvRemoveBreakpoint<CR>
-    autocmd FileType go nmap <leader>dt :DlvTest<CR>
-    autocmd FileType go set tabstop=4 shiftwidth=4
-augroup END
-
-" Highlights
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_structs = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_operators = 1
-let g:go_auto_type_info = 1
-let g:go_fmt_autosave = 0
-" vim-go uses the location list by default. This clashes with gometalinter through ale
-" plugin and erases test output when there are errors. Set vim-go to use quickfix
-let g:go_list_type = 'quickfix'
-let g:go_list_height = 10
-let g:go_list_autoclose = 0
-
-" vim delve -----------------------------------------------------------------------------
-let g:delve_new_command = 'new' "make a new window a hirizontal split
-
 " ale ---------------------------------------------------------------------
+"
 let g:ale_sign_column_always = 1
 let g:ale_sign_error = '✖'
 let g:ale_sign_warning = '⚠'
 let g:ale_fix_on_save = 1
-let g:ale_javascript_eslint_executable = 'eslint_d'
-let g:ale_javascript_eslint_use_global = 0
-let g:ale_completion_enabled = 1
-
-" using global prettier because the local one has graphql version conflicts
-let g:ale_javascript_prettier_use_global = 0
 
 " for some reason it wasn't finding my project config files with prettier_d
-"let g:ale_javascript_prettier_executable = 'prettier_d'
-"let g:ale_javascript_prettier_options = '--fallback'
-let g:ale_typescript_prettier_options = '--fix'
-let g:ale_typescript_prettier_use_local_config = 1
 let g:ale_open_list = 1
 let g:ale_set_loclist = 0
 let g:ale_set_quickfix = 1
@@ -387,32 +260,17 @@ let g:ale_pattern_options = {
   \ 'nvim-typescript': {'ale_fixers': ['tslint']},
   \ 'ContinualDBB': {'ale_fixers': [], 'ale_linters': []},
   \ 'SetEncoding': {'ale_fixers': [], 'ale_linters': []},
-  \ 'MiniBatchSetEncoding': {'ale_fixers': [], 'ale_linters': []},
   \ 'set_transformer': {'ale_fixers': [], 'ale_linters': []},
+  \ 'MiniBatchSetEncoding': {'ale_fixers': [], 'ale_linters': []},
   \}
 
 let g:ale_fixers = {
-  \ 'typescript': ['prettier', 'eslint'],
-  \ 'typescriptreact': ['prettier', 'eslint'],
   \ '*': ['remove_trailing_lines', 'trim_whitespace'],
   \ 'cpp': ['clang-format'],
-  \ 'go': ['gofmt', 'goimports'],
-  \ 'graphql': ['prettier'],
-  \ 'javascript': ['prettier', 'eslint', 'importjs'],
   \ 'python': ['isort'],
   \}
 
-" gometalinter only checks the file on disk, so it is only run when the file is saved,
-" which can be misleading because it seems like it should be running these linters on save
-" \ 'go': ['golint', 'go vet', 'go build', 'gometalinter'],
-"\ 'typescript': ['eslint'],
-"\ 'typescriptreact': ['eslint'],
 let g:ale_linters = {
-   \ 'typescriptreact': [],
-   \ 'go': ['golangci-lint'],
-   \ 'proto': ['protoc-gen-lint'],
-   \ 'graphql': ['gqlint'],
-   \ 'javascript': ['eslint'],
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
    \ 'python': ['mypy', 'flake8'],
@@ -420,10 +278,9 @@ let g:ale_linters = {
 
 let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605,E741,E127'
 let g:ale_python_isort_options = '--skip __init__.py --filter-files'
-let g:ale_go_golangci_lint_options = '--fast'
-let g:ale_go_golangci_lint_package = 1
 
 " CPP ------------------------------------------------------------------
+"
 call deoplete#custom#var('clangx', 'clang', '/usr/bin/clang')
 augroup cpp
     autocmd!
@@ -452,39 +309,6 @@ augroup python
     autocmd FileType python set tabstop=4 shiftwidth=0 expandtab
 augroup END
 
-" ReactJS stuff --------------------------------------------------------
-" react syntax will work on .js files
-let g:javascript_plugin_flow = 1
-
-
-augroup javascript
-    autocmd!
-    " setting javascript things.
-    " importjs seems to mess with things
-    nnoremap <leader>i :ImportJSFix<CR>
-    "autocmd BufWritePre *.js :ImportJSFix
-    autocmd FileType javascript set tabstop=2 shiftwidth=2 expandtab
-augroup END
-
-" let g:nvim_typescript#server_path = '/Users/Jeff/typescript/TypeScript/bin/tsserver'
-let g:nvim_typescript#diagnostics_enable = 1
-
-augroup typescript
-    autocmd!
-    autocmd FileType typescript,typescriptreact,typescript.tsx set omnifunc=TSComplete
-    autocmd FileType typescript,typescripreact,typescript.tsx set tabstop=2 shiftwidth=2 expandtab
-    autocmd FileType typescript,typescripreact,typescript.tsx nnoremap <buffer><leader>i :TSGetCodeFix<CR>
-    autocmd FileType typescript,typescripreact,typescript.tsx nnoremap <buffer><leader>dp :TSDefPreview<CR>
-    autocmd FileType typescript,typescripreact,typescript.tsx nnoremap <buffer><leader>d :TSDef<CR>
-    autocmd FileType typescript,typescripreact,typescript.tsx nnoremap <buffer><leader>t :TSType<CR>
-augroup END
-
-" html files ---------------------------------------------------------------
-augroup html
-    autocmd!
-    autocmd FileType html set tabstop=2 shiftwidth=2 expandtab
-augroup END
-
 " nerdtree settings ------------------------------------------------------------
 
 nnoremap <leader>[ :NERDTreeToggle<CR>
@@ -494,14 +318,6 @@ let g:NERDTreeAutoDeleteBuffer = 1
 
 augroup nerdtree
     autocmd FileType nerdtree setlocal signcolumn=no modifiable
-augroup END
-
-" TeX settings
-
-augroup TeX
-    autocmd!
-    autocmd FileType tex setlocal wrap
-    autocmd FileType tex setlocal textwidth=120
 augroup END
 
 " insert mode mappings ------------------------------------------------------
@@ -664,6 +480,3 @@ hi DiffDelete gui=bold guifg=#cc6666 guibg=#373737
 hi NERDTreeOpenable guifg=#b294bb gui=bold
 hi link NERDTreeClosable NERDTreeOpenable
 hi NERDTreeDir guifg=#ffffff gui=bold
-
-" italics was interfering with some latex
-hi markdownItalic guifg=None
