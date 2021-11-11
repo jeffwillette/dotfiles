@@ -168,7 +168,7 @@ inoremap <expr><Up> pumvisible() ? "\<c-p>" : "\<Up>"
 
 " vim fugitive mappings -----------------------------------------------------
 
-nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>gs :Git<CR>
 nnoremap <leader>gl :Git --no-pager log<CR>
 " when cvc (git verbose commit) is called from status and there is too much
 " diff to see on the screen, a new buffer can be opened to compose the diff
@@ -246,11 +246,11 @@ let g:ale_sign_warning = '⚠'
 let g:ale_fix_on_save = 1
 
 " for some reason it wasn't finding my project config files with prettier_d
-let g:ale_open_list = 1
+let g:ale_open_list = 0
 let g:ale_set_loclist = 0
 let g:ale_set_quickfix = 1
-let g:ale_keep_list_window_open = 1
-let g:ale_list_window_size = 10
+let g:ale_keep_list_window_open = 0
+let g:ale_list_window_size = 2
 let g:ale_lint_on_text_changed = 'normal'
 let g:ale_lint_on_insert_leave = 1
 
