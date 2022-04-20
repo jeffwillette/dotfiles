@@ -8,13 +8,19 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
-# if running bash
-if [ -n "$BASH_VERSION" ]; then
-    # include .bashrc if it exists
-    if [ -f "$HOME/.bashrc" ]; then
-	. "$HOME/.bashrc"
-    fi
+SYSTEM=`uname -a | cut -d" " -f1`
+if [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
+    export PYENV_ROOT="/st1/jeff/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
 fi
+
+# if running bash
+# if [ -n "$BASH_VERSION" ]; then
+#     # include .bashrc if it exists
+#     if [ -f "$HOME/.bashrc" ]; then
+# 	. "$HOME/.bashrc"
+#     fi
+# fi
 
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ] ; then
@@ -26,7 +32,6 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-# if we are running i3 then we need to start the keyring in order to use ssh keys
-if [ "$DESKTOP_SESSION" = "i3" ]; then
-    export $(gnome-keyring-daemon)
+if [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
+    eval "$(pyenv init --path)"
 fi

@@ -181,9 +181,17 @@ function download_nvim() {
     chmod u+x ~/bin/vim
 }
 
+function download_deno() {
+    # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
+    note "\ndownloading deno exectuable\n" ${blue}
+    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.20.6/deno-x86_64-unknown-linux-gnu.zip
+    cd ~/bin
+    unzip -o deno.zip
+}
+
 function download_rg {
     note "\ndownloading and extracting ripgrep\n" ${blue}
-    curl -Lo ~/bin/rg.tar.gz https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep-11.0.2-x86_64-unknown-linux-musl.tar.gz
+    curl -Lo ~/bin/rg.tar.gz https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz
     cd ~/bin
     tar -xvf rg.tar.gz
     cp ~/bin/ripgrep-11.0.2-x86_64-unknown-linux-musl/rg ~/bin
@@ -247,6 +255,7 @@ if [ $SYSTEM == "Darwin" ]; then
     done
 
     function update() {
+        note "YOU NEED TO INSTALL DENO IN ORDER TO USE CURRENT INIT.VIM; LOOKUP BREW COMMANDS\n" ${red}
         note "updating brew\n" ${blue}
         brew update
         note "\nupgrading brew\n" ${blue}
@@ -292,39 +301,40 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export PATH=/usr/local/cuda-10.1/bin:$PATH
     export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
-    export XDG_CACHE_HOME=/st2/jeff/.cache
+    export XDG_CACHE_HOME=/st1/jeff/.cache
     export XDG_CONFIG_HOME=/home/jeff/.config
     export HOME=/home/jeff
     export TMPDIR=/tmp
     export WORKPLACE=KAIST
-    export PYENV_ROOT=$HOME/.pyenv
-    export PATH=$PYENV_ROOT/bin:/home/jeff/bin:$PATH
     export DATADIR=/st2/jeff/datasets
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}
         now="$(date +%Y%m%d_%H%M%S)"
-        mkdir -p /st2/jeff/.trash/$now
-        mv "$@" /st2/jeff/.trash/$now
+        mkdir -p /d1/jeff/.trash/$now
+        mv "$@" /d1/jeff/.trash/$now
     }
 
     function emptytrash() {
         note "emptying trash\n" ${blue}
-        rm -rf /st2/jeff/.trash
-        mkdir /st2/jeff/.trash
+        rm -rf /d1/jeff/.trash
+        mkdir /d1/jeff/.trash
     }
 
     function update() {
+	    note "downloading binaries\n" ${blue}
 	    download_nvim
         download_rg
+        download_deno
 
         note "\ndownloading powerline go\n" ${blue}
-        curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.13.0/powerline-go-linux-amd64
+        curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.21.0/powerline-go-linux-amd64
         chmod +x ~/bin/powerline-go
 
     }
 
-    source /home/jeff/.venv/env/bin/activate
+    eval "$(pyenv init -)"
+    source /st1/jeff/.venv/env/bin/activate
 
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
 
@@ -367,11 +377,13 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     export WORKPLACE=Linux
 
     function update() {
-	note "apt update\n" ${blue}
-	sudo apt -y update && sudo apt -y upgrade
-
+	note "downloading binaries\n" ${blue}
 	download_nvim
     download_rg
+    download_deno
+
+	note "apt update\n" ${blue}
+	sudo apt -y update && sudo apt -y upgrade
     }
 
     export PATH=~/go/bin:$PATH

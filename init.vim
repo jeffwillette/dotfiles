@@ -17,8 +17,8 @@ if has('mac')
     "let $NVIM_NODE_HOST_DEBUG=1
 elseif $WORKPLACE == 'KAIST'
     " this is for KAIST ai servers
-    let g:python3_host_prog='/home/jeff/.venv/nvim/bin/python'
-    let $NVIM_PYTHON_LOG_FILE='/home/jeff/.tmp/nvim-python.log'
+    let g:python3_host_prog='/st1/jeff/.venv/nvim/bin/python'
+    let $NVIM_PYTHON_LOG_FILE='/st1/jeff/.tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
 else
     " right now this is for linux a server without node stuff, if I want to
@@ -41,8 +41,36 @@ augroup END
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'scrooloose/nerdtree'
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
+
+" autocompleter and sources, filters ----------------------
+Plug 'Shougo/pum.vim'
+Plug 'Shougo/ddc.vim'
+Plug 'vim-denops/denops.vim'
+
+" install your sources
+Plug 'tani/ddc-fuzzy'
+Plug 'Shougo/ddc-around'
+Plug 'Shougo/ddc-rg'
+Plug 'statiolake/ddc-ale'
+Plug 'delphinus/ddc-tmux'
+Plug 'tani/ddc-path'
+Plug 'Shougo/ddc-omni'
+
+" install your filters
+Plug 'Shougo/ddc-matcher_head'
+Plug 'Shougo/ddc-sorter_rank'
+" autocompleter done --------------------------------------
+
+" ddu (denite replacement?) ------------------------------
+Plug 'Shougo/ddu.vim'
+Plug 'Shougo/ddu-kind-file'
+Plug 'Shougo/ddu-filter-matcher_substring'
+Plug 'shun/ddu-source-buffer'
+Plug 'Shougo/ddu-ui-ff'
+Plug 'shun/ddu-source-rg'
+Plug 'Shougo/ddu-source-file_rec'
+" ddu done ----------------------------------------------
+
 Plug 'Shougo/echodoc'
 Plug 'dense-analysis/ale'
 Plug 'jiangmiao/auto-pairs'
@@ -52,7 +80,6 @@ Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
 
-Plug 'zchee/deoplete-jedi', { 'for': 'python' }
 Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'vim-python/python-syntax'
 
@@ -134,40 +161,9 @@ augroup startup
     autocmd FileType gitcommit setlocal cc=72 tw=72
     autocmd BufEnter *.md,*.mdx setlocal tw=120
     autocmd VimEnter * call ChangeColors()
-    autocmd FileType denite call s:denite_my_settings()
-    autocmd FileType denite-filter call s:denite_filter_my_settings()
 augroup END
 
-" auto pairs ----------------------------------------------------------------------------
-
-" do not make the line in the center of the page after pressing enter
-let g:AutoPairsCenterLine = 0
-let g:AutoPairsMapCR = 1
-
-" deoplete --------------------------------------------------------------------------
-
-call deoplete#enable_logging('INFO', '/tmp/deoplete.log')
-call deoplete#custom#source('jedi', 'is_debug_enabled', v:true)
-
-let g:deoplete#enable_at_startup = 1
-
-call deoplete#custom#option({
-  \ 'smart_case': v:true,
-  \ 'profile': v:true,
-  \ 'auto_complete_delay': 0,
-  \ 'auto_refresh_delay': 20,
-  \ })
-
-call deoplete#custom#source(
-  \ 'file', 'enable_buffer_path', v:false)
-
-
-" letting tab scroll through the autocomplete list, up to go backwards
-inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-inoremap <expr><Up> pumvisible() ? "\<c-p>" : "\<Up>"
-
-" vim fugitive mappings -----------------------------------------------------
-
+" vim fugitive --------------------------------------------------
 nnoremap <leader>gs :Git<CR>
 nnoremap <leader>gl :Git --no-pager log<CR>
 " when cvc (git verbose commit) is called from status and there is too much
@@ -183,60 +179,152 @@ nnoremap <leader>dp :diffpush<CR>
 " extra buffer
 nnoremap <leader>tc :bdelete!<CR>:tabclose<CR>
 
+" auto pairs ----------------------------------------------------------------------------
+
+" do not make the line in the center of the page after pressing enter
+let g:AutoPairsCenterLine = 0
+let g:AutoPairsMapCR = 1
+
+" ddc setup ----------------------------------------------------------------
+" https://github.com/Shougo/ddc.vim
+
+
+inoremap <Tab>   <Cmd>call pum#map#insert_relative(+1)<CR>
+inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
+inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
+inoremap <C-y>   <Cmd>call pum#map#confirm()<CR>
+inoremap <C-e>   <Cmd>call pum#map#cancel()<CR>
+inoremap <PageDown> <Cmd>call pum#map#insert_relative_page(+1)<CR>
+inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
+
+call ddc#custom#patch_global('completionMenu', 'pum.vim')
+" TODO: omni and path are giving errors as invalud sources, look into this
+" when there is time
+call ddc#custom#patch_global('sources', ['around', 'ale', 'rg', 'tmux'])
+
+call ddc#custom#patch_global('sourceOptions', {
+      \ '_': {
+      \       'matchers': ['matcher_fuzzy'],
+      \       'sorters': ['sorter_fuzzy'],
+      \       'converters': ['converter_fuzzy']
+      \   },
+      \   'rg': {'mark': 'rg', 'minAutoCompleteLength': 4,},
+      \   'tmux': {'mark': 'T'},
+      \   'omni': {'mark': 'O'},
+      \ })
+
+
+call ddc#custom#patch_global('sourceParams', {
+      \    'ale': {'cleanResultsWhitespace': v:true},
+      \   'path': { 'mark': 'P', 'cmd': ['fd', '--max-depth', '5'] },
+      \ })
+
+inoremap <silent><expr> <TAB>
+\ ddc#map#pum_visible() ? '<C-n>' :
+\ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+\ '<TAB>' : ddc#map#manual_complete()
+
+" <S-TAB>: completion back.
+inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
+
+" Use ddc.
+call ddc#enable()
+
+
 " denite settings -----------------------------------------------------------
 
-" called in startup augrouph
-function! s:denite_filter_my_settings() abort
-  imap <silent><buffer> <C-o> <Plug>(denite_filter_quit)
-  imap <silent><buffer> JJ denite#do_map('quit')
+" You must set the default ui.
+" Note: ff ui
+" https://github.com/Shougo/ddu-ui-ff
+call ddu#custom#patch_global({
+    \ 'ui': 'ff',
+    \ 'uiParams': {'ff': {'split': 'horizontal'}}
+    \ })
+
+" You must set the default action.
+" Note: file kind
+" https://github.com/Shougo/ddu-kind-file
+call ddu#custom#patch_global({
+    \   'kindOptions': {
+    \     'file': {
+    \       'defaultAction': 'open',
+    \     },
+    \   }
+    \ })
+
+" Specify matcher.
+" Note: matcher_substring filter
+" https://github.com/Shougo/ddu-filter-matcher_substring
+call ddu#custom#patch_global({
+    \   'sourceOptions': {
+    \     '_': {
+    \       'matchers': ['matcher_substring'],
+    \     },
+    \     'file_rec': {'path': getcwd()},
+    \   }
+    \ })
+
+" \       'args': ['--column', '--no-heading', '--color', 'never'],
+call ddu#custom#patch_global({
+    \   'sourceParams' : {
+    \     'rg' : {
+    \       'args': ['--column', '--no-heading'],
+    \     },
+    \     'file_rec': {
+    \       'ignoredDirectories': ["__pycache__", ".git", ".mypy_cache", "results"]
+    \     }
+    \   },
+    \ })
+
+call ddu#custom#patch_global({
+    \   'filterParams': {
+    \     'matcher_substring': {
+    \       'highlightMatched': 'Search',
+    \     },
+    \   }
+    \ })
+
+function! s:ddu_rg_live() abort
+  call ddu#start({
+        \   'volatile': v:true,
+        \   'sources': [{
+        \     'name': 'rg',
+        \     'options': {'matchers': []},
+        \   }],
+        \   'uiParams': {'ff': {
+        \     'ignoreEmpty': v:false,
+        \     'autoResize': v:false,
+        \   }},
+        \ })
 endfunction
 
-" called in startup augroup
-function! s:denite_my_settings() abort
-    " set some navigation commands
-    inoremap <C-j> denite#do_map('<denite:move_to_next_line>')
-
-    nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
-    nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
-    nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
-    nnoremap <silent><buffer><expr> q denite#do_map('quit')
-    nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
-    nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
+autocmd FileType ddu-ff call s:ddu_ff_my_settings()
+function! s:ddu_ff_my_settings() abort
+  nnoremap <buffer> <CR>
+  \ <Cmd>call ddu#ui#ff#do_action('itemAction')<CR>
+  nnoremap <buffer> <Space>
+  \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
+  nnoremap <buffer> i
+  \ <Cmd>call ddu#ui#ff#do_action('openFilterWindow')<CR>
+  nnoremap <buffer> q
+  \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
 endfunction
 
-" file search command shows hidden and ignores !.git and respected .gitignore
-call denite#custom#var('file/rec', 'command',
-    \['rg', '--follow', '--files', '--hidden', '-g', '!.git'])
+autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
+function! s:ddu_filter_my_settings() abort
+  inoremap <buffer> <CR>
+  \ <Esc><Cmd>close<CR>
+  nnoremap <buffer> <CR>
+  \ <Cmd>close<CR>
+endfunction
 
-" grep command using rg for speed, respected .gitignore
-call denite#custom#var('grep', 'command', ['rg'])
-call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep', '--iglob', '!yarn.lock'])
-call denite#custom#var('grep', 'recursive_opts', [])
-call denite#custom#var('grep', 'pattern_opt', [])
-call denite#custom#var('grep', 'separator', ['--'])
-call denite#custom#var('grep', 'final_opts', [])
+" open list of buffers, open directory for seatch, search for test in files (rg)
+nnoremap <leader><leader> <Cmd>call ddu#start({'sources': [{'name': 'buffer'}]})<CR>
+nnoremap <leader><Space> <Cmd>call ddu#start({'sources': [{'name': 'file_rec'}]})<CR>
+nnoremap <leader><Space>a <Cmd>call ddu#start({'sources': [{'name': 'file_rec', 'options': {'path': expand("~")}}]})<CR>
+nnoremap <leader><Space><Space> <Cmd>call <SID>ddu_rg_live()<CR>
 
-" let the denite buffer window match by buffer number
-call denite#custom#var('buffer', 'date_format', '')
-call denite#custom#source('buffer', 'matchers', ['converter/abbr_word', 'matcher/substring'])
-
-" define a custom grep (rg) command that will unignore files I usually don't want to search,
-" -uu is the flag that searches everything excpet binary files
-call denite#custom#alias('source', 'rg/unignore', 'grep')
-call denite#custom#var('rg/unignore', 'command', ['rg'])
-call denite#custom#var('rg/unignore', 'default_opts',
-    \ ['-iuu', '--vimgrep'])
-call denite#custom#var('rg/unignore', 'recursive_opts', [])
-call denite#custom#var('rg/unignore', 'pattern_opt', [])
-call denite#custom#var('rg/unignore', 'separator', ['--'])
-call denite#custom#var('rg/unignore', 'final_opts', [])
-
-nnoremap <leader><Space> :Denite -split=floating -prompt=❯ -start-filter -highlight-matched-range=NONE -highlight-matched-char=NONE file/rec<CR>
-nnoremap <leader>` :Denite -split=floating -prompt=❯ -start-filter -highlight-matched-range=NONE -highlight-matched-char=NONE -path=~/ file/rec<CR>
-nnoremap <leader><leader> :Denite -split=floating buffer<CR>
-nnoremap <leader><Space><Space> :Denite -split=floating grep:.<CR>
-nnoremap <leader>c :DeniteCursorWord -split=floating grep:.<CR>
-nnoremap <leader><Space>a :Denite -split=floating -highlight-matched-range=NONE -highlight-matched-char=NONE rg/unignore<CR>
 
 " ale ---------------------------------------------------------------------
 "
@@ -262,6 +350,7 @@ let g:ale_pattern_options = {
   \ 'SetEncoding': {'ale_fixers': [], 'ale_linters': []},
   \ 'set_transformer': {'ale_fixers': [], 'ale_linters': []},
   \ 'MiniBatchSetEncoding': {'ale_fixers': [], 'ale_linters': []},
+  \ 'AI611-project': {'ale_fixers': [], 'ale_linters': []}
   \}
 
 let g:ale_fixers = {
@@ -279,18 +368,7 @@ let g:ale_linters = {
 let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605,E741,E127'
 let g:ale_python_isort_options = '--skip __init__.py --filter-files'
 
-" CPP ------------------------------------------------------------------
-"
-call deoplete#custom#var('clangx', 'clang', '/usr/bin/clang')
-augroup cpp
-    autocmd!
-    autocmd FileType cpp set tabstop=2 shiftwidth=2 expandtab
-augroup END
-
 " Python
-
-let g:deoplete#sources#jedi#show_docstring = 1
-let g:deoplete#sources#jedi#enable_typeinfo = 1 " for faster results
 
 let g:python_highlight_all = 1
 
