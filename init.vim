@@ -188,8 +188,7 @@ let g:AutoPairsMapCR = 1
 " ddc setup ----------------------------------------------------------------
 " https://github.com/Shougo/ddc.vim
 
-
-inoremap <Tab>   <Cmd>call pum#map#insert_relative(+1)<CR>
+inoremap <expr><Tab> ddc#map#pum_visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' : '<Tab>'
 inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
 inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
 inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
@@ -199,9 +198,9 @@ inoremap <PageDown> <Cmd>call pum#map#insert_relative_page(+1)<CR>
 inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
 
 call ddc#custom#patch_global('completionMenu', 'pum.vim')
-" TODO: omni and path are giving errors as invalud sources, look into this
-" when there is time
-call ddc#custom#patch_global('sources', ['around', 'ale', 'rg', 'tmux'])
+call pum#set_option('border', 'rounded')
+
+call ddc#custom#patch_global('sources', ['around', 'ale', 'rg', 'tmux', 'omni', 'path'])
 
 call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
@@ -212,25 +211,19 @@ call ddc#custom#patch_global('sourceOptions', {
       \   'rg': {'mark': 'rg', 'minAutoCompleteLength': 4,},
       \   'tmux': {'mark': 'T'},
       \   'omni': {'mark': 'O'},
+      \   'path': {'mark': 'P'},
+      \   'ale': {'mark': 'A'},
       \ })
 
-
+" \    'path': {'cmd': ['fd', '--max-depth', '5'] },
 call ddc#custom#patch_global('sourceParams', {
       \    'ale': {'cleanResultsWhitespace': v:true},
-      \   'path': { 'mark': 'P', 'cmd': ['fd', '--max-depth', '5'] },
+      \    'path': {'cmd': ["fd", "--max-depth", "5"] },
       \ })
 
-inoremap <silent><expr> <TAB>
-\ ddc#map#pum_visible() ? '<C-n>' :
-\ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
-\ '<TAB>' : ddc#map#manual_complete()
-
-" <S-TAB>: completion back.
-inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
 
 " Use ddc.
 call ddc#enable()
-
 
 " denite settings -----------------------------------------------------------
 
@@ -239,7 +232,7 @@ call ddc#enable()
 " https://github.com/Shougo/ddu-ui-ff
 call ddu#custom#patch_global({
     \ 'ui': 'ff',
-    \ 'uiParams': {'ff': {'split': 'horizontal'}}
+    \ 'uiParams': {'ff': {'split': 'floating', 'winHeight': 35, 'floatingBorder': 'rounded'}}
     \ })
 
 " You must set the default action.
@@ -269,7 +262,7 @@ call ddu#custom#patch_global({
 call ddu#custom#patch_global({
     \   'sourceParams' : {
     \     'rg' : {
-    \       'args': ['--column', '--no-heading'],
+    \       'args': ['--json'],
     \     },
     \     'file_rec': {
     \       'ignoredDirectories': ["__pycache__", ".git", ".mypy_cache", "results"]
@@ -330,7 +323,7 @@ nnoremap <leader><Space><Space> <Cmd>call <SID>ddu_rg_live()<CR>
 "
 let g:ale_sign_column_always = 1
 let g:ale_sign_error = '✖'
-let g:ale_sign_warning = '⚠'
+let g:ale_sign_warning = '✖'
 let g:ale_fix_on_save = 1
 
 " for some reason it wasn't finding my project config files with prettier_d
@@ -362,17 +355,17 @@ let g:ale_fixers = {
 let g:ale_linters = {
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['mypy', 'flake8'],
+   \ 'python': ['mypy', 'pylsp'],
    \}
 
-let g:ale_python_flake8_options = '--ignore E501,E203,W503,W605,E741,E127'
 let g:ale_python_isort_options = '--skip __init__.py --filter-files'
 
 " Python
 
 let g:python_highlight_all = 1
 
-let g:jedi#completions_enabled = 0 " use deoplete for completions, vim-jedi for other commands
+let g:jedi#show_call_signatures = 2 "show in the command line instead of a popup window (popup gets in the way)
+let g:jedi#completions_enabled = 0 " use ddc for completions, vim-jedi for other python commands
 let g:jedi#use_splits_not_buffers = 'top'
 let g:jedi#goto_command = '<leader>g'
 let g:jedi#goto_assignments_command = ''
@@ -384,7 +377,8 @@ let g:jedi#rename_command = '<leader>rn'
 
 augroup python
     autocmd!
-    autocmd FileType python set tabstop=4 shiftwidth=0 expandtab
+    " noshowmode is set to allow for the function completion in the command line
+    autocmd FileType python set tabstop=4 shiftwidth=0 expandtab noshowmode
 augroup END
 
 " nerdtree settings ------------------------------------------------------------
@@ -425,6 +419,12 @@ tnoremap jj <C-\><C-n>
 nnoremap <leader>tn :keepalt file
 
 " normal mode mappings -------------------------------------------------------
+
+" setup terminals with gpustat and htop
+function! HtopAndGpuStat()
+    call feedkeys(":terminal\<CR>i watch -n 0.2 gpustat\<CR>\<C-\>\<C-n>\:file gpustat\<CR>")
+    call feedkeys(":terminal\<CR>i htop\<CR>\<C-\>\<C-n>\:file htop\<CR>")
+endfunction
 
 " copy the current buffer filepath into the clipboard
 nnoremap <leader>cp :let @+ = expand("%:p")<CR>
@@ -513,8 +513,12 @@ map fhi :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 " HIGHLIGHTING ----------------------------------------------------------------
 
 " link is not working in tmux for some reason on the LineNr and SignColumn
-hi LineNr guibg=#2d2d2d
-hi SignColumn guibg=#2d2d2d
+hi ALEError guifg=#CC6666 guibg=#2D2D2D
+hi ALEErrorLine guifg=#CC6666 guibg=#2D2D2D
+hi ALEErrorSign guifg=#CC6666 guibg=#2D2D2D
+hi ALEStyleWarning guifg=#FFCB6B guibg=#2D2D2D
+hi LineNr guibg=#2D2D2D
+hi SignColumn guibg=#2D2D2D
 hi Normal guibg=#212121
 hi Comment guifg=#595959
 hi VertSplit ctermbg=NONE ctermfg=8 cterm=NONE guibg=NONE guifg=#3a3a3a gui=NONE
@@ -522,7 +526,7 @@ hi Visual ctermfg=7 ctermbg=8 guibg=#373737
 hi Operator guifg=#E9E9E9
 hi Type guifg=#E9E9E9
 hi Boolean guifg=#e06c75
-hi Search guibg=#0059b3 guifg=#ffffff
+hi Search guibg=#2F2F2F gui=bold gui=underline guifg=#82AAFF
 hi ColorColumn guibg=#2b2b2b
 " to color the background of the vim-go testing errors
 hi ErrorMsg guifg=#cc6666 guibg=NONE

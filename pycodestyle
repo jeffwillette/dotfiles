@@ -1,0 +1,4 @@
+# configuration file for pylsp (python language server protocol)
+
+[pycodestyle]
+ignore = E501,E203,W503,W605,E741,E127'

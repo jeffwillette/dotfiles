@@ -181,6 +181,16 @@ function download_nvim() {
     chmod u+x ~/bin/vim
 }
 
+function download_fd() {
+    note "\ndownloading fd\n" ${blue}
+    curl -Lo ~/bin/fd.tar.gz https://github.com/sharkdp/fd/releases/download/v8.3.2/fd-v8.3.2-x86_64-unknown-linux-gnu.tar.gz
+    cd ~/bin
+    tar -xvf fd.tar.gz
+    mv ~/bin/fd-v8.3.2-x86_64-unknown-linux-gnu/fd ~/bin/fd
+    rm -r fd-v8.3.2-x86_64-unknown-linux-gnu
+    rm fd.tar.gz
+}
+
 function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
     note "\ndownloading deno exectuable\n" ${blue}
@@ -194,8 +204,8 @@ function download_rg {
     curl -Lo ~/bin/rg.tar.gz https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz
     cd ~/bin
     tar -xvf rg.tar.gz
-    cp ~/bin/ripgrep-11.0.2-x86_64-unknown-linux-musl/rg ~/bin
-    rm -r ripgrep-11.0.2-x86_64-unknown-linux-musl
+    cp ~/bin/ripgrep-13.0.0-x86_64-unknown-linux-musl/rg ~/bin
+    rm -r ripgrep-13.0.0-x86_64-unknown-linux-musl
 }
 
 if [ "$TERM" != "linux" ]; then
@@ -324,6 +334,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     function update() {
 	    note "downloading binaries\n" ${blue}
 	    download_nvim
+        download_fd
         download_rg
         download_deno
 
@@ -379,6 +390,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     function update() {
 	note "downloading binaries\n" ${blue}
 	download_nvim
+    download_fd
     download_rg
     download_deno
 
