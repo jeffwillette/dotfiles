@@ -65,6 +65,7 @@ Plug 'Shougo/ddc-sorter_rank'
 Plug 'Shougo/ddu.vim'
 Plug 'Shougo/ddu-kind-file'
 Plug 'Shougo/ddu-filter-matcher_substring'
+Plug 'Bakudankun/ddu-filter-matchfuzzy'
 Plug 'shun/ddu-source-buffer'
 Plug 'Shougo/ddu-ui-ff'
 Plug 'shun/ddu-source-rg'
@@ -198,7 +199,7 @@ inoremap <PageDown> <Cmd>call pum#map#insert_relative_page(+1)<CR>
 inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
 
 call ddc#custom#patch_global('completionMenu', 'pum.vim')
-call pum#set_option('border', 'rounded')
+call pum#set_option({'border': 'rounded'})
 
 call ddc#custom#patch_global('sources', ['around', 'ale', 'rg', 'tmux', 'omni', 'path'])
 
@@ -252,17 +253,17 @@ call ddu#custom#patch_global({
 call ddu#custom#patch_global({
     \   'sourceOptions': {
     \     '_': {
-    \       'matchers': ['matcher_substring'],
+    \       'matchers': ['matcher_matchfuzzy', 'matcher_substring'],
     \     },
     \     'file_rec': {'path': getcwd()},
     \   }
     \ })
 
-" \       'args': ['--column', '--no-heading', '--color', 'never'],
 call ddu#custom#patch_global({
     \   'sourceParams' : {
     \     'rg' : {
-    \       'args': ['--json'],
+    \       'args': ['--column', '--no-heading', '--color', 'never'],
+    \       'highlights': 'Search',
     \     },
     \     'file_rec': {
     \       'ignoredDirectories': ["__pycache__", ".git", ".mypy_cache", "results"]
@@ -275,6 +276,11 @@ call ddu#custom#patch_global({
     \     'matcher_substring': {
     \       'highlightMatched': 'Search',
     \     },
+    \     'matcher_matchfuzzy': {
+    \       'highlightMatched': 'Search',
+    \       'limit': 100,
+    \       'matchseq': v:true,
+    \     }
     \   }
     \ })
 
@@ -506,9 +512,14 @@ imap <leader>h <ESC>:noh<CR>a
 vmap <leader>h <ESC>:noh<CR>gv
 
 " Highlight the highlight group name under the cursor
-map fhi :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+function! SynStack()
+  if !exists("*synstack")
+    return
+  endif
+  echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+endfunc
+
+map fhi <Cmd>call SynStack()<CR>
 
 " HIGHLIGHTING ----------------------------------------------------------------
 
