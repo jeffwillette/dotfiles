@@ -21,10 +21,7 @@ elseif $WORKPLACE == 'KAIST'
     let $NVIM_PYTHON_LOG_FILE='/st1/jeff/.tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
 else
-    " right now this is for linux a server without node stuff, if I want to
-    " handle a linux environment that I control as well, then something will
-    " have to change
-    let g:python3_host_prog = '/home/jeff/.venv/neovim/bin/python'
+    let g:python3_host_prog = '/home/jeff/.venv/env/bin/python'
     let $NVIM_PYTHON_LOG_FILE='/home/jeff/tmp/nvim-python.log'
     let $NVIM_PYTHON_LOG_LEVEL='info'
 endif

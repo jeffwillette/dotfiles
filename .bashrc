@@ -349,7 +349,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
 
-elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
+elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
     note "Linux Desktop\n" ${blue}
 
     # for pytorch 1.7.0 and cuda 11.0
@@ -358,7 +358,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
     export DATADIR=/home/jeff/datasets
     SSH_ENV="$HOME/.ssh/environment"
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
-
 
     function start_agent {
         echo "Initialising new SSH agent..."
@@ -369,8 +368,12 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME != ^ai[0-9] ]]; then
         /usr/bin/ssh-add ~/.ssh/*rsa
     }
 
-    # Source SSH settings, if applicable
+    # init pyenv stuff. This wasn't working in the bash profile or profile. I am not sure why
+    export PYENV_ROOT="$HOME/.pyenv"
+    command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
 
+    # Source SSH settings, if applicable
     if [ -f "${SSH_ENV}" ]; then
         . "${SSH_ENV}" > /dev/null
         #ps ${SSH_AGENT_PID} doesn't work under cywgin
