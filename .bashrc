@@ -316,7 +316,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export HOME=/home/jeff
     export TMPDIR=/tmp
     export WORKPLACE=KAIST
-    export DATADIR=/st2/jeff/datasets
+    export DATADIR=/d1/dataset
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}

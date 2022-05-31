@@ -425,7 +425,7 @@ nnoremap <leader>tn :keepalt file
 
 " setup terminals with gpustat and htop
 function! HtopAndGpuStat()
-    call feedkeys(":terminal\<CR>i watch -n 0.2 gpustat\<CR>\<C-\>\<C-n>\:file gpustat\<CR>")
+    call feedkeys(":terminal\<CR>i gpustat -i 0.5 -cu\<CR>\<C-\>\<C-n>\:file gpustat\<CR>")
     call feedkeys(":terminal\<CR>i htop\<CR>\<C-\>\<C-n>\:file htop\<CR>")
 endfunction
 
