@@ -183,18 +183,22 @@ function download_nvim() {
 
 function download_fd() {
     note "\ndownloading fd\n" ${blue}
-    curl -Lo ~/bin/fd.tar.gz https://github.com/sharkdp/fd/releases/download/v8.3.2/fd-v8.3.2-x86_64-unknown-linux-gnu.tar.gz
+    url=https://github.com/sharkdp/fd/releases/download/v8.4.0/fd-v8.4.0-x86_64-unknown-linux-gnu.tar.gz
+    file=fd-v8.4.0-x86_64-unknown-linux-gnu
+
+    curl -Lo ~/bin/fd.tar.gz ${url}
+
     cd ~/bin
     tar -xvf fd.tar.gz
-    mv ~/bin/fd-v8.3.2-x86_64-unknown-linux-gnu/fd ~/bin/fd
-    rm -r fd-v8.3.2-x86_64-unknown-linux-gnu
+    mv ~/bin/${file}/fd ~/bin/fd
+    rm -r ${file}
     rm fd.tar.gz
 }
 
 function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
     note "\ndownloading deno exectuable\n" ${blue}
-    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.20.6/deno-x86_64-unknown-linux-gnu.zip
+    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.22.1/deno-x86_64-unknown-linux-gnu.zip
     cd ~/bin
     unzip -o deno.zip
 }
