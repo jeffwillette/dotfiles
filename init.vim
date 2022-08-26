@@ -250,7 +250,7 @@ call ddu#custom#patch_global({
 call ddu#custom#patch_global({
     \   'sourceOptions': {
     \     '_': {
-    \       'matchers': ['matcher_matchfuzzy', 'matcher_substring'],
+    \       'matchers': ['matcher_substring', 'matcher_matchfuzzy'],
     \     },
     \     'file_rec': {'path': getcwd()},
     \   }
