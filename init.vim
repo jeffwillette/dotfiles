@@ -52,6 +52,7 @@ Plug 'statiolake/ddc-ale'
 Plug 'delphinus/ddc-tmux'
 Plug 'tani/ddc-path'
 Plug 'Shougo/ddc-omni'
+Plug 'Shougo/ddc-ui-native'
 
 " install your filters
 Plug 'Shougo/ddc-matcher_head'
@@ -186,7 +187,7 @@ let g:AutoPairsMapCR = 1
 " ddc setup ----------------------------------------------------------------
 " https://github.com/Shougo/ddc.vim
 
-inoremap <expr><Tab> ddc#map#pum_visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' : '<Tab>'
+inoremap <expr><Tab> pumvisible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' : '<Tab>'
 inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
 inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
 inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
@@ -198,7 +199,11 @@ inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
 call ddc#custom#patch_global('completionMenu', 'pum.vim')
 call pum#set_option({'border': 'rounded'})
 
-call ddc#custom#patch_global('sources', ['around', 'ale', 'rg', 'tmux', 'omni', 'path'])
+call ddc#custom#patch_global('ui', 'native')
+" tmux seems broken for some reason. If the github issue is not resolved, just
+" delete the tmux source. https://github.com/delphinus/ddc-tmux/issues/6
+"call ddc#custom#patch_global('sources', ['around', 'ale', 'rg', 'tmux', 'omni', 'path'])
+call ddc#custom#patch_global('sources', ['around', 'ale', 'rg', 'omni', 'path'])
 
 call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
