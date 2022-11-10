@@ -200,8 +200,13 @@ function download_fd() {
 function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
     note "\ndownloading deno exectuable\n" ${blue}
-    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.27.1/deno-x86_64-unknown-linux-gnu.zip
+    # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.27.2/deno-x86_64-unknown-linux-gnu.zip
     # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.25.0/deno-x86_64-unknown-linux-gnu.zip
+
+    # if you update deno, then you need to try and run the following code to see if it works. 1.25 broke for some reason
+    # on the ai servers so we are limited to version 1.24 for now.
+    # deno run https://deno.land/std/examples/welcome.ts
+    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.24.3/deno-x86_64-unknown-linux-gnu.zip
     cd ~/bin
     unzip -o deno.zip
 }

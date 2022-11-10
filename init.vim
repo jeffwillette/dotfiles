@@ -2,6 +2,7 @@ scriptencoding utf-8
 
 " disable python 2
 let g:loaded_python_provider = 0
+"let g:denops#debug = 1
 
 if has('mac')
     let g:python3_host_prog = '/Users/Jeff/.venv/neovim/bin/python'
@@ -43,6 +44,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'Shougo/pum.vim'
 Plug 'Shougo/ddc.vim'
 Plug 'vim-denops/denops.vim'
+"Plug 'vim-denops/denops-helloworld.vim'
 
 " install your sources
 Plug 'tani/ddc-fuzzy'
@@ -96,7 +98,7 @@ call plug#end()
 " :call ToggleVerbose() for writing a verbose log im tmp
 function! ToggleVerbose()
     if !&verbose
-        set verbosefile=/home/jeff/tmp/vim.log
+        set verbosefile=/home/jeff/.tmp/vim.log
         set verbose=9
     else
         set verbose=0
