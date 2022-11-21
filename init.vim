@@ -309,6 +309,8 @@ autocmd FileType ddu-ff call s:ddu_ff_my_settings()
 function! s:ddu_ff_my_settings() abort
   nnoremap <buffer> <CR>
   \ <Cmd>call ddu#ui#ff#do_action('itemAction')<CR>
+  nnoremap <buffer><silent> d
+    \ <Cmd>call ddu#ui#ff#do_action('itemAction', {'name': 'delete'})<CR>
   nnoremap <buffer> <Space>
   \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
   nnoremap <buffer> i
