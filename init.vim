@@ -2,7 +2,7 @@ scriptencoding utf-8
 
 " disable python 2
 let g:loaded_python_provider = 0
-"let g:denops#debug = 1
+let g:denops#debug = 0
 
 if has('mac')
     let g:python3_host_prog = '/Users/Jeff/.venv/neovim/bin/python'
@@ -320,9 +320,9 @@ endfunction
 autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
 function! s:ddu_filter_my_settings() abort
   inoremap <buffer> <CR>
-  \ <Esc><Cmd>close<CR>
+  \ <Esc><Cmd>call ddu#ui#ff#close()<CR>
   nnoremap <buffer> <CR>
-  \ <Cmd>close<CR>
+  \ <Esc><Cmd>call ddu#ui#ff#close()<CR>
 endfunction
 
 " open list of buffers, open directory for seatch, search for test in files (rg)
