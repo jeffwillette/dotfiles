@@ -230,15 +230,16 @@ HOSTNAME=`hostname`
 # These things are system specific
 if [ $SYSTEM == "Darwin" ]; then
     #Making an alias to show/hide hidden files in the finder
-    export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
+    source ~/.venv/env/bin/activate
+
+    export PATH=$PATH:/usr/local/opt/coreutils/libexec/gnubin:/opt/homebrew/bin
     export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
     alias showf='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder \
         /System/Library/CoreServices/Finder.app'
     alias hidef='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder \
         /System/Library/CoreServices/Finder.app'
-    alias adb='/Users/Jeff/Library/Android/sdk/platform-tools/adb'
     alias login-kaist-desktop='ssh jeff@143.248.137.44'
-    alias deltaskelta-ssh='ssh jeff@$DELTASKELTA_SERVER -p 31988'
+
     alias cdgo='cd ~/go/src/github.com/deltaskelta'
     # this is for deleting files from git repository history
     # use as bfg --delete-files [file]
@@ -248,25 +249,22 @@ if [ $SYSTEM == "Darwin" ]; then
     alias sed='gsed'
     alias vim='nvim'
 
-    source ~/.venv/env/bin/activate
-
-    # fixing some weird inkscape error with xquartz
-    # https://apple.stackexchange.com/questions/235279/inkscape-or-other-xquartz-window-disappears-when-using-external-screen
-    alias fixInkscape='wmctrl -r Inkscape -e 0,1440,900,1200,700'
-    alias fixInkscapeExt='wmctrl -r Inkscape -e 0,0,0,1080,1920'
-
     # turns off the writing of .DS_Store. I think this stays until there is an OS update,
     # so if you notice the files coming back you might need to run it again
     alias nodsstore='defaults write com.apple.desktopservices DSDontWriteNetworkStores true'
 
-    # my hosting server for sshing into
-    alias youshowprossh='ssh jeff@youshowpro.com -p 31988'
-
-    # for making the gopass tty work correctly
-    export GPG_TTY=$(tty)
-
-    if [ -f $(brew --prefix)/etc/bash_completion ]; then
-        . $(brew --prefix)/etc/bash_completion
+    if type brew &>/dev/null
+    then
+      HOMEBREW_PREFIX="$(brew --prefix)"
+      if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]
+      then
+        source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+      else
+        for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*
+        do
+          [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
+        done
+      fi
     fi
 
     for file in ~/.completion/* ; do
@@ -276,7 +274,6 @@ if [ $SYSTEM == "Darwin" ]; then
     done
 
     function update() {
-        note "YOU NEED TO INSTALL DENO IN ORDER TO USE CURRENT INIT.VIM; LOOKUP BREW COMMANDS\n" ${red}
         note "updating brew\n" ${blue}
         brew update
         note "\nupgrading brew\n" ${blue}
@@ -285,22 +282,11 @@ if [ $SYSTEM == "Darwin" ]; then
         brew cleanup
 
         note "\nchecking and updating brew casks\n" ${blue}
-        brew cask outdated
-        brew cask upgrade
+        brew outdated --cask
+        brew upgrade --cask
 
         note "\nupdating vim plugins\n" ${blue}
         nvim --headless +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
-
-        note "\nupgrading yarn\n" ${blue}
-        cd ~/.config/yarn/global
-        yarn outdated
-        yarn upgrade --latest
-        cd -
-
-        note "\nupdating neovim python\n" ${blue}
-        source ~/.venv/neovim/bin/activate
-        pip install -U pip neovim jedi
-        deactivate
     }
 
     # to search an entire git history for a word, if you want to re-write the line in history exec the cmd below
@@ -398,16 +384,15 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
 
     # run tmux with systemd so that I can logout and still have tmux running (https://unix.stackexchange.com/questions/490267/prevent-logoff-from-killing-tmux-session)
     alias tmux='systemd-run --scope --user tmux'
-    alias lock='i3lock -c 000000'
     source ~/.venv/env/bin/activate
     export WORKPLACE=Linux
 
     function update() {
 	note "downloading binaries\n" ${blue}
 	download_nvim
-    download_fd
-    download_rg
-    download_deno
+    	download_fd
+    	download_rg
+    	download_deno
 
 	note "apt update\n" ${blue}
 	sudo apt -y update && sudo apt -y upgrade

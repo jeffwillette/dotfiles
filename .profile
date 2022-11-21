@@ -14,6 +14,12 @@ if [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export PATH="$PYENV_ROOT/bin:$PATH"
 fi
 
+if [[ $SYSTEM == "Darwin" ]]; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init --path)"
+fi
+
 # if running bash
 # if [ -n "$BASH_VERSION" ]; then
 #     # include .bashrc if it exists
