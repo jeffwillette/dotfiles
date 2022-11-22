@@ -3,29 +3,7 @@ scriptencoding utf-8
 " disable python 2
 let g:loaded_python_provider = 0
 let g:denops#debug = 0
-
-if has('mac')
-    let g:python3_host_prog = '/Users/Jeff/.venv/neovim/bin/python'
-    let g:node_host_prog = '/usr/local/bin/neovim-node-host'
-    let g:ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
-    let $NVIM_NODE_LOG_FILE='/tmp/nvim-node.log'
-    let $NVIM_NODE_LOG_LEVEL='error'
-    let $NVIM_PYTHON_LOG_FILE='/tmp/nvim-python.log'
-    let $NVIM_PYTHON_LOG_LEVEL='info'
-    " if this is uncommented, vim will freeze and you have to go into the
-    " chromer dev console and click the green button and hit run on the
-    " debugger
-    "let $NVIM_NODE_HOST_DEBUG=1
-elseif $WORKPLACE == 'KAIST'
-    " this is for KAIST ai servers
-    let g:python3_host_prog='/st1/jeff/.venv/nvim/bin/python'
-    let $NVIM_PYTHON_LOG_FILE='/st1/jeff/.tmp/nvim-python.log'
-    let $NVIM_PYTHON_LOG_LEVEL='info'
-else
-    let g:python3_host_prog = '/home/jeff/.venv/env/bin/python'
-    let $NVIM_PYTHON_LOG_FILE='/home/jeff/tmp/nvim-python.log'
-    let $NVIM_PYTHON_LOG_LEVEL='info'
-endif
+let g:lsp_async_completion = 1
 
 augroup vimplug
     if empty(glob('~/.config/nvim/autoload/plug.vim'))
@@ -44,7 +22,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'Shougo/pum.vim'
 Plug 'Shougo/ddc.vim'
 Plug 'vim-denops/denops.vim'
-"Plug 'vim-denops/denops-helloworld.vim'
+Plug 'prabirshrestha/vim-lsp'
 
 " install your sources
 Plug 'tani/ddc-fuzzy'
@@ -52,6 +30,7 @@ Plug 'Shougo/ddc-around'
 Plug 'Shougo/ddc-rg'
 Plug 'statiolake/ddc-ale'
 Plug 'delphinus/ddc-tmux'
+Plug 'Shougo/ddc-source-nvim-lsp'
 Plug 'tani/ddc-path'
 Plug 'Shougo/ddc-omni'
 Plug 'Shougo/ddc-ui-native'
@@ -81,7 +60,6 @@ Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
 
-Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'vim-python/python-syntax'
 
 Plug 'xolox/vim-misc'
@@ -186,6 +164,55 @@ nnoremap <leader>tc :bdelete!<CR>:tabclose<CR>
 let g:AutoPairsCenterLine = 0
 let g:AutoPairsMapCR = 1
 
+" Python
+" ---------------------------------------------------------------------------------------
+let g:python_highlight_all = 1
+let g:lsp_diagnostics_virtual_text_enabled = 0
+let g:lsp_diagnostics_signs_error = {'text': '✗'}
+let g:lsp_diagnostics_signs_warning = {'text': '𐫰'}
+
+if executable('pylsp')
+    " pip install python-lsp-server
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pylsp',
+        \ 'cmd': {server_info->['pylsp']},
+        \ 'allowlist': ['python'],
+        \ })
+endif
+
+function! s:on_lsp_buffer_enabled() abort
+    # setlocal omnifunc=lsp#complete
+    setlocal signcolumn=yes
+    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+    nmap <buffer> gd <plug>(lsp-definition)
+    nmap <buffer> gs <plug>(lsp-document-symbol-search)
+    nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
+    nmap <buffer> gr <plug>(lsp-references)
+    nmap <buffer> gi <plug>(lsp-implementation)
+    nmap <buffer> gt <plug>(lsp-type-definition)
+    nmap <buffer> <leader>rn <plug>(lsp-rename)
+    nmap <buffer> [g <plug>(lsp-previous-diagnostic)
+    nmap <buffer> ]g <plug>(lsp-next-diagnostic)
+    nmap <buffer> K <plug>(lsp-hover)
+    "nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
+    "nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
+
+    let g:lsp_format_sync_timeout = 1000
+    autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
+endfunction
+
+augroup lsp_install
+    au!
+    " call s:on_lsp_buffer_enabled only for languages that has the server registered.
+    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
+
+augroup python
+    autocmd!
+    " noshowmode is set to allow for the function completion in the command line
+    autocmd FileType python set tabstop=4 shiftwidth=0 expandtab noshowmode
+augroup END
+
 " ddc setup ----------------------------------------------------------------
 " https://github.com/Shougo/ddc.vim
 
@@ -208,27 +235,46 @@ call ddc#custom#patch_global('completionMenu', 'pum.vim')
 call pum#set_option({'border': 'rounded'})
 
 call ddc#custom#patch_global('ui', 'native')
-call ddc#custom#patch_global('sources', ['around', 'ale', 'rg', 'tmux', 'omni', 'path'])
+call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'ale', 'rg', 'tmux', 'omni', 'path'])
 
 call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
-      \       'matchers': ['matcher_fuzzy'],
-      \       'sorters': ['sorter_fuzzy'],
-      \       'converters': ['converter_fuzzy']
-      \   },
-      \   'rg': {'mark': 'rg', 'minAutoCompleteLength': 4,},
-      \   'tmux': {'mark': 'T'},
-      \   'omni': {'mark': 'O'},
-      \   'path': {'mark': 'P'},
-      \   'ale': {'mark': 'A'},
+      \   'matchers': ['matcher_fuzzy'],
+      \   'sorters': ['sorter_fuzzy'],
+      \   'converters': ['converter_fuzzy']
+      \ },
+      \ 'rg': {'mark': 'rg', 'minAutoCompleteLength': 4,},
+      \ 'tmux': {'mark': 'T'},
+      \ 'omni': {'mark': 'O'},
+      \ 'path': {'mark': 'P'},
+      \ 'ale': {'mark': 'A'},
+      \ 'nvim-lsp': {
+      \     'mark': 'lsp',
+      \     'forceCompletionPattern': '\.\w*|:\w*|->\w*',
+      \     'minAutoCompleteLength': 1
+      \ },
       \ })
 
-" \    'path': {'cmd': ['fd', '--max-depth', '5'] },
+" TODO:
+" this catches the omnifunc completions which are given by the vim-lsp plugin
+" which has the goto definitions commands above. If this is the best way to do
+" this (pending the outcome of this:
+" https://github.com/Shougo/ddc-source-nvim-lsp/issues/36)
+" then we can delete the nvom-lsp ddc pluginand just use this
+call ddc#custom#patch_filetype(['python'], 'sourceParams', #{
+      \   omni: #{ omnifunc: 'lsp#complete' },
+      \ })
+
+call ddc#custom#patch_filetype(['python'], 'sourceOptions', #{
+      \   omni: #{
+      \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
+      \   },
+      \ })
+
 call ddc#custom#patch_global('sourceParams', {
       \    'ale': {'cleanResultsWhitespace': v:true},
       \    'path': {'cmd': ["fd", "--max-depth", "5"] },
       \ })
-
 
 " Use ddc.
 call ddc#enable()
@@ -337,16 +383,16 @@ nnoremap <leader><Space><Space> <Cmd>call <SID>ddu_rg_live()<CR>
 " ale ---------------------------------------------------------------------
 "
 let g:ale_sign_column_always = 1
-let g:ale_sign_error = '✖'
-let g:ale_sign_warning = '✖'
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '𐫰'
 let g:ale_fix_on_save = 1
 
 " for some reason it wasn't finding my project config files with prettier_d
-let g:ale_open_list = 0
-let g:ale_set_loclist = 0
-let g:ale_set_quickfix = 1
+let g:ale_open_list = 1
+let g:ale_set_loclist = 1
+let g:ale_set_quickfix = 0
 let g:ale_keep_list_window_open = 0
-let g:ale_list_window_size = 2
+let g:ale_list_window_size = 5
 let g:ale_lint_on_text_changed = 'normal'
 let g:ale_lint_on_insert_leave = 1
 
@@ -367,7 +413,6 @@ let g:ale_fixers = {
   \ 'python': ['isort', 'autopep8'],
   \}
 
-"\ 'python': ['mypy', 'pylsp'],
 let g:ale_linters = {
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
@@ -375,27 +420,6 @@ let g:ale_linters = {
    \}
 
 let g:ale_python_isort_options = '--skip __init__.py --filter-files'
-
-" Python
-
-let g:python_highlight_all = 1
-
-let g:jedi#completions_enabled = 0 " use ddc for completions, vim-jedi for other python commands
-let g:jedi#show_call_signatures = 2 "show in the command line instead of a popup window (popup gets in the way)
-let g:jedi#use_splits_not_buffers = 'top'
-let g:jedi#goto_command = '<leader>g'
-let g:jedi#goto_assignments_command = ''
-let g:jedi#goto_definitions_command = '<leader>gd'
-let g:jedi#documentation_command = '<leader>d'
-let g:jedi#usages_command = '<leader>u'
-let g:jedi#completions_command = ''
-let g:jedi#rename_command = '<leader>rn'
-
-augroup python
-    autocmd!
-    " noshowmode is set to allow for the function completion in the command line
-    autocmd FileType python set tabstop=4 shiftwidth=0 expandtab noshowmode
-augroup END
 
 " nerdtree settings ------------------------------------------------------------
 
