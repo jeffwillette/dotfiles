@@ -65,7 +65,7 @@ Plug 'Shougo/ddc-sorter_rank'
 Plug 'Shougo/ddu.vim'
 Plug 'Shougo/ddu-kind-file'
 Plug 'Shougo/ddu-filter-matcher_substring'
-Plug 'Bakudankun/ddu-filter-matchfuzzy'
+Plug 'yuki-yano/ddu-filter-fzf'
 Plug 'shun/ddu-source-buffer'
 Plug 'Shougo/ddu-ui-ff'
 Plug 'shun/ddu-source-rg'
@@ -260,7 +260,7 @@ call ddu#custom#patch_global({
 call ddu#custom#patch_global({
     \   'sourceOptions': {
     \     '_': {
-    \       'matchers': ['matcher_substring', 'matcher_matchfuzzy'],
+    \       'matchers': ['matcher_fzf', 'matcher_substring'],
     \     },
     \     'file_rec': {'path': getcwd()},
     \   }
@@ -310,7 +310,7 @@ function! s:ddu_ff_my_settings() abort
   nnoremap <buffer> <CR>
   \ <Cmd>call ddu#ui#ff#do_action('itemAction')<CR>
   nnoremap <buffer><silent> d
-    \ <Cmd>call ddu#ui#ff#do_action('itemAction', {'name': 'delete'})<CR>
+  \ <Cmd>call ddu#ui#ff#do_action('itemAction', {'name': 'delete'})<CR>
   nnoremap <buffer> <Space>
   \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
   nnoremap <buffer> i
@@ -364,13 +364,14 @@ let g:ale_pattern_options = {
 let g:ale_fixers = {
   \ '*': ['remove_trailing_lines', 'trim_whitespace'],
   \ 'cpp': ['clang-format'],
-  \ 'python': ['isort'],
+  \ 'python': ['isort', 'autopep8'],
   \}
 
+"\ 'python': ['mypy', 'pylsp'],
 let g:ale_linters = {
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['mypy', 'pylsp'],
+   \ 'python': ['mypy'],
    \}
 
 let g:ale_python_isort_options = '--skip __init__.py --filter-files'
@@ -379,8 +380,8 @@ let g:ale_python_isort_options = '--skip __init__.py --filter-files'
 
 let g:python_highlight_all = 1
 
-let g:jedi#show_call_signatures = 2 "show in the command line instead of a popup window (popup gets in the way)
 let g:jedi#completions_enabled = 0 " use ddc for completions, vim-jedi for other python commands
+let g:jedi#show_call_signatures = 2 "show in the command line instead of a popup window (popup gets in the way)
 let g:jedi#use_splits_not_buffers = 'top'
 let g:jedi#goto_command = '<leader>g'
 let g:jedi#goto_assignments_command = ''
