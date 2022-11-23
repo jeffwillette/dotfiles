@@ -304,6 +304,9 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST AI SERVER"
 
+    eval "$(pyenv init -)"
+    source /st1/jeff/.venv/env/bin/activate
+
     export DENO_DIR=/home/jeff/.tmp  # needed for this bug: https://github.com/denoland/deno/issues/16577
     # this was added for the rl experiments for my CS572 project
     export PATH=/usr/local/cuda-10.1/bin:$PATH
@@ -330,8 +333,8 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     }
 
     function update() {
-	    note "downloading binaries\n" ${blue}
-	    download_nvim
+	note "downloading binaries\n" ${blue}
+	download_nvim
         download_fd
         download_rg
         download_deno
@@ -341,9 +344,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
         chmod +x ~/bin/powerline-go
 
     }
-
-    eval "$(pyenv init -)"
-    source /st1/jeff/.venv/env/bin/activate
 
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
 
