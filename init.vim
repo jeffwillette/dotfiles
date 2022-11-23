@@ -17,14 +17,17 @@ augroup END
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'scrooloose/nerdtree'
+Plug 'dense-analysis/ale'
+Plug 'prabirshrestha/vim-lsp'
+" makes ale and vim-lsp use the same pylsp server(?)
+Plug 'rhysd/vim-lsp-ale'
 
 " autocompleter and sources, filters ----------------------
 Plug 'Shougo/pum.vim'
 Plug 'Shougo/ddc.vim'
 Plug 'vim-denops/denops.vim'
-Plug 'prabirshrestha/vim-lsp'
 
-" install your sources
+"install your sources
 Plug 'tani/ddc-fuzzy'
 Plug 'Shougo/ddc-around'
 Plug 'Shougo/ddc-rg'
@@ -52,7 +55,6 @@ Plug 'Shougo/ddu-source-file_rec'
 " ddu done ----------------------------------------------
 
 Plug 'Shougo/echodoc'
-Plug 'dense-analysis/ale'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
@@ -169,7 +171,7 @@ let g:AutoPairsMapCR = 1
 let g:python_highlight_all = 1
 let g:lsp_diagnostics_virtual_text_enabled = 0
 let g:lsp_diagnostics_signs_error = {'text': '✗'}
-let g:lsp_diagnostics_signs_warning = {'text': '𐫰'}
+let g:lsp_diagnostics_signs_warning = {'text': '⬤'}
 
 if executable('pylsp')
     " pip install python-lsp-server
@@ -384,7 +386,7 @@ nnoremap <leader><Space><Space> <Cmd>call <SID>ddu_rg_live()<CR>
 "
 let g:ale_sign_column_always = 1
 let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '𐫰'
+let g:ale_sign_warning = '⬤'
 let g:ale_fix_on_save = 1
 
 " for some reason it wasn't finding my project config files with prettier_d
@@ -416,7 +418,7 @@ let g:ale_fixers = {
 let g:ale_linters = {
    \ 'vim': ['vint'],
    \ 'cpp': ['clang'],
-   \ 'python': ['mypy'],
+   \ 'python': ['mypy', 'pylsp'],
    \}
 
 let g:ale_python_isort_options = '--skip __init__.py --filter-files'
