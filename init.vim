@@ -3,7 +3,6 @@ scriptencoding utf-8
 " disable python 2
 let g:loaded_python_provider = 0
 let g:denops#debug = 0
-let g:lsp_async_completion = 1
 
 augroup vimplug
     if empty(glob('~/.config/nvim/autoload/plug.vim'))
@@ -16,11 +15,10 @@ augroup END
 " Specify a directory for plugins
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'scrooloose/nerdtree'
-Plug 'dense-analysis/ale'
-Plug 'prabirshrestha/vim-lsp'
-" makes ale and vim-lsp use the same pylsp server(?)
-Plug 'rhysd/vim-lsp-ale'
+Plug 'neovim/nvim-lspconfig'
+Plug 'ray-x/lsp_signature.nvim'
+Plug 'nvim-tree/nvim-tree.lua'
+Plug 'folke/trouble.nvim'
 
 " autocompleter and sources, filters ----------------------
 Plug 'Shougo/pum.vim'
@@ -30,8 +28,8 @@ Plug 'vim-denops/denops.vim'
 "install your sources
 Plug 'tani/ddc-fuzzy'
 Plug 'Shougo/ddc-around'
+Plug 'Shougo/ddc-source-nvim-lsp'
 Plug 'Shougo/ddc-rg'
-Plug 'statiolake/ddc-ale'
 Plug 'delphinus/ddc-tmux'
 Plug 'Shougo/ddc-source-nvim-lsp'
 Plug 'tani/ddc-path'
@@ -54,26 +52,27 @@ Plug 'shun/ddu-source-rg'
 Plug 'Shougo/ddu-source-file_rec'
 " ddu done ----------------------------------------------
 
-Plug 'Shougo/echodoc'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
 
-Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
-
-Plug 'vim-python/python-syntax'
-
-Plug 'xolox/vim-misc'
-Plug 'xolox/vim-colorscheme-switcher'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'chriskempson/base16-vim'
-Plug 'rakr/vim-one'
-Plug 'gosukiwi/vim-atom-dark'
-Plug 'nanotech/jellybeans.vim'
-Plug 'morhetz/gruvbox'
-Plug 'sonph/onehalf', {'rtp': 'vim/'}
+Plug 'vim-python/python-syntax'
+Plug 'xolox/vim-colorscheme-switcher'
+Plug 'xolox/vim-misc'
+Plug 'kyazdani42/nvim-web-devicons'
+
+"Plug 'rakr/vim-one'
+"Plug 'nanotech/jellybeans.vim'
+"Plug 'morhetz/gruvbox'
+"Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
 call plug#end()
+
+lua require('init')
 
 " :call ToggleVerbose() for writing a verbose log im tmp
 function! ToggleVerbose()
@@ -96,24 +95,23 @@ function! StopProfile()
     :profile stop
 endfunction
 
-" setting syntax and makeing colors better
+" setting syntax and making colors better
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 syntax on
 filetype plugin indent on
-colorscheme base16-material-darker
+"syntax for lua
+let g:vimsyn_embed= 'l'
 
-" status line is filename and right aligned column number
-" hidden makes the buffer hidden when inactvie rather than essentially 'closing' it
-" I think there was a reason that this line is after the airline option, but IDK
 augroup all
     autocmd BufRead,BufNewFile * setlocal signcolumn=yes
 augroup END
 
 " set neovim to have normal vim cursor, guicursor& to restore default
 set guicursor=
+set guifont=DroidSansMono\ Nerd\ Font\ 11
 " make sure I can call stuff defined in my bash_profile
 set shellcmdflag=-c
-
+set completeopt+=noselect
 set number tabstop=4 shiftwidth=4 nowrap noshowmode expandtab termguicolors background=dark hidden shortmess=atT
 set lazyredraw mouse=a directory=~/.config/nvim/tmp cursorline
 set clipboard+=unnamedplus
@@ -122,12 +120,8 @@ set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
 
 " vim airline ------------------------------------------------------------------------
-let g:airline#extensions#tabline#enabled = 0
 let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#fnamemod = ':t'
-let g:airline_theme='tomorrow'
-let g:airline#extensions#tabline#buffer_nr_show = 1
-let g:airline#extensions#tabline#buffer_nr_format = '%s: '
+let g:airline_theme='minimalist'
 
 " called in the startup section after everything has loaded (this is hacky)
 function! ChangeColors()
@@ -138,6 +132,7 @@ endfunction
 augroup startup
     autocmd!
     " sourcing the vimrc on save of this file.
+    autocmd BufWritePost init.lua luafile ~/.config/nvim/lua/init.lua
     autocmd BufWritePost *.vim so $MYVIMRC | :AirlineRefresh | :call ChangeColors()
     autocmd FileType gitcommit setlocal cc=72 tw=72
     autocmd BufEnter *.md,*.mdx setlocal tw=120
@@ -169,50 +164,12 @@ let g:AutoPairsMapCR = 1
 " Python
 " ---------------------------------------------------------------------------------------
 let g:python_highlight_all = 1
-let g:lsp_diagnostics_virtual_text_enabled = 0
-let g:lsp_diagnostics_signs_error = {'text': '✗'}
-let g:lsp_diagnostics_signs_warning = {'text': '⬤'}
-
-if executable('pylsp')
-    " pip install python-lsp-server
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'pylsp',
-        \ 'cmd': {server_info->['pylsp']},
-        \ 'allowlist': ['python'],
-        \ })
-endif
-
-function! s:on_lsp_buffer_enabled() abort
-    # setlocal omnifunc=lsp#complete
-    setlocal signcolumn=yes
-    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
-    nmap <buffer> gd <plug>(lsp-definition)
-    nmap <buffer> gs <plug>(lsp-document-symbol-search)
-    nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
-    nmap <buffer> gr <plug>(lsp-references)
-    nmap <buffer> gi <plug>(lsp-implementation)
-    nmap <buffer> gt <plug>(lsp-type-definition)
-    nmap <buffer> <leader>rn <plug>(lsp-rename)
-    nmap <buffer> [g <plug>(lsp-previous-diagnostic)
-    nmap <buffer> ]g <plug>(lsp-next-diagnostic)
-    nmap <buffer> K <plug>(lsp-hover)
-    "nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
-    "nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
-
-    let g:lsp_format_sync_timeout = 1000
-    autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
-endfunction
-
-augroup lsp_install
-    au!
-    " call s:on_lsp_buffer_enabled only for languages that has the server registered.
-    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
-augroup END
 
 augroup python
     autocmd!
     " noshowmode is set to allow for the function completion in the command line
     autocmd FileType python set tabstop=4 shiftwidth=0 expandtab noshowmode
+    autocmd BufWritePre *.py lua vim.lsp.buf.format({ async = true })
 augroup END
 
 " ddc setup ----------------------------------------------------------------
@@ -237,7 +194,7 @@ call ddc#custom#patch_global('completionMenu', 'pum.vim')
 call pum#set_option({'border': 'rounded'})
 
 call ddc#custom#patch_global('ui', 'native')
-call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'ale', 'rg', 'tmux', 'omni', 'path'])
+call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'rg', 'tmux', 'omni', 'path'])
 
 call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
@@ -249,7 +206,6 @@ call ddc#custom#patch_global('sourceOptions', {
       \ 'tmux': {'mark': 'T'},
       \ 'omni': {'mark': 'O'},
       \ 'path': {'mark': 'P'},
-      \ 'ale': {'mark': 'A'},
       \ 'nvim-lsp': {
       \     'mark': 'lsp',
       \     'forceCompletionPattern': '\.\w*|:\w*|->\w*',
@@ -257,31 +213,14 @@ call ddc#custom#patch_global('sourceOptions', {
       \ },
       \ })
 
-" TODO:
-" this catches the omnifunc completions which are given by the vim-lsp plugin
-" which has the goto definitions commands above. If this is the best way to do
-" this (pending the outcome of this:
-" https://github.com/Shougo/ddc-source-nvim-lsp/issues/36)
-" then we can delete the nvom-lsp ddc pluginand just use this
-call ddc#custom#patch_filetype(['python'], 'sourceParams', #{
-      \   omni: #{ omnifunc: 'lsp#complete' },
-      \ })
-
-call ddc#custom#patch_filetype(['python'], 'sourceOptions', #{
-      \   omni: #{
-      \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
-      \   },
-      \ })
-
 call ddc#custom#patch_global('sourceParams', {
-      \    'ale': {'cleanResultsWhitespace': v:true},
       \    'path': {'cmd': ["fd", "--max-depth", "5"] },
       \ })
 
 " Use ddc.
 call ddc#enable()
 
-" denite settings -----------------------------------------------------------
+" ddu settings -----------------------------------------------------------
 
 " You must set the default ui.
 " Note: ff ui
@@ -321,7 +260,7 @@ call ddu#custom#patch_global({
     \       'highlights': 'Search',
     \     },
     \     'file_rec': {
-    \       'ignoredDirectories': ["__pycache__", ".git", ".mypy_cache", "results"]
+    \       'ignoredDirectories': ["__pycache__", ".git", ".mypy_cache"]
     \     }
     \   },
     \ })
@@ -382,68 +321,13 @@ nnoremap <leader><Space>a <Cmd>call ddu#start({'sources': [{'name': 'file_rec', 
 nnoremap <leader><Space><Space> <Cmd>call <SID>ddu_rg_live()<CR>
 
 
-" ale ---------------------------------------------------------------------
-"
-let g:ale_sign_column_always = 1
-let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '⬤'
-let g:ale_fix_on_save = 1
-
-" for some reason it wasn't finding my project config files with prettier_d
-let g:ale_open_list = 1
-let g:ale_set_loclist = 1
-let g:ale_set_quickfix = 0
-let g:ale_keep_list_window_open = 0
-let g:ale_list_window_size = 5
-let g:ale_lint_on_text_changed = 'normal'
-let g:ale_lint_on_insert_leave = 1
-
-" I had to hack on the main typescript repo so I adde dthis to not run
-" prettier on their code and mess up the formatting
-let g:ale_pattern_options = {
-  \ 'nvim-typescript': {'ale_fixers': ['tslint']},
-  \ 'ContinualDBB': {'ale_fixers': [], 'ale_linters': []},
-  \ 'SetEncoding': {'ale_fixers': [], 'ale_linters': []},
-  \ 'set_transformer': {'ale_fixers': [], 'ale_linters': []},
-  \ 'MiniBatchSetEncoding': {'ale_fixers': [], 'ale_linters': []},
-  \ 'AI611-project': {'ale_fixers': [], 'ale_linters': []}
-  \}
-
-let g:ale_fixers = {
-  \ '*': ['remove_trailing_lines', 'trim_whitespace'],
-  \ 'cpp': ['clang-format'],
-  \ 'python': ['isort', 'autopep8'],
-  \}
-
-let g:ale_linters = {
-   \ 'vim': ['vint'],
-   \ 'cpp': ['clang'],
-   \ 'python': ['mypy', 'pylsp'],
-   \}
-
-let g:ale_python_isort_options = '--skip __init__.py --filter-files'
-
-" nerdtree settings ------------------------------------------------------------
-
-nnoremap <leader>[ :NERDTreeToggle<CR>
-let g:NERDTreeWinSize = 50
-let g:NERDTreeQuitOnOpen = 1
-let g:NERDTreeAutoDeleteBuffer = 1
-
-augroup nerdtree
-    autocmd FileType nerdtree setlocal signcolumn=no modifiable
-augroup END
+nnoremap <leader>[ :NvimTreeToggle<CR>
 
 " insert mode mappings ------------------------------------------------------
 " maps jj to escape to get out of insert mode
 inoremap jj <Esc>
-" make Shift + Forward/Back skip by word in insert mode
-inoremap <S-Right> <Esc>lwi
-inoremap <S-Left> <Esc>bi
 " for some reason Shift or Control is not working <Del> if fn+backspace
 inoremap <Del> <C-W>
-" call the autocomplete semantic completion when needed
-inoremap ;; <C-x><C-o>
 
 " terminal mode mappings -----------------------------------------------------
 
@@ -502,10 +386,8 @@ nnoremap <silent> <c-h> :wincmd h<CR>
 nnoremap _ O<Esc>
 nnoremap - o<Esc>
 
-" this complements the vim command <S-J> which joins current line to below line, this one breaks the current line in two
-nnoremap K i<CR><Esc>
 " location list open, close, next, previous wincmd's make it so that the cursor goes back to the main buffer
-nnoremap <leader>' :lopen<CR>:wincmd k<CR>
+nnoremap <leader>' :TroubleToggle<CR>
 nnoremap <leader>'' :lclose<CR>
 nnoremap <leader>; :lnext<CR>
 nnoremap <leader>l :lprev<CR>
@@ -556,56 +438,18 @@ function! SynStack()
 endfunc
 
 map fhi <Cmd>call SynStack()<CR>
-
+"
 " HIGHLIGHTING ----------------------------------------------------------------
 
 " link is not working in tmux for some reason on the LineNr and SignColumn
-hi ALEError guifg=#CC6666 guibg=#2D2D2D
-hi ALEErrorLine guifg=#CC6666 guibg=#2D2D2D
-hi ALEErrorSign guifg=#CC6666 guibg=#2D2D2D
-hi ALEStyleWarning guifg=#FFCB6B guibg=#2D2D2D
-hi LineNr guibg=#2D2D2D
-hi SignColumn guibg=#2D2D2D
-hi Normal guibg=#212121
-hi Comment guifg=#595959
-hi VertSplit ctermbg=NONE ctermfg=8 cterm=NONE guibg=NONE guifg=#3a3a3a gui=NONE
-hi Visual ctermfg=7 ctermbg=8 guibg=#373737
-hi Operator guifg=#E9E9E9
-hi Type guifg=#E9E9E9
-hi Boolean guifg=#e06c75
-hi Search guibg=#2F2F2F gui=bold gui=underline guifg=#82AAFF
-hi ColorColumn guibg=#2b2b2b
-" to color the background of the vim-go testing errors
-hi ErrorMsg guifg=#cc6666 guibg=NONE
-" to color the errors in the gutter
-hi Error guibg=NONE guifg=#cc6666
-" to change the color of the autocomplete menu
-hi Pmenu guifg=#a6a6a6 guibg=#373737
-hi PmenuSel guifg=#4d4d4d guibg=#81a2be
-" changes the color of the line number that the cursor is on
-hi CursorLineNr gui=bold guifg=#81a2be
-hi CursorLine guibg=#2d2d2d
-" go methods only
-hi goMethodCall guifg=#81a2be
-hi jsFuncCall guifg=#81a2be
-" changes them to stand out more
-hi link typescriptCase Keyword
-hi link typescriptLabel Keyword
-hi link typescriptImport Function
-hi typescriptIdentifierName gui=BOLD
-hi link jsxTagName Function
-hi link jsxCloseString ErrorMsg
-hi tsxTagName guifg=#5098c4
-hi tsxCloseString guifg=#2974a1
-hi link graphqlString graphqlComment
-hi link deniteMatchedRange NONE
 
+hi DiagnosticSignError guifg=#CC6666 guibg=NONE
+hi DiagnosticSignWarn guifg=#FFCB6B guibg=NONE
+hi DiagnosticSignHint guifg=#FFCB6B guibg=NONE
+hi DiagnosticSignInfo guifg=#FFCB6B guibg=NONE
 
-hi DiffChange guifg=#b294bb guibg=#373737
-hi DiffText guifg=#8abeb7 gui=bold guibg=#373737
-hi DiffAdd guifg=#b5bd68 guibg=#373737
-hi DiffDelete gui=bold guifg=#cc6666 guibg=#373737
-
-hi NERDTreeOpenable guifg=#b294bb gui=bold
-hi link NERDTreeClosable NERDTreeOpenable
-hi NERDTreeDir guifg=#ffffff gui=bold
+" hi DiffChange guifg=#b294bb guibg=#373737
+" hi DiffText guifg=#8abeb7 gui=bold guibg=#373737
+" hi DiffAdd guifg=#b5bd68 guibg=#373737
+" hi DiffDelete gui=bold guifg=#cc6666 guibg=#373737
+" ---------------------------------------------------------------

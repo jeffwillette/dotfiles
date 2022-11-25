@@ -1,4 +1,4 @@
 # configuration file for pylsp (python language server protocol)
 
 [pycodestyle]
-ignore = E501,
+# ignore = E501,

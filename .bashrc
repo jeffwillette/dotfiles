@@ -178,7 +178,6 @@ function _update_ps1() {
 function download_nvim() {
     note "\ndownloading nvim appimage\n" ${blue}
     curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage
-    # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.0/nvim.appimage
     # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.7.2/nvim.appimage
     chmod u+x ~/bin/vim
 }
@@ -202,10 +201,6 @@ function download_deno() {
     note "\ndownloading deno exectuable\n" ${blue}
     curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.27.2/deno-x86_64-unknown-linux-gnu.zip
 
-    # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.25.0/deno-x86_64-unknown-linux-gnu.zip
-    # on the ai servers so we are limited to version 1.24 for now.
-    # deno run https://deno.land/std/examples/welcome.ts
-    # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.24.3/deno-x86_64-unknown-linux-gnu.zip
     cd ~/bin
     unzip -o deno.zip
 }
@@ -366,6 +361,13 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
         /usr/bin/ssh-add ~/.ssh/*rsa
     }
 
+    function download_fonts {
+        mkdir -p ~/.local/share/fonts
+        cd ~/.local/share/fonts && curl -fLo "Droid Sans Mono for Powerline Nerd Font Complete.otf" https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/DroidSansMono/complete/Droid%20Sans%20Mono%20Nerd%20Font%20Complete.otf
+        cd -
+    }
+
+
     # init pyenv stuff. This wasn't working in the bash profile or profile. I am not sure why
     export PYENV_ROOT="$HOME/.pyenv"
     command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
@@ -393,6 +395,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
     	download_fd
     	download_rg
     	download_deno
+        download_fonts
 
 	note "apt update\n" ${blue}
 	sudo apt -y update && sudo apt -y upgrade
