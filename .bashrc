@@ -356,6 +356,13 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
     note "Linux Desktop\n" ${blue}
+    #
+    # >>> conda initialize >>>
+    # !! Contents within this block are managed by 'conda init' !!
+    __conda_setup="$('/home/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    eval "$__conda_setup"
+    unset __conda_setup
+    # <<< conda initialize <<<
 
     # for pytorch 1.7.0 and cuda 11.0
     export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
@@ -378,12 +385,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
         cd ~/.local/share/fonts && curl -fLo "Droid Sans Mono for Powerline Nerd Font Complete.otf" https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/DroidSansMono/complete/Droid%20Sans%20Mono%20Nerd%20Font%20Complete.otf
         cd -
     }
-
-
-    # init pyenv stuff. This wasn't working in the bash profile or profile. I am not sure why
-    export PYENV_ROOT="$HOME/.pyenv"
-    command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
 
     # Source SSH settings, if applicable
     if [ -f "${SSH_ENV}" ]; then
