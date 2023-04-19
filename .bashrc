@@ -225,7 +225,6 @@ HOSTNAME=`hostname`
 # These things are system specific
 if [ $SYSTEM == "Darwin" ]; then
     #Making an alias to show/hide hidden files in the finder
-    source ~/.venv/env/bin/activate
 
     export PATH=$PATH:/usr/local/opt/coreutils/libexec/gnubin:/opt/homebrew/bin
     export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:$MANPATH
@@ -299,8 +298,12 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST AI SERVER"
 
-    eval "$(pyenv init -)"
-    source /st1/jeff/.venv/env/bin/activate
+    # >>> conda initialize >>>
+    # !! Contents within this block are managed by 'conda init' !!
+    __conda_setup="$('/st1/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    eval "$__conda_setup"
+    unset __conda_setup
+    # <<< conda initialize <<<
 
     export DENO_DIR=/home/jeff/.tmp  # needed for this bug: https://github.com/denoland/deno/issues/16577
     # this was added for the rl experiments for my CS572 project
@@ -313,6 +316,9 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export TMPDIR=/tmp
     export WORKPLACE=KAIST
     export DATADIR=/d1/dataset
+    # for using hdf5 files on the server. Doing anything with hdf5 files
+    # causes an error without this
+    export HDF5_USE_FILE_LOCKING=TRUE
 
     function trash () {
         note "moving ${@} to trash\n" ${blue}
@@ -341,6 +347,10 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     }
 
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
+
+    conda deactivate
+    conda deactivate
+    conda activate set-ssl
 
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
     note "Linux Desktop\n" ${blue}
@@ -386,7 +396,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
 
     # run tmux with systemd so that I can logout and still have tmux running (https://unix.stackexchange.com/questions/490267/prevent-logoff-from-killing-tmux-session)
     alias tmux='systemd-run --scope --user tmux'
-    source ~/.venv/env/bin/activate
     export WORKPLACE=Linux
 
     function update() {
@@ -441,3 +450,4 @@ function replace() {
         --exclude yarn.lock \
         "${1}" "${3}" | xargs gsed -i "s|${1}|${2}|g"
 }
+
