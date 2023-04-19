@@ -18,7 +18,9 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'neovim/nvim-lspconfig'
 Plug 'ray-x/lsp_signature.nvim'
 Plug 'nvim-tree/nvim-tree.lua'
+Plug 'nvim-tree/nvim-web-devicons'
 Plug 'folke/trouble.nvim'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " autocompleter and sources, filters ----------------------
 Plug 'Shougo/pum.vim'
@@ -35,6 +37,7 @@ Plug 'Shougo/ddc-source-nvim-lsp'
 Plug 'tani/ddc-path'
 Plug 'Shougo/ddc-omni'
 Plug 'Shougo/ddc-ui-native'
+Plug 'matsui54/ddu-source-file_external'
 
 " install your filters
 Plug 'Shougo/ddc-matcher_head'
@@ -63,12 +66,6 @@ Plug 'chriskempson/base16-vim'
 Plug 'vim-python/python-syntax'
 Plug 'xolox/vim-colorscheme-switcher'
 Plug 'xolox/vim-misc'
-Plug 'kyazdani42/nvim-web-devicons'
-
-"Plug 'rakr/vim-one'
-"Plug 'nanotech/jellybeans.vim'
-"Plug 'morhetz/gruvbox'
-"Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
 call plug#end()
 
@@ -244,12 +241,13 @@ call ddu#custom#patch_global({
 " Specify matcher.
 " Note: matcher_substring filter
 " https://github.com/Shougo/ddu-filter-matcher_substring
+"
+"
 call ddu#custom#patch_global({
     \   'sourceOptions': {
     \     '_': {
     \       'matchers': ['matcher_fzf', 'matcher_substring'],
     \     },
-    \     'file_rec': {'path': getcwd()},
     \   }
     \ })
 
@@ -259,9 +257,13 @@ call ddu#custom#patch_global({
     \       'args': ['--column', '--no-heading', '--color', 'never'],
     \       'highlights': 'Search',
     \     },
-    \     'file_rec': {
-    \       'ignoredDirectories': ["__pycache__", ".git", ".mypy_cache"]
-    \     }
+	\     'file_external': {
+	\       'cmd': [
+    \         'fd', '.', '--hidden', '--ignore-case', '--max-depth', '10',
+    \         '--exclude', '__pycache__', '--exclude', '.git', '--exclude', '*.pyc',
+    \         '--exclude', '.mypy_cache', '--type', 'f'
+    \        ],
+	\     },
     \   },
     \ })
 
@@ -309,15 +311,14 @@ endfunction
 autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
 function! s:ddu_filter_my_settings() abort
   inoremap <buffer> <CR>
-  \ <Esc><Cmd>call ddu#ui#ff#close()<CR>
+  \ <Esc><Cmd>call ddu#ui#ff#do_action('closeFilterWindow')<CR>
   nnoremap <buffer> <CR>
-  \ <Esc><Cmd>call ddu#ui#ff#close()<CR>
+  \ <Esc><Cmd>call ddu#ui#ff#do_action('closeFilterWindow')<CR>
 endfunction
 
 " open list of buffers, open directory for seatch, search for test in files (rg)
 nnoremap <leader><leader> <Cmd>call ddu#start({'sources': [{'name': 'buffer'}]})<CR>
-nnoremap <leader><Space> <Cmd>call ddu#start({'sources': [{'name': 'file_rec'}]})<CR>
-nnoremap <leader><Space>a <Cmd>call ddu#start({'sources': [{'name': 'file_rec', 'options': {'path': expand("~")}}]})<CR>
+nnoremap <leader><Space> <Cmd>call ddu#start({'sources': [{'name': 'file_external'}]})<CR>
 nnoremap <leader><Space><Space> <Cmd>call <SID>ddu_rg_live()<CR>
 
 

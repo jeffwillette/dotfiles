@@ -177,7 +177,8 @@ function _update_ps1() {
 
 function download_nvim() {
     note "\ndownloading nvim appimage\n" ${blue}
-    curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage
+    curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.3/nvim.appimage
+    # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage
     # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.7.2/nvim.appimage
     chmod u+x ~/bin/vim
 }
@@ -199,7 +200,8 @@ function download_fd() {
 function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
     note "\ndownloading deno exectuable\n" ${blue}
-    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.27.2/deno-x86_64-unknown-linux-gnu.zip
+    # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.27.2/deno-x86_64-unknown-linux-gnu.zip
+    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.32.1/deno-x86_64-unknown-linux-gnu.zip
 
     cd ~/bin
     unzip -o deno.zip

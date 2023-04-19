@@ -19,6 +19,8 @@ local on_attach = function(client, bufnr)
 
   -- Mappings.
   -- See `:help vim.lsp.*` for documentation on any of the below functions
+  --
+
   local bufopts = { noremap=true, silent=true, buffer=bufnr }
   vim.keymap.set('n', '<leader>g', vim.lsp.buf.definition, bufopts)
   vim.keymap.set('n', '<leader>gd', vim.lsp.buf.declaration, bufopts)
@@ -83,7 +85,7 @@ require('lspconfig')['pylsp'].setup{
 
 require("trouble").setup {
   position = "bottom", -- position of the list can be: bottom, top, left, right
-      height = 5, -- height of the trouble list when position is top or bottom
+      height = 10, -- height of the trouble list when position is top or bottom
       width = 50, -- width of the list when position is left or right
       icons = true, -- use devicons for filenames
       mode = "document_diagnostics", -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
@@ -190,7 +192,7 @@ require("nvim-tree").setup { -- BEGIN_DEFAULT_OPTS
   view = {
     adaptive_size = false,
     centralize_selection = false,
-    width = 30,
+    width = 70,
     hide_root_folder = false,
     side = "left",
     preserve_window_proportions = false,
@@ -209,7 +211,7 @@ require("nvim-tree").setup { -- BEGIN_DEFAULT_OPTS
       open_win_config = {
         relative = "editor",
         border = "rounded",
-        width = 30,
+        width = 70,
         height = 80,
         row = 1,
         col = 1,
