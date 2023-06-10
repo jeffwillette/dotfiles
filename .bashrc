@@ -399,6 +399,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
 
     # run tmux with systemd so that I can logout and still have tmux running (https://unix.stackexchange.com/questions/490267/prevent-logoff-from-killing-tmux-session)
     alias tmux='systemd-run --scope --user tmux'
+    alias python='python3'
     export WORKPLACE=Linux
 
     function update() {
