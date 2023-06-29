@@ -8,18 +8,6 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
-SYSTEM=`uname -a | cut -d" " -f1`
-if [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
-    export PYENV_ROOT="/st1/jeff/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-fi
-
-if [[ $SYSTEM == "Darwin" ]]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-fi
-
 # if running bash
 # if [ -n "$BASH_VERSION" ]; then
 #     # include .bashrc if it exists
@@ -29,15 +17,6 @@ fi
 # fi
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
-
-# set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
-fi
-
-if [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
-    eval "$(pyenv init --path)"
 fi

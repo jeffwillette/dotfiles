@@ -302,7 +302,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('/st1/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    __conda_setup="$('/c2/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
     eval "$__conda_setup"
     unset __conda_setup
     # <<< conda initialize <<<

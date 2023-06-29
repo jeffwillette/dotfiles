@@ -169,17 +169,25 @@ require("tokyonight").setup({
 
 vim.cmd[[colorscheme tokyonight]]
 
-
 require("nvim-tree").setup { -- BEGIN_DEFAULT_OPTS
-  -- on_attach = "disable",
   view = {
-    width = 70,
+    width = 60,
     float = {
       enable = true,
+      quit_on_focus_loss = true,
       open_win_config = {
-        width = 70,
-        height = 80,
+        relative = "editor",
+        border = "rounded",
+        width = 60,
+        height = 100,
+        row = 1,
+        col = 1,
       },
+    },
+  },
+  actions = {
+    open_file = {
+      quit_on_open = true,
     },
   },
 } -- END_DEFAULT_OPTS
