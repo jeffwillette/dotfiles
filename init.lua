@@ -1,6 +1,7 @@
 -- disable netrw at the very start of your init.lua (strongly advised) from nvim-tree
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+-- vim.lsp.set_log_level("debug")
 
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
@@ -64,12 +65,18 @@ require('lspconfig')['pylsp'].setup{
     pylsp = {
       plugins = {
         autopep8 = {
+          enabled = false,
+        },
+        yapf = {
           enabled = true,
         },
-        -- pycodestyle = {
-          -- ignore = {'E501'},
-          -- maxLineLength = 100
-        -- }
+        isort = {
+          enabled = false,
+        },
+        pycodestyle = {
+          ignore = {'E501', 'E741'},
+          maxLineLength = 100
+        }
       }
     }
   },
@@ -189,5 +196,13 @@ require("nvim-tree").setup { -- BEGIN_DEFAULT_OPTS
     open_file = {
       quit_on_open = true,
     },
+  },
+  filters = {
+    git_ignored = false,
+    dotfiles = false,
+    git_clean = false,
+    no_buffer = false,
+    custom = {},
+    exclude = {},
   },
 } -- END_DEFAULT_OPTS

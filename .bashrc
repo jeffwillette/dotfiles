@@ -177,7 +177,8 @@ function _update_ps1() {
 
 function download_nvim() {
     note "\ndownloading nvim appimage\n" ${blue}
-    curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.3/nvim.appimage
+    curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+    # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.3/nvim.appimage
     # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage
     # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.7.2/nvim.appimage
     chmod u+x ~/bin/vim
@@ -201,7 +202,8 @@ function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
     note "\ndownloading deno exectuable\n" ${blue}
     # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.27.2/deno-x86_64-unknown-linux-gnu.zip
-    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.32.1/deno-x86_64-unknown-linux-gnu.zip
+    # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.32.1/deno-x86_64-unknown-linux-gnu.zip
+    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.34.3/deno-x86_64-unknown-linux-gnu.zip
 
     cd ~/bin
     unzip -o deno.zip
@@ -309,7 +311,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 
     export DENO_DIR=/home/jeff/.tmp  # needed for this bug: https://github.com/denoland/deno/issues/16577
     # this was added for the rl experiments for my CS572 project
-    export PATH=/usr/local/cuda-10.1/bin:$PATH
+    export PATH=/usr/local/cuda-10.1/bin:/home/jeff/mlai-cli:$PATH
     export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:/home/jeff/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
     export XDG_CACHE_HOME=/home/jeff/.tmp

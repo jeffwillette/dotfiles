@@ -37,6 +37,7 @@ Plug 'Shougo/ddc-source-nvim-lsp'
 Plug 'tani/ddc-path'
 Plug 'Shougo/ddc-omni'
 Plug 'Shougo/ddc-ui-native'
+Plug 'Shougo/ddc-ui-pum'
 Plug 'matsui54/ddu-source-file_external'
 
 " install your filters
@@ -172,13 +173,9 @@ augroup END
 " ddc setup ----------------------------------------------------------------
 " https://github.com/Shougo/ddc.vim
 
-inoremap <silent><expr> <TAB>
-\ pumvisible() ? '<C-n>' :
-\ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
-\ '<TAB>' : ddc#map#manual_complete()
-
-" <S-TAB>: completion back.
-inoremap <silent><expr><S-Tab>  pumvisible() ? '<C-p>' : '<C-h>'
+"call ddc#custom#patch_global('ui', 'native')
+call pum#set_option({'border': 'rounded'})
+call ddc#custom#patch_global('ui', 'pum')
 
 inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
 inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
@@ -187,10 +184,14 @@ inoremap <C-e>   <Cmd>call pum#map#cancel()<CR>
 inoremap <PageDown> <Cmd>call pum#map#insert_relative_page(+1)<CR>
 inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
 
-call ddc#custom#patch_global('completionMenu', 'pum.vim')
-call pum#set_option({'border': 'rounded'})
+inoremap <silent><expr> <TAB>
+\ pum#visible() ? pum#map#insert_relative(+1) :
+\ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+\ '<TAB>' : ddc#map#manual_complete()
 
-call ddc#custom#patch_global('ui', 'native')
+" <S-TAB>: completion back.
+inoremap <silent><expr><S-Tab>  pum#visible() ? pum#map#insert_relative(-1) : '<C-h>'
+
 call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'rg', 'tmux', 'omni', 'path'])
 
 call ddc#custom#patch_global('sourceOptions', {
@@ -282,10 +283,9 @@ call ddu#custom#patch_global({
 
 function! s:ddu_rg_live() abort
   call ddu#start({
-        \   'volatile': v:true,
         \   'sources': [{
         \     'name': 'rg',
-        \     'options': {'matchers': []},
+        \     'options': {'matchers': [], 'volatile': v:true},
         \   }],
         \   'uiParams': {'ff': {
         \     'ignoreEmpty': v:false,
