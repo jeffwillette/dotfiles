@@ -7,6 +7,12 @@ case $- in
     *i*) ;;
       *) return;;
 esac
+#
+# These things are system specific
+if [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
+    echo "setting home to /c2/jeff on KAIST server"
+    export HOME=/c2/jeff
+fi
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -175,21 +181,26 @@ function _update_ps1() {
         -modules venv,host,cwd,perms,git,hg,jobs,exit,root)"
 }
 
+
+export NVIM_SAVE_LINK=~/bin/vim
+export FD_SAVE_LINK=~/bin/fd.tar.gz
+export DENO_SAVE_LINK=~/bin/deno.zip
+export RG_SAVE_LINK=~/bin/rg.tar.gz
+
 function download_nvim() {
     note "\ndownloading nvim appimage\n" ${blue}
-    curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
-    # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.3/nvim.appimage
-    # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage
-    # curl -Lo ~/bin/vim https://github.com/neovim/neovim/releases/download/v0.7.2/nvim.appimage
-    chmod u+x ~/bin/vim
+    curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage
+    # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
+    chmod u+x $NVIM_SAVE_LINK
 }
 
 function download_fd() {
     note "\ndownloading fd\n" ${blue}
-    url=https://github.com/sharkdp/fd/releases/download/v8.5.2/fd-v8.5.2-x86_64-unknown-linux-gnu.tar.gz
-    file=fd-v8.5.2-x86_64-unknown-linux-gnu
+    # url=https://github.com/sharkdp/fd/releases/download/v8.5.2/fd-v8.5.2-x86_64-unknown-linux-gnu.tar.gz
+    url=https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-v9.0.0-x86_64-unknown-linux-gnu.tar.gz
+    file=fd-v9.0.0-x86_64-unknown-linux-gnu
 
-    curl -Lo ~/bin/fd.tar.gz ${url}
+    curl -Lo $FD_SAVE_LINK ${url}
 
     cd ~/bin
     tar -xvf fd.tar.gz
@@ -201,9 +212,7 @@ function download_fd() {
 function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
     note "\ndownloading deno exectuable\n" ${blue}
-    # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.27.2/deno-x86_64-unknown-linux-gnu.zip
-    # curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.32.1/deno-x86_64-unknown-linux-gnu.zip
-    curl -Lo ~/bin/deno.zip https://github.com/denoland/deno/releases/download/v1.34.3/deno-x86_64-unknown-linux-gnu.zip
+    curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.39.1/deno-x86_64-unknown-linux-gnu.zip
 
     cd ~/bin
     unzip -o deno.zip
@@ -211,11 +220,12 @@ function download_deno() {
 
 function download_rg {
     note "\ndownloading and extracting ripgrep\n" ${blue}
-    curl -Lo ~/bin/rg.tar.gz https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz
+    # curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz
+    curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.0.3/ripgrep-14.0.3-x86_64-unknown-linux-musl.tar.gz
     cd ~/bin
     tar -xvf rg.tar.gz
-    cp ~/bin/ripgrep-13.0.0-x86_64-unknown-linux-musl/rg ~/bin
-    rm -r ripgrep-13.0.0-x86_64-unknown-linux-musl
+    cp ~/bin/ripgrep-14.0.3-x86_64-unknown-linux-musl/rg ~/bin
+    rm -r ripgrep-14.0.3-x86_64-unknown-linux-musl
 }
 
 if [ "$TERM" != "linux" ]; then
@@ -302,6 +312,9 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST AI SERVER"
 
+    # add neovim bin so that the install executables are visible
+    export PATH=/c2/jeff/bin:/usr/local/sbin:$PATH
+
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
     __conda_setup="$('/c2/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
@@ -309,33 +322,22 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     unset __conda_setup
     # <<< conda initialize <<<
 
-    export DENO_DIR=/home/jeff/.tmp  # needed for this bug: https://github.com/denoland/deno/issues/16577
+    export __GL_SHADER_DISK_CACHE_PATH=/c2/jeff/.nv
+    export DENO_DIR=/c2/jeff/.tmp  # needed for this bug: https://github.com/denoland/deno/issues/16577
     # this was added for the rl experiments for my CS572 project
-    export PATH=/usr/local/cuda-10.1/bin:/home/jeff/mlai-cli:$PATH
-    export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:/home/jeff/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
+    # export PATH=/usr/local/cuda-10.1/bin:$PATH
+    # export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:/home/jeff/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/home/jeff/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
-    export XDG_CACHE_HOME=/home/jeff/.tmp
-    export XDG_CONFIG_HOME=/home/jeff/.config
-    export HOME=/home/jeff
+    export XDG_CACHE_HOME=/c2/jeff/.tmp
+    export XDG_CONFIG_HOME=/c2/jeff/.config
+    export HOME=/c2/jeff
     export TMPDIR=/tmp
     export WORKPLACE=KAIST
     export DATADIR=/d1/dataset
     # for using hdf5 files on the server. Doing anything with hdf5 files
     # causes an error without this
     export HDF5_USE_FILE_LOCKING=TRUE
-
-    function trash () {
-        note "moving ${@} to trash\n" ${blue}
-        now="$(date +%Y%m%d_%H%M%S)"
-        mkdir -p /d1/jeff/.trash/$now
-        mv "$@" /d1/jeff/.trash/$now
-    }
-
-    function emptytrash() {
-        note "emptying trash\n" ${blue}
-        rm -rf /d1/jeff/.trash
-        mkdir /d1/jeff/.trash
-    }
 
     function update() {
 	note "downloading binaries\n" ${blue}
@@ -345,16 +347,13 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
         download_deno
 
         note "\ndownloading powerline go\n" ${blue}
-        curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.21.0/powerline-go-linux-amd64
+        # curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.21.0/powerline-go-linux-amd64
+        curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.24/powerline-go-linux-amd64
         chmod +x ~/bin/powerline-go
 
     }
 
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
-
-    conda deactivate
-    conda deactivate
-    conda activate set-ssl
 
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
     note "Linux Desktop\n" ${blue}

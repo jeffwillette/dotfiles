@@ -39,12 +39,14 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
   vim.keymap.set('n', '<space>f', function() vim.lsp.buf.format { async = true } end, bufopts)
 
-  require "lsp_signature".on_attach({
-    bind = true, -- This is mandatory, otherwise border config won't get registered.
-    handler_opts = {
-      border = "rounded"
-    }
-  }, bufnr)
+  ---require "lsp_signature".on_attach({
+  ---  bind = true, -- This is mandatory, otherwise border config won't get registered.
+  ---  transparency = 50,
+  ---  toggle_key = '<leader>x',
+  ---  handler_opts = {
+  ---    border = "rounded"
+  ---  }
+  ---}, bufnr)
 end
 
 local lsp_flags = {
@@ -206,3 +208,25 @@ require("nvim-tree").setup { -- BEGIN_DEFAULT_OPTS
     exclude = {},
   },
 } -- END_DEFAULT_OPTS
+
+require("noice").setup({
+  lsp = {
+    -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+    override = {
+      ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+      ["vim.lsp.util.stylize_markdown"] = true,
+      ["cmp.entry.get_documentation"] = true,
+    },
+  },
+  -- you can enable a preset for easier configuration
+  presets = {
+    bottom_search = true, -- use a classic bottom cmdline for search
+    command_palette = true, -- position the cmdline and popupmenu together
+    long_message_to_split = true, -- long messages will be sent to a split
+    inc_rename = false, -- enables an input dialog for inc-rename.nvim
+    lsp_doc_border = true, -- add a border to hover docs and signature help
+  },
+  popupmenu = {
+      enabled = false
+  },
+})

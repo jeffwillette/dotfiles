@@ -3,6 +3,8 @@ scriptencoding utf-8
 " disable python 2
 let g:loaded_python_provider = 0
 let g:denops#debug = 0
+let g:python3_host_prog='/c2/jeff/anaconda3/envs/neovim/bin/python'
+let $PATH='/c2/jeff/anaconda3/envs/neovim/bin:' . $PATH
 
 augroup vimplug
     if empty(glob('~/.config/nvim/autoload/plug.vim'))
@@ -15,28 +17,26 @@ augroup END
 " Specify a directory for plugins
 call plug#begin('~/.config/nvim/plugged')
 
+Plug 'rcarriga/nvim-notify'
+Plug 'MunifTanjim/nui.nvim'
+Plug 'folke/noice.nvim'
 Plug 'neovim/nvim-lspconfig'
-Plug 'ray-x/lsp_signature.nvim'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
 Plug 'folke/trouble.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " autocompleter and sources, filters ----------------------
-Plug 'Shougo/pum.vim'
 Plug 'Shougo/ddc.vim'
+Plug 'Shougo/pum.vim'
 Plug 'vim-denops/denops.vim'
 
 "install your sources
 Plug 'tani/ddc-fuzzy'
 Plug 'Shougo/ddc-around'
-Plug 'Shougo/ddc-source-nvim-lsp'
-Plug 'Shougo/ddc-rg'
-Plug 'delphinus/ddc-tmux'
-Plug 'Shougo/ddc-source-nvim-lsp'
+Plug 'Shougo/ddc-source-lsp'
 Plug 'tani/ddc-path'
-Plug 'Shougo/ddc-omni'
-Plug 'Shougo/ddc-ui-native'
+Plug 'Shougo/ddc-rg'
 Plug 'Shougo/ddc-ui-pum'
 Plug 'matsui54/ddu-source-file_external'
 
@@ -44,6 +44,7 @@ Plug 'matsui54/ddu-source-file_external'
 Plug 'Shougo/ddc-matcher_head'
 Plug 'Shougo/ddc-sorter_rank'
 " autocompleter done --------------------------------------
+
 
 " ddu (denite replacement?) ------------------------------
 Plug 'Shougo/ddu.vim'
@@ -97,7 +98,7 @@ endfunction
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 syntax on
 filetype plugin indent on
-"syntax for lua
+" syntax for lua
 let g:vimsyn_embed= 'l'
 
 augroup all
@@ -110,7 +111,7 @@ set guifont=DroidSansMono\ Nerd\ Font\ 11
 " make sure I can call stuff defined in my bash_profile
 set shellcmdflag=-c
 set completeopt+=noselect
-set number tabstop=4 shiftwidth=4 nowrap noshowmode expandtab termguicolors background=dark hidden shortmess=atT
+set number tabstop=4 shiftwidth=4 nowrap expandtab termguicolors background=dark hidden shortmess=atT
 set lazyredraw mouse=a directory=~/.config/nvim/tmp cursorline
 set clipboard+=unnamedplus
 set laststatus=2
@@ -165,17 +166,15 @@ let g:python_highlight_all = 1
 
 augroup python
     autocmd!
-    " noshowmode is set to allow for the function completion in the command line
-    autocmd FileType python set tabstop=4 shiftwidth=0 expandtab noshowmode
+    autocmd FileType python set tabstop=4 shiftwidth=0 expandtab
     autocmd BufWritePre *.py lua vim.lsp.buf.format({ async = true })
 augroup END
 
 " ddc setup ----------------------------------------------------------------
 " https://github.com/Shougo/ddc.vim
 
-"call ddc#custom#patch_global('ui', 'native')
-call pum#set_option({'border': 'rounded'})
 call ddc#custom#patch_global('ui', 'pum')
+call pum#set_option({'border': 'rounded'})
 
 inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
 inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
@@ -185,14 +184,11 @@ inoremap <PageDown> <Cmd>call pum#map#insert_relative_page(+1)<CR>
 inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
 
 inoremap <silent><expr> <TAB>
-\ pum#visible() ? pum#map#insert_relative(+1) :
+\ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
 \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
 \ '<TAB>' : ddc#map#manual_complete()
 
-" <S-TAB>: completion back.
-inoremap <silent><expr><S-Tab>  pum#visible() ? pum#map#insert_relative(-1) : '<C-h>'
-
-call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'rg', 'tmux', 'omni', 'path'])
+call ddc#custom#patch_global('sources', ['lsp', 'around', 'rg', 'path'])
 
 call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
@@ -202,9 +198,8 @@ call ddc#custom#patch_global('sourceOptions', {
       \ },
       \ 'rg': {'mark': 'rg', 'minAutoCompleteLength': 4,},
       \ 'tmux': {'mark': 'T'},
-      \ 'omni': {'mark': 'O'},
       \ 'path': {'mark': 'P'},
-      \ 'nvim-lsp': {
+      \ 'lsp': {
       \     'mark': 'lsp',
       \     'forceCompletionPattern': '\.\w*|:\w*|->\w*',
       \     'minAutoCompleteLength': 1
@@ -242,8 +237,8 @@ call ddu#custom#patch_global({
 " Specify matcher.
 " Note: matcher_substring filter
 " https://github.com/Shougo/ddu-filter-matcher_substring
-"
-"
+
+
 call ddu#custom#patch_global({
     \   'sourceOptions': {
     \     '_': {
@@ -322,7 +317,7 @@ nnoremap <leader><Space> <Cmd>call ddu#start({'sources': [{'name': 'file_externa
 nnoremap <leader><Space><Space> <Cmd>call <SID>ddu_rg_live()<CR>
 
 
-nnoremap <leader>[ :NvimTreeToggle<CR>
+nnoremap <silent> <leader>[ :NvimTreeToggle<CR>
 
 " insert mode mappings ------------------------------------------------------
 " maps jj to escape to get out of insert mode
@@ -354,24 +349,26 @@ function! HtopAndGpuStat()
 endfunction
 
 " copy the current buffer filepath into the clipboard
-nnoremap <leader>cp :let @+ = expand("%:p")<CR>
+nnoremap <silent> <leader>cp :let @+ = expand("%:p")<CR>
 " open two terminals and let the user name them
-nnoremap <leader>sh :terminal<CR>i . ~/.bash_profile<CR><C-\><C-n>:keepalt file
+nnoremap <silent> <leader>sh :terminal<CR>i . ~/.bash_profile<CR><C-\><C-n>:keepalt file
 " Reload the file from disk (forced so edits will be lost)
-nnoremap <leader>r :edit!<CR>
+nnoremap <silent> <leader>r :edit!<CR>
 " open a terminal, source bash profile and let user name it
-nnoremap <leader>te :terminal<CR>i . ~/.bash_profile<CR><C-\><C-n>:keepalt file
+nnoremap <silent> <leader>te :terminal<CR>i . ~/.bash_profile<CR><C-\><C-n>:keepalt file
 " add a space in normal mode
-nnoremap <space> i<space><esc>
+nnoremap <silent> <space> i<space><esc>
 " call the bufkill plugin commad to delete buffer form list
-nnoremap <leader>q :bdelete<CR>
-nnoremap <leader>qq :bdelete!<CR>
+nnoremap <silent> <leader>q :bdelete<CR>
+nnoremap <silent> <leader>qq :bdelete!<CR>
 " delete all buffers
-nnoremap <leader>qa :bd *<C-a><CR>
+nnoremap <silent> <leader>qa :bd *<C-a><CR>
 " write file (save)
-nnoremap <leader>w :w!<CR>
+nnoremap <silent> <leader>w :w!<CR>
+
+
 " close the preview window with leader p
-nnoremap <leader>p :pclose<CR>
+nnoremap <silent> <leader>p :pclose<CR>
 " in normal mode, the arrow keys will move tabs
 nnoremap <silent> <Left> :bprevious!<CR>
 nnoremap <silent> <Right> :bnext!<CR>
@@ -388,29 +385,29 @@ nnoremap _ O<Esc>
 nnoremap - o<Esc>
 
 " location list open, close, next, previous wincmd's make it so that the cursor goes back to the main buffer
-nnoremap <leader>' :TroubleToggle<CR>
-nnoremap <leader>'' :lclose<CR>
-nnoremap <leader>; :lnext<CR>
-nnoremap <leader>l :lprev<CR>
+nnoremap <silent> <leader>' :TroubleToggle<CR>
+nnoremap <silent> <leader>'' :lclose<CR>
+nnoremap <silent> <leader>; :lnext<CR>
+nnoremap <silent> <leader>l :lprev<CR>
 " jump to the current error
-nnoremap <leader>;; :ll<CR>
+nnoremap <silent> <leader>;; :ll<CR>
 " quickfix window commands
-nnoremap <leader>/ :copen<CR>:wincmd k<CR>
-nnoremap <leader>// :cclose<CR>
-nnoremap <leader>. :cnext<CR>
-nnoremap <leader>, :cprevious<CR>
+nnoremap <silent> <leader>/ :copen<CR>:wincmd k<CR>
+nnoremap <silent> <leader>// :cclose<CR>
+nnoremap <silent> <leader>. :cnext<CR>
+nnoremap <silent> <leader>, :cprevious<CR>
 " jump to quickfix current error number
-nnoremap <leader>.. :cc<CR>
+nnoremap <silent> <leader>.. :cc<CR>
 " insert the UTC date at the end of the line Sun May 13 13:06:42 UTC 2018
-nnoremap <leader>x :r! date -u "+\%Y-\%m-\%d \%H:\%M:\%S.000+00"<CR>k<S-j>h
+nnoremap <silent> <leader>x :r! date -u "+\%Y-\%m-\%d \%H:\%M:\%S.000+00"<CR>k<S-j>h
 
 " VISUAL MODE MAPPINGS ------------------------------------------------
 
 " in visual mode, arrows will move text around
-vnoremap <Left> <gv
-vnoremap <Right> >gv
-vnoremap <Up> :m.-2<CR>gv
-vnoremap <Down> :m '>+1<CR>==gv
+vnoremap <silent> <Left> <gv
+vnoremap <silent> <Right> >gv
+vnoremap <silent> <Up> :m.-2<CR>gv
+vnoremap <silent> <Down> :m '>+1<CR>==gv
 
 " quickfix window settings -------------------------------------------------
 
@@ -426,9 +423,9 @@ augroup END
 
 " toggle highlighting after search
 
-map  <leader>h :noh<CR>
-imap <leader>h <ESC>:noh<CR>a
-vmap <leader>h <ESC>:noh<CR>gv
+map  <silent> <leader>h :noh<CR>
+imap <silent> <leader>h <ESC>:noh<CR>a
+vmap <silent> <leader>h <ESC>:noh<CR>gv
 
 " Highlight the highlight group name under the cursor
 function! SynStack()

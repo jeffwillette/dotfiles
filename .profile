@@ -18,5 +18,7 @@
 
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/.local/bin" ] ; then
+    echo "in .profile"
+    echo $HOME
     PATH="$HOME/.local/bin:$PATH"
 fi
