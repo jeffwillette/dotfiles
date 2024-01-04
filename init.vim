@@ -45,7 +45,6 @@ Plug 'Shougo/ddc-matcher_head'
 Plug 'Shougo/ddc-sorter_rank'
 " autocompleter done --------------------------------------
 
-
 " ddu (denite replacement?) ------------------------------
 Plug 'Shougo/ddu.vim'
 Plug 'Shougo/ddu-kind-file'
