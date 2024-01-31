@@ -291,23 +291,23 @@ endfunction
 autocmd FileType ddu-ff call s:ddu_ff_my_settings()
 function! s:ddu_ff_my_settings() abort
   nnoremap <buffer> <CR>
-  \ <Cmd>call ddu#ui#ff#do_action('itemAction')<CR>
+  \ <Cmd>call ddu#ui#do_action('itemAction')<CR>
   nnoremap <buffer><silent> d
-  \ <Cmd>call ddu#ui#ff#do_action('itemAction', {'name': 'delete'})<CR>
+  \ <Cmd>call ddu#ui#do_action('itemAction', {'name': 'delete'})<CR>
   nnoremap <buffer> <Space>
-  \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
+  \ <Cmd>call ddu#ui#do_action('toggleSelectItem')<CR>
   nnoremap <buffer> i
-  \ <Cmd>call ddu#ui#ff#do_action('openFilterWindow')<CR>
+  \ <Cmd>call ddu#ui#do_action('openFilterWindow')<CR>
   nnoremap <buffer> q
-  \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+  \ <Cmd>call ddu#ui#do_action('quit')<CR>
 endfunction
 
 autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
 function! s:ddu_filter_my_settings() abort
   inoremap <buffer> <CR>
-  \ <Esc><Cmd>call ddu#ui#ff#do_action('closeFilterWindow')<CR>
+  \ <Esc><Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
   nnoremap <buffer> <CR>
-  \ <Esc><Cmd>call ddu#ui#ff#do_action('closeFilterWindow')<CR>
+  \ <Esc><Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
 endfunction
 
 " open list of buffers, open directory for seatch, search for test in files (rg)
