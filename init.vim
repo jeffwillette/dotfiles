@@ -3,8 +3,15 @@ scriptencoding utf-8
 " disable python 2
 let g:loaded_python_provider = 0
 let g:denops#debug = 0
-let g:python3_host_prog='/c2/jeff/anaconda3/envs/neovim/bin/python'
-let $PATH='/c2/jeff/anaconda3/envs/neovim/bin:' . $PATH
+
+if $HOSTNAME == 'desktop'
+    let g:python3_host_prog='/home/jeff/anaconda3/envs/neovim/bin/python'
+    let $PATH='/home/jeff/anaconda3/envs/neovim/bin:' . $PATH
+else
+    let g:python3_host_prog='/c2/jeff/anaconda3/envs/neovim/bin/python'
+    let $PATH='/c2/jeff/anaconda3/envs/neovim/bin:' . $PATH
+endif
+
 
 augroup vimplug
     if empty(glob('~/.config/nvim/autoload/plug.vim'))

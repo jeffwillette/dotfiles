@@ -189,7 +189,7 @@ export RG_SAVE_LINK=~/bin/rg.tar.gz
 
 function download_nvim() {
     note "\ndownloading nvim appimage\n" ${blue}
-    curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage
+    curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage
     # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
     chmod u+x $NVIM_SAVE_LINK
 }
@@ -233,7 +233,7 @@ if [ "$TERM" != "linux" ]; then
 fi
 
 SYSTEM=`uname -a | cut -d" " -f1`
-HOSTNAME=`hostname`
+export HOSTNAME=`hostname`
 
 
 # These things are system specific
@@ -355,7 +355,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
 
-elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
+elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"desktop".* ]]; then
     note "Linux Desktop\n" ${blue}
     #
     # >>> conda initialize >>>
@@ -381,12 +381,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
         /usr/bin/ssh-add ~/.ssh/*rsa
     }
 
-    function download_fonts {
-        mkdir -p ~/.local/share/fonts
-        cd ~/.local/share/fonts && curl -fLo "Droid Sans Mono for Powerline Nerd Font Complete.otf" https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/DroidSansMono/complete/Droid%20Sans%20Mono%20Nerd%20Font%20Complete.otf
-        cd -
-    }
-
     # Source SSH settings, if applicable
     if [ -f "${SSH_ENV}" ]; then
         . "${SSH_ENV}" > /dev/null
@@ -409,7 +403,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"jeff-".* ]]; then
     	download_fd
     	download_rg
     	download_deno
-        download_fonts
 
 	note "apt update\n" ${blue}
 	sudo apt -y update && sudo apt -y upgrade
