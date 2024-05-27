@@ -25,6 +25,10 @@ shopt -s histappend
 HISTSIZE=1000
 HISTFILESIZE=2000
 
+SYSTEM=`uname -a | cut -d" " -f1`
+export HOSTNAME=`hostname`
+set -o vi
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -232,10 +236,6 @@ if [ "$TERM" != "linux" ]; then
     PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
 fi
 
-SYSTEM=`uname -a | cut -d" " -f1`
-export HOSTNAME=`hostname`
-
-
 # These things are system specific
 if [ $SYSTEM == "Darwin" ]; then
     #Making an alias to show/hide hidden files in the finder
@@ -329,6 +329,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:/home/jeff/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/home/jeff/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
+    export XAUTHORITY=/home/jeff/.Xauthority
     export XDG_CACHE_HOME=/c2/jeff/.tmp
     export XDG_CONFIG_HOME=/c2/jeff/.config
     export HOME=/c2/jeff
@@ -414,6 +415,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"desktop".* ]]; then
 fi
 
 # These things are regardless of system
+LS_COLORS=$LS_COLORS:'di=1;36'
 alias ll='ls -alF'
 alias la='ls -lA --block-size=K'
 alias l='ls -CF'

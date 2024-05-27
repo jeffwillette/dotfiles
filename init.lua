@@ -76,8 +76,8 @@ require('lspconfig')['pylsp'].setup{
           enabled = false,
         },
         pycodestyle = {
-          ignore = {'E501', 'E741'},
-          maxLineLength = 100
+          ignore = {'E501', 'E502', "E131",  'E741'},
+          maxLineLength = 150
         }
       }
     }
