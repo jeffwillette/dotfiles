@@ -227,7 +227,7 @@ call ddc#enable()
 " https://github.com/Shougo/ddu-ui-ff
 call ddu#custom#patch_global({
     \ 'ui': 'ff',
-    \ 'uiParams': {'ff': {'split': 'floating', 'winHeight': 35, 'floatingBorder': 'rounded'}}
+    \ 'uiParams': {'ff': {'split': 'floating', 'winHeight': 35, 'floatingBorder': 'rounded', 'previewFloating': v:true}}
     \ })
 
 " You must set the default action.

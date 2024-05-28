@@ -70,7 +70,7 @@ require('lspconfig')['pylsp'].setup{
           enabled = true,
         },
         yapf = {
-          enabled = true,
+          enabled = false,
         },
         isort = {
           enabled = true,
@@ -362,7 +362,7 @@ require("noice").setup({
   cmdline = {
     enabled = true, -- enables the Noice cmdline UI
     ---view = "cmdline_popup", -- view for rendering the cmdline. Change to `cmdline` to get a classic cmdline at the bottom
-    view = "cmdline", -- view for rendering the cmdline. Change to `cmdline` to get a classic cmdline at the bottom
+    view = "cmdline_popup", -- view for rendering the cmdline. Change to `cmdline` to get a classic cmdline at the bottom
     opts = {}, -- global options for the cmdline. See section on views
     ---@type table<string, CmdlineFormat>
     format = {
