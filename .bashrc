@@ -247,7 +247,7 @@ if [ $SYSTEM == "Darwin" ]; then
         /System/Library/CoreServices/Finder.app'
     alias hidef='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder \
         /System/Library/CoreServices/Finder.app'
-    alias login-kaist-desktop='ssh jeff@143.248.137.44'
+    alias login-kaist-desktop='ssh jeff@143.248.158.60'
 
     alias cdgo='cd ~/go/src/github.com/deltaskelta'
     # this is for deleting files from git repository history
