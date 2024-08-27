@@ -367,12 +367,10 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"desktop".* ]]; then
     unset __conda_setup
     # <<< conda initialize <<<
 
-    # for pytorch 1.7.0 and cuda 11.0
-    export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
-    export PATH=/usr/local/cuda-11.0/bin:/home/jeff/.gem/ruby/2.7.0/bin:$PATH
-    export DATADIR=/home/jeff/datasets
     SSH_ENV="$HOME/.ssh/environment"
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
+    export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
+    export LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
     function start_agent {
         echo "Initialising new SSH agent..."
