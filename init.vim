@@ -37,6 +37,7 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'Shougo/ddc.vim'
 Plug 'Shougo/pum.vim'
 Plug 'vim-denops/denops.vim'
+Plug 'vim-denops/denops-helloworld.vim'
 
 "install your sources
 Plug 'tani/ddc-fuzzy'
@@ -113,7 +114,7 @@ augroup END
 
 " set neovim to have normal vim cursor, guicursor& to restore default
 set guicursor=
-set guifont=DroidSansMono\ Nerd\ Font\ 11
+set guifont=Ubuntu
 " make sure I can call stuff defined in my bash_profile
 set shellcmdflag=-c
 set completeopt+=noselect
@@ -391,12 +392,9 @@ nnoremap _ O<Esc>
 nnoremap - o<Esc>
 
 " location list open, close, next, previous wincmd's make it so that the cursor goes back to the main buffer
-nnoremap <silent> <leader>' :TroubleToggle<CR>
-nnoremap <silent> <leader>'' :lclose<CR>
-nnoremap <silent> <leader>; :lnext<CR>
-nnoremap <silent> <leader>l :lprev<CR>
+nnoremap <silent> <leader>' :Trouble diagnostics toggle<CR>
 " jump to the current error
-nnoremap <silent> <leader>;; :ll<CR>
+
 " quickfix window commands
 nnoremap <silent> <leader>/ :copen<CR>:wincmd k<CR>
 nnoremap <silent> <leader>// :cclose<CR>

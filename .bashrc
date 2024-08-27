@@ -193,7 +193,8 @@ export RG_SAVE_LINK=~/bin/rg.tar.gz
 
 function download_nvim() {
     note "\ndownloading nvim appimage\n" ${blue}
-    curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage
+    # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage
+    curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.1/nvim.appimage
     # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
     chmod u+x $NVIM_SAVE_LINK
 }
@@ -216,7 +217,7 @@ function download_fd() {
 function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
     note "\ndownloading deno exectuable\n" ${blue}
-    curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.39.1/deno-x86_64-unknown-linux-gnu.zip
+    curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.45.0/deno-x86_64-unknown-linux-gnu.zip
 
     cd ~/bin
     unzip -o deno.zip
