@@ -309,6 +309,21 @@ if [ $SYSTEM == "Darwin" ]; then
         defaults write com.apple.desktopservices DSDontWriteNetworkStores true
     }
 
+    # >>> conda initialize >>>
+    # !! Contents within this block are managed by 'conda init' !!
+    __conda_setup="$('/Users/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        if [ -f "/Users/jeff/anaconda3/etc/profile.d/conda.sh" ]; then
+            . "/Users/jeff/anaconda3/etc/profile.d/conda.sh"
+        else
+            export PATH="/Users/jeff/anaconda3/bin:$PATH"
+        fi
+    fi
+    unset __conda_setup
+    # <<< conda initialize <<<
+
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     # this is for general linux systems that I control
     echo "KAIST AI SERVER"
