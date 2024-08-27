@@ -201,9 +201,10 @@ function download_nvim() {
 
 function download_fd() {
     note "\ndownloading fd\n" ${blue}
-    # url=https://github.com/sharkdp/fd/releases/download/v8.5.2/fd-v8.5.2-x86_64-unknown-linux-gnu.tar.gz
-    url=https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-v9.0.0-x86_64-unknown-linux-gnu.tar.gz
-    file=fd-v9.0.0-x86_64-unknown-linux-gnu
+    # url=https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-v9.0.0-x86_64-unknown-linux-gnu.tar.gz
+    # file=fd-v9.0.0-x86_64-unknown-linux-gnu
+    url=https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-i686-unknown-linux-gnu.tar.gz
+    file=fd-v10.2.0-i686-unknown-linux-gnu
 
     curl -Lo $FD_SAVE_LINK ${url}
 
@@ -217,7 +218,8 @@ function download_fd() {
 function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
     note "\ndownloading deno exectuable\n" ${blue}
-    curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.45.0/deno-x86_64-unknown-linux-gnu.zip
+    # curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.45.0/deno-x86_64-unknown-linux-gnu.zip
+    curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.46.1/deno-x86_64-unknown-linux-gnu.zip 
 
     cd ~/bin
     unzip -o deno.zip
@@ -225,8 +227,8 @@ function download_deno() {
 
 function download_rg {
     note "\ndownloading and extracting ripgrep\n" ${blue}
-    # curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz
-    curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.0.3/ripgrep-14.0.3-x86_64-unknown-linux-musl.tar.gz
+    # curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.0.3/ripgrep-14.0.3-x86_64-unknown-linux-musl.tar.gz
+    curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep-14.1.0-x86_64-unknown-linux-musl.tar.gz
     cd ~/bin
     tar -xvf rg.tar.gz
     cp ~/bin/ripgrep-14.0.3-x86_64-unknown-linux-musl/rg ~/bin
