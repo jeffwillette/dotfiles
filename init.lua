@@ -1,6 +1,7 @@
 -- disable netrw at the very start of your init.lua (strongly advised) from nvim-tree
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+vim.lsp.set_log_level 'trace'
 -- vim.lsp.set_log_level("debug")
 
 -- Mappings.
@@ -60,7 +61,9 @@ for type, icon in pairs(signs) do
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl})
 end
 
-require('lspconfig')['pylsp'].setup{
+local lspconfig = require("lspconfig")
+
+lspconfig.pylsp.setup{
   on_attach = on_attach,
   flags = lsp_flags,
   settings = {
@@ -92,6 +95,21 @@ require('lspconfig')['pylsp'].setup{
   },
 }
 
+lspconfig.clangd.setup{
+  on_attach = on_attach,
+  flags = lsp_flags,
+  settings = {
+    clangd = {}
+  },
+  handlers = {
+    ["textDocument/publishDiagnostics"] = vim.lsp.with(
+      vim.lsp.diagnostic.on_publish_diagnostics, {
+        -- Disable virtual_text
+        virtual_text = false,
+      }
+    ),
+  },
+}
 
 require("trouble").setup {
   auto_close = true, -- auto close when there are no items

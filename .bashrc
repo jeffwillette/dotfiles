@@ -191,6 +191,19 @@ export FD_SAVE_LINK=~/bin/fd.tar.gz
 export DENO_SAVE_LINK=~/bin/deno.zip
 export RG_SAVE_LINK=~/bin/rg.tar.gz
 
+function download_clangd() {
+    note "\ndownloading clangd\n" ${blue}
+
+    download_dir=~/bin/clangd_18.1.3
+    rm -r $download_dir
+    rm ~/bin/clangd
+
+    curl -Lo ${download_dir}.zip https://github.com/clangd/clangd/releases/download/18.1.3/clangd-linux-18.1.3.zip
+    unzip ${download_dir}.zip
+    rm ${download_dir}.zip
+    ln -s clangd_18.1.3/bin/clangd ~/bin/clangd
+}
+
 function download_nvim() {
     note "\ndownloading nvim appimage\n" ${blue}
     # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage
@@ -203,8 +216,8 @@ function download_fd() {
     note "\ndownloading fd\n" ${blue}
     # url=https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-v9.0.0-x86_64-unknown-linux-gnu.tar.gz
     # file=fd-v9.0.0-x86_64-unknown-linux-gnu
-    url=https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-i686-unknown-linux-gnu.tar.gz
-    file=fd-v10.2.0-i686-unknown-linux-gnu
+    url=https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz
+    file=fd-v10.2.0-x86_64-unknown-linux-gnu
 
     curl -Lo $FD_SAVE_LINK ${url}
 
@@ -332,7 +345,12 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
 
     # add neovim bin so that the install executables are visible
     export PATH=/c2/jeff/bin:/usr/local/sbin:$PATH
+    export PATH="/c2/jeff/perl5/bin${PATH:+:${PATH}}"
 
+    PERL5LIB="/c2/jeff/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+    PERL_LOCAL_LIB_ROOT="/c2/jeff/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+    PERL_MB_OPT="--install_base \"/c2/jeff/perl5\""; export PERL_MB_OPT;
+    PERL_MM_OPT="INSTALL_BASE=/c2/jeff/perl5"; export PERL_MM_OPT;
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
     __conda_setup="$('/c2/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
