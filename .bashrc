@@ -361,8 +361,6 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export __GL_SHADER_DISK_CACHE_PATH=/c2/jeff/.nv
     export DENO_DIR=/c2/jeff/.tmp  # needed for this bug: https://github.com/denoland/deno/issues/16577
     # this was added for the rl experiments for my CS572 project
-    # export PATH=/usr/local/cuda-10.1/bin:$PATH
-    # export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:/home/jeff/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/home/jeff/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
     export XAUTHORITY=/home/jeff/.Xauthority
@@ -404,8 +402,8 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"desktop".* ]]; then
 
     SSH_ENV="$HOME/.ssh/environment"
     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/jeff/.mujoco/mujoco200/bin
-    export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
-    export LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+    export PATH=/usr/local/cuda-12.6/bin:${PATH}
+    export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/include/:/usr/local/cuda/nvvm/libdevice/:/usr/local/cuda-12.6/lib64:${LD_LIBRARY_PATH}
 
     function start_agent {
         echo "Initialising new SSH agent..."
