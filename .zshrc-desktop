@@ -107,7 +107,6 @@ source $ZSH/oh-my-zsh.sh
 source ~/dotfiles/.zsh-common
 
 # DESKTOP SPECIFIC SETTINGS ==============================================
-RPROMPT='$(conda_prompt_info)'
 note "Linux Desktop\n" ${lcyan}
 
 # >>> conda initialize >>>

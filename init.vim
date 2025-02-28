@@ -2,7 +2,6 @@ scriptencoding utf-8
 
 " disable python 2
 let g:loaded_python_provider = 0
-let g:denops#debug = 0
 
 if $HOSTNAME == 'desktop'
     let g:python3_host_prog='/home/jeff/anaconda3/envs/neovim/bin/python'
