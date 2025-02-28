@@ -27,43 +27,16 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'rcarriga/nvim-notify'
 Plug 'MunifTanjim/nui.nvim'
 Plug 'folke/noice.nvim'
-Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
 Plug 'folke/trouble.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
-" autocompleter and sources, filters ----------------------
-Plug 'Shougo/ddc.vim'
-Plug 'Shougo/pum.vim'
-Plug 'vim-denops/denops.vim'
-Plug 'vim-denops/denops-helloworld.vim'
-
-"install your sources
-Plug 'tani/ddc-fuzzy'
-Plug 'Shougo/ddc-around'
-Plug 'Shougo/ddc-source-lsp'
-Plug 'tani/ddc-path'
-Plug 'Shougo/ddc-rg'
-Plug 'Shougo/ddc-ui-pum'
-Plug 'matsui54/ddu-source-file_external'
-
-" install your filters
-Plug 'Shougo/ddc-matcher_head'
-Plug 'Shougo/ddc-sorter_rank'
-" autocompleter done --------------------------------------
-
-" ddu (denite replacement?) ------------------------------
-Plug 'Shougo/ddu.vim'
-Plug 'Shougo/ddu-kind-file'
-Plug 'Shougo/ddu-filter-matcher_substring'
-Plug 'yuki-yano/ddu-filter-fzf'
-Plug 'shun/ddu-source-buffer'
-Plug 'Shougo/ddu-ui-ff'
-Plug 'shun/ddu-source-rg'
-Plug 'Shougo/ddu-source-file_rec'
-" ddu done ----------------------------------------------
-
+" coc ----------------------------------------------
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'yuki-yano/fzf-preview.vim', { 'branch': 'release/rpc' }
+" ------------------------------------------------------
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
@@ -113,13 +86,20 @@ augroup all
 augroup END
 
 " set neovim to have normal vim cursor, guicursor& to restore default
+" Having longer updatetime (default is 4000 ms = 4s) leads to noticeable
+" delays and poor user experience
+set updatetime=300
+
+" Always show the signcolumn, otherwise it would shift the text each time
+" diagnostics appear/become resolved
+set signcolumn=yes
 set guicursor=
 set guifont=Ubuntu
 " make sure I can call stuff defined in my bash_profile
 set shellcmdflag=-c
 set completeopt+=noselect
 set number tabstop=4 shiftwidth=4 nowrap expandtab termguicolors background=dark hidden shortmess=atT
-set lazyredraw mouse=a directory=~/.config/nvim/tmp cursorline
+set mouse=a directory=~/.config/nvim/tmp cursorline
 set clipboard+=unnamedplus
 set laststatus=2
 set statusline=%02n:%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
@@ -174,154 +154,176 @@ let g:python_highlight_all = 1
 augroup python
     autocmd!
     autocmd FileType python set tabstop=4 shiftwidth=0 expandtab
-    autocmd BufWritePre *.py lua vim.lsp.buf.format({ async = true })
 augroup END
 
-" ddc setup ----------------------------------------------------------------
-" https://github.com/Shougo/ddc.vim
+"coc setup
+"https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions#implemented-coc-extensions
+let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-clangd', 'coc-fzf-preview', '@yaegassy/coc-pylsp']
 
-call ddc#custom#patch_global('ui', 'pum')
-call pum#set_option({'border': 'rounded'})
+nmap <Leader><Leader> [fzf-p]
+xmap <Leader><Leader> [fzf-p]
 
-inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
-inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
-inoremap <C-y>   <Cmd>call pum#map#confirm()<CR>
-inoremap <C-e>   <Cmd>call pum#map#cancel()<CR>
-inoremap <PageDown> <Cmd>call pum#map#insert_relative_page(+1)<CR>
-inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
+nnoremap <silent> [fzf-p]p     :<C-u>FzfPreviewFromResourcesRpc project_mru git<CR>
+nnoremap <silent> [fzf-p]gs    :<C-u>FzfPreviewGitStatusRpc<CR>
+nnoremap <silent> [fzf-p]ga    :<C-u>FzfPreviewGitActionsRpc<CR>
+nnoremap <silent> [fzf-p]b     :<C-u>FzfPreviewBuffersRpc<CR>
+nnoremap <silent> [fzf-p]B     :<C-u>FzfPreviewAllBuffersRpc<CR>
+nnoremap <silent> [fzf-p]o     :<C-u>FzfPreviewFromResourcesRpc buffer project_mru<CR>
+nnoremap <silent> [fzf-p]<C-o> :<C-u>FzfPreviewJumpsRpc<CR>
+nnoremap <silent> [fzf-p]g;    :<C-u>FzfPreviewChangesRpc<CR>
+nnoremap <silent> [fzf-p]/     :<C-u>FzfPreviewLinesRpc --add-fzf-arg=--no-sort --add-fzf-arg=--query="'"<CR>
+nnoremap <silent> [fzf-p]*     :<C-u>FzfPreviewLinesRpc --add-fzf-arg=--no-sort --add-fzf-arg=--query="'<C-r>=expand('<cword>')<CR>"<CR>
+nnoremap          [fzf-p]gr    :<C-u>FzfPreviewProjectGrepRpc<Space>
+xnoremap          [fzf-p]gr    "sy:FzfPreviewProjectGrepRpc<Space>-F<Space>"<C-r>=substitute(substitute(@s, '\n', '', 'g'), '/', '\\/', 'g')<CR>"
+nnoremap <silent> [fzf-p]t     :<C-u>FzfPreviewBufferTagsRpc<CR>
+nnoremap <silent> [fzf-p]q     :<C-u>FzfPreviewQuickFixRpc<CR>
+nnoremap <silent> [fzf-p]l     :<C-u>FzfPreviewLocationListRpc<CR>
 
+" Use tab for trigger completion with characters ahead and navigate
+" NOTE: There's always complete item selected by default, you may want to enable
+" no select by `"suggest.noselect": true` in your configuration file
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config
 inoremap <silent><expr> <TAB>
-\ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
-\ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
-\ '<TAB>' : ddc#map#manual_complete()
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
-call ddc#custom#patch_global('sources', ['lsp', 'around', 'rg', 'path'])
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-call ddc#custom#patch_global('sourceOptions', {
-      \ '_': {
-      \   'matchers': ['matcher_fuzzy'],
-      \   'sorters': ['sorter_fuzzy'],
-      \   'converters': ['converter_fuzzy']
-      \ },
-      \ 'rg': {'mark': 'rg', 'minAutoCompleteLength': 4,},
-      \ 'tmux': {'mark': 'T'},
-      \ 'path': {'mark': 'P'},
-      \ 'lsp': {
-      \     'mark': 'lsp',
-      \     'forceCompletionPattern': '\.\w*|:\w*|->\w*',
-      \     'minAutoCompleteLength': 1
-      \ },
-      \ })
-
-call ddc#custom#patch_global('sourceParams', {
-      \    'path': {'cmd': ["fd", "--max-depth", "5"] },
-      \ })
-
-" Use ddc.
-call ddc#enable()
-
-" ddu settings -----------------------------------------------------------
-
-" You must set the default ui.
-" Note: ff ui
-" https://github.com/Shougo/ddu-ui-ff
-call ddu#custom#patch_global({
-    \ 'ui': 'ff',
-    \ 'uiParams': {'ff': {'split': 'floating', 'winHeight': 35, 'floatingBorder': 'rounded', 'previewFloating': v:true}}
-    \ })
-
-" You must set the default action.
-" Note: file kind
-" https://github.com/Shougo/ddu-kind-file
-call ddu#custom#patch_global({
-    \   'kindOptions': {
-    \     'file': {
-    \       'defaultAction': 'open',
-    \     },
-    \   }
-    \ })
-
-" Specify matcher.
-" Note: matcher_substring filter
-" https://github.com/Shougo/ddu-filter-matcher_substring
-
-
-call ddu#custom#patch_global({
-    \   'sourceOptions': {
-    \     '_': {
-    \       'matchers': ['matcher_fzf', 'matcher_substring'],
-    \     },
-    \   }
-    \ })
-
-call ddu#custom#patch_global({
-    \   'sourceParams' : {
-    \     'rg' : {
-    \       'args': ['--column', '--no-heading', '--color', 'never'],
-    \       'highlights': 'Search',
-    \     },
-	\     'file_external': {
-	\       'cmd': [
-    \         'fd', '.', '--hidden', '--ignore-case', '--max-depth', '10',
-    \         '--exclude', '__pycache__', '--exclude', '.git', '--exclude', '*.pyc',
-    \         '--exclude', '.mypy_cache', '--type', 'f'
-    \        ],
-	\     },
-    \   },
-    \ })
-
-call ddu#custom#patch_global({
-    \   'filterParams': {
-    \     'matcher_substring': {
-    \       'highlightMatched': 'Search',
-    \     },
-    \     'matcher_matchfuzzy': {
-    \       'highlightMatched': 'Search',
-    \       'limit': 100,
-    \       'matchseq': v:true,
-    \     }
-    \   }
-    \ })
-
-function! s:ddu_rg_live() abort
-  call ddu#start({
-        \   'sources': [{
-        \     'name': 'rg',
-        \     'options': {'matchers': [], 'volatile': v:true},
-        \   }],
-        \   'uiParams': {'ff': {
-        \     'ignoreEmpty': v:false,
-        \     'autoResize': v:false,
-        \   }},
-        \ })
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
-autocmd FileType ddu-ff call s:ddu_ff_my_settings()
-function! s:ddu_ff_my_settings() abort
-  nnoremap <buffer> <CR>
-  \ <Cmd>call ddu#ui#do_action('itemAction')<CR>
-  nnoremap <buffer><silent> d
-  \ <Cmd>call ddu#ui#do_action('itemAction', {'name': 'delete'})<CR>
-  nnoremap <buffer> <Space>
-  \ <Cmd>call ddu#ui#do_action('toggleSelectItem')<CR>
-  nnoremap <buffer> i
-  \ <Cmd>call ddu#ui#do_action('openFilterWindow')<CR>
-  nnoremap <buffer> q
-  \ <Cmd>call ddu#ui#do_action('quit')<CR>
+" Use <c-space> to trigger completion
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
+nmap <silent><nowait> [g <Plug>(coc-diagnostic-prev)
+nmap <silent><nowait> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation
+nmap <silent><nowait> gd <Plug>(coc-definition)
+nmap <silent><nowait> gy <Plug>(coc-type-definition)
+nmap <silent><nowait> gi <Plug>(coc-implementation)
+nmap <silent><nowait> gr <Plug>(coc-references)
+
+" Use K to show documentation in preview window
+nnoremap <silent> K :call ShowDocumentation()<CR>
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
 endfunction
 
-autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
-function! s:ddu_filter_my_settings() abort
-  inoremap <buffer> <CR>
-  \ <Esc><Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
-  nnoremap <buffer> <CR>
-  \ <Esc><Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
-endfunction
+" Highlight the symbol and its references when holding the cursor
+autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" open list of buffers, open directory for seatch, search for test in files (rg)
-nnoremap <leader><leader> <Cmd>call ddu#start({'sources': [{'name': 'buffer'}]})<CR>
-nnoremap <leader><Space> <Cmd>call ddu#start({'sources': [{'name': 'file_external'}]})<CR>
-nnoremap <leader><Space><Space> <Cmd>call <SID>ddu_rg_live()<CR>
+" Symbol renaming
+nmap <leader>rn <Plug>(coc-rename)
+
+" Formatting selected code
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s)
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+augroup end
+
+" Applying code actions to the selected code block
+" Example: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+" Remap keys for applying code actions at the cursor position
+nmap <leader>ac  <Plug>(coc-codeaction-cursor)
+" Remap keys for apply code actions affect whole buffer
+nmap <leader>as  <Plug>(coc-codeaction-source)
+" Apply the most preferred quickfix action to fix diagnostic on the current line
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Remap keys for applying refactor code actions
+nmap <silent> <leader>re <Plug>(coc-codeaction-refactor)
+xmap <silent> <leader>r  <Plug>(coc-codeaction-refactor-selected)
+nmap <silent> <leader>r  <Plug>(coc-codeaction-refactor-selected)
+
+" Run the Code Lens action on the current line
+nmap <leader>cl  <Plug>(coc-codelens-action)
+
+" Map function and class text objects
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+" Remap <C-f> and <C-b> to scroll float windows/popups
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
+
+" Use CTRL-S for selections ranges
+" Requires 'textDocument/selectionRange' support of language server
+nmap <silent> <C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s> <Plug>(coc-range-select)
+
+" Add `:Format` command to format current buffer
+command! -nargs=0 Format :call CocActionAsync('format')
+
+" Add `:Fold` command to fold current buffer
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" Add `:OR` command for organize imports of the current buffer
+command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+
+" Add (Neo)Vim's native statusline support
+" NOTE: Please see `:h coc-status` for integrations with external plugins that
+" provide custom statusline: lightline.vim, vim-airline
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+" Mappings for CoCList
+" Show all diagnostics
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+" Show commands
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+
 
 
 nnoremap <silent> <leader>[ :NvimTreeToggle<CR>

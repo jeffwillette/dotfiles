@@ -166,14 +166,14 @@ function note() {
 }
 
 function trash () {
-    note "moving ${@} to trash\n" ${blue}
+    note "moving ${@} to trash\n" ${lcyan}
     now="$(date +%Y%m%d_%H%M%S)"
     mkdir -p ~/.trash/$now
     mv "$@" ~/.trash/$now
 }
 
 function emptytrash() {
-    note "emptying trash\n" ${blue}
+    note "emptying trash\n" ${lcyan}
     rm -rf ~/.trash
     mkdir ~/.trash
 }
@@ -192,7 +192,7 @@ export DENO_SAVE_LINK=~/bin/deno.zip
 export RG_SAVE_LINK=~/bin/rg.tar.gz
 
 function download_clangd() {
-    note "\ndownloading clangd\n" ${blue}
+    note "\ndownloading clangd\n" ${lcyan}
 
     download_dir=~/bin/clangd_18.1.3
     rm -r $download_dir
@@ -205,7 +205,7 @@ function download_clangd() {
 }
 
 function download_nvim() {
-    note "\ndownloading nvim appimage\n" ${blue}
+    note "\ndownloading nvim appimage\n" ${lcyan}
     # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage
     curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.1/nvim.appimage
     # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
@@ -213,7 +213,7 @@ function download_nvim() {
 }
 
 function download_fd() {
-    note "\ndownloading fd\n" ${blue}
+    note "\ndownloading fd\n" ${lcyan}
     # url=https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-v9.0.0-x86_64-unknown-linux-gnu.tar.gz
     # file=fd-v9.0.0-x86_64-unknown-linux-gnu
     url=https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz
@@ -228,9 +228,23 @@ function download_fd() {
     rm fd.tar.gz
 }
 
+function download_node() {
+    # Download and install nvm:
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    # in lieu of restarting the shell
+    \. "$HOME/.nvm/nvm.sh"
+    # Download and install Node.js:
+    nvm install 22
+    # Verify the Node.js version:
+    node -v # Should print "v22.14.0".
+    nvm current # Should print "v22.14.0".
+    # Verify npm version:
+    npm -v # Should print "10.9.2".
+}
+
 function download_deno() {
     # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
-    note "\ndownloading deno exectuable\n" ${blue}
+    note "\ndownloading deno exectuable\n" ${lcyan}
     # curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.45.0/deno-x86_64-unknown-linux-gnu.zip
     curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.46.1/deno-x86_64-unknown-linux-gnu.zip 
 
@@ -239,7 +253,7 @@ function download_deno() {
 }
 
 function download_rg {
-    note "\ndownloading and extracting ripgrep\n" ${blue}
+    note "\ndownloading and extracting ripgrep\n" ${lcyan}
     # curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.0.3/ripgrep-14.0.3-x86_64-unknown-linux-musl.tar.gz
     curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep-14.1.0-x86_64-unknown-linux-musl.tar.gz
     cd ~/bin
@@ -298,18 +312,18 @@ if [ $SYSTEM == "Darwin" ]; then
     done
 
     function update() {
-        note "updating brew\n" ${blue}
+        note "updating brew\n" ${lcyan}
         brew update
-        note "\nupgrading brew\n" ${blue}
+        note "\nupgrading brew\n" ${lcyan}
         brew upgrade
-        note "\ncleaning up brew\n" ${blue}
+        note "\ncleaning up brew\n" ${lcyan}
         brew cleanup
 
-        note "\nchecking and updating brew casks\n" ${blue}
+        note "\nchecking and updating brew casks\n" ${lcyan}
         brew outdated --cask
         brew upgrade --cask
 
-        note "\nupdating vim plugins\n" ${blue}
+        note "\nupdating vim plugins\n" ${lcyan}
         nvim --headless +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
     }
 
@@ -375,13 +389,13 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export HDF5_USE_FILE_LOCKING=TRUE
 
     function update() {
-	note "downloading binaries\n" ${blue}
+	note "downloading binaries\n" ${lcyan}
 	download_nvim
         download_fd
         download_rg
         download_deno
 
-        note "\ndownloading powerline go\n" ${blue}
+        note "\ndownloading powerline go\n" ${lcyan}
         # curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.21.0/powerline-go-linux-amd64
         curl -Lo ~/bin/powerline-go https://github.com/justjanne/powerline-go/releases/download/v1.24/powerline-go-linux-amd64
         chmod +x ~/bin/powerline-go
@@ -391,7 +405,7 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ ^ai[0-9] ]]; then
     export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
 
 elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"desktop".* ]]; then
-    note "Linux Desktop\n" ${blue}
+    note "Linux Desktop\n" ${lcyan}
     #
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
@@ -431,13 +445,13 @@ elif [[ $SYSTEM == "Linux" && $HOSTNAME =~ .*"desktop".* ]]; then
     export WORKPLACE=Linux
 
     function update() {
-	note "downloading binaries\n" ${blue}
+	note "downloading binaries\n" ${lcyan}
 	download_nvim
     	download_fd
     	download_rg
     	download_deno
 
-	note "apt update\n" ${blue}
+	note "apt update\n" ${lcyan}
 	sudo apt -y update && sudo apt -y upgrade
     }
 
@@ -483,3 +497,4 @@ function replace() {
         "${1}" "${3}" | xargs gsed -i "s|${1}|${2}|g"
 }
 
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

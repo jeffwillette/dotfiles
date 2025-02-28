@@ -1,0 +1,145 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+
+export PATH=$HOME/bin:/usr/local/sbin:$PATH
+
+# Preferred editor for local and remote sessions
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='vim'
+fi
+
+# these used to be in the format of \[\e[30m\] but using printf printed the brackets.
+# I am not sure why that was the format, but worth noting
+black='\e[30m'
+red='\e[31m'
+green='\e[32m'
+yellow='\e[33m'
+blue='\e[34m'
+magenta='\e[35m'
+cyan='\e[36m'
+lgray='\e[37m'
+dgray='\e[90m'
+lred='\e[91m'
+lgreen='\e[92m'
+lyellow='\e[93m'
+lblue='\e[94m'
+lmagenta='\e[95m'
+lcyan='\e[96m'
+white='\e[97m'
+reset='\e[0m' # reset to default color
+
+# note with args of $1 = text and $2 = color variable will printf that line with colo
+function note() {
+    printf "$2$1${reset}"
+}
+
+function trash () {
+    note "moving ${@} to trash\n" ${lcyan}
+    now="$(date +%Y%m%d_%H%M%S)"
+    mkdir -p ~/.trash/$now
+    mv "$@" ~/.trash/$now
+}
+
+function emptytrash() {
+    note "emptying trash\n" ${lcyan}
+    rm -rf ~/.trash
+    mkdir ~/.trash
+}
+
+export FD_SAVE_LINK=~/bin/fd.tar.gz
+export DENO_SAVE_LINK=~/bin/deno.zip
+export RG_SAVE_LINK=~/bin/rg.tar.gz
+
+function download_clangd() {
+    note "\ndownloading clangd\n" ${lcyan}
+
+    download_dir=~/bin/clangd_18.1.3
+    rm -r $download_dir
+    rm ~/bin/clangd
+
+    curl -Lo ${download_dir}.zip https://github.com/clangd/clangd/releases/download/18.1.3/clangd-linux-18.1.3.zip
+    unzip ${download_dir}.zip
+    rm ${download_dir}.zip
+    ln -s clangd_18.1.3/bin/clangd ~/bin/clangd
+}
+
+function download_nvim() {
+    note "\ndownloading nvim appimage\n" ${lcyan}
+    # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage
+    curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/v0.10.1/nvim.appimage
+    # curl -Lo $NVIM_SAVE_LINK https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
+    chmod u+x $NVIM_SAVE_LINK
+}
+
+function download_fd() {
+    note "\ndownloading fd\n" ${lcyan}
+    # url=https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-v9.0.0-x86_64-unknown-linux-gnu.tar.gz
+    # file=fd-v9.0.0-x86_64-unknown-linux-gnu
+    url=https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-gnu.tar.gz
+    file=fd-v10.2.0-x86_64-unknown-linux-gnu
+
+    curl -Lo $FD_SAVE_LINK ${url}
+
+    cd ~/bin
+    tar -xvf fd.tar.gz
+    mv ~/bin/${file}/fd ~/bin/fd
+    rm -r ${file}
+    rm fd.tar.gz
+}
+
+function install_node() {
+    # Download and install nvm:
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    # in lieu of restarting the shell
+    \. "$HOME/.nvm/nvm.sh"
+    # Download and install Node.js:
+    nvm install 22
+    # Verify the Node.js version:
+    node -v # Should print "v22.14.0".
+    nvm current # Should print "v22.14.0".
+    # Verify npm version:
+    npm -v # Should print "10.9.2".
+}
+
+function download_deno() {
+    # deno is a runtime for vim plugins, needs the exectuable to use advanced vim features.
+    note "\ndownloading deno exectuable\n" ${lcyan}
+    # curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.45.0/deno-x86_64-unknown-linux-gnu.zip
+    curl -Lo $DENO_SAVE_LINK https://github.com/denoland/deno/releases/download/v1.46.1/deno-x86_64-unknown-linux-gnu.zip 
+
+    cd ~/bin
+    unzip -o deno.zip
+}
+
+function download_rg {
+    note "\ndownloading and extracting ripgrep\n" ${lcyan}
+    # curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.0.3/ripgrep-14.0.3-x86_64-unknown-linux-musl.tar.gz
+    curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep-14.1.0-x86_64-unknown-linux-musl.tar.gz
+    cd ~/bin
+    tar -xvf rg.tar.gz
+    cp ~/bin/ripgrep-14.0.3-x86_64-unknown-linux-musl/rg ~/bin
+    rm -r ripgrep-14.0.3-x86_64-unknown-linux-musl
+}
+
+# rename file extensions in directory from 1 to 2
+function renameExt() {
+    for file in *."${1}"
+    do
+        mv "$file" "${file%.${1}}.${2}"
+    done
+}
+
+# example of how to sed over multiple files
+# grep -rl LIABILITYACCOUNTNAME ./* | xargs gsed -i 's/LIABILITYACCOUNTNAME/LIABILITYACCOUNT/g'
+function replace() {
+    grep \
+        -rl \
+        --exclude-dir coverage \
+        --exclude-dir node_modules \
+        --exclude-dir .cache \
+        --exclude-dir vendor \
+        --exclude-dir public \
+        --exclude yarn.lock \
+        "${1}" "${3}" | xargs gsed -i "s|${1}|${2}|g"
+}
