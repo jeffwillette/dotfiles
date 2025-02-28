@@ -144,4 +144,4 @@ function replace() {
         "${1}" "${3}" | xargs gsed -i "s|${1}|${2}|g"
 }
 
-RPROMPT='$(conda_prompt_info)'
+RPROMPT='${USER}:${HOST}:$(conda_prompt_info)'
