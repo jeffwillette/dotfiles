@@ -248,39 +248,27 @@ function replace() {
 }
 
 
-# # Enable vcs_info
-# autoload -Uz vcs_info
-# precmd() { vcs_info }
-# 
-# # Configure vcs_info to show Git status
-# zstyle ':vcs_info:git:*' check-for-changes true
-# zstyle ':vcs_info:git:*' formats '(%F{red} ✚%m%F{yellow} ●%u%F{green})%f'
-# zstyle ':vcs_info:git:*' actionformats '(%F{red} ✚%m%F{yellow} ●%u%F{green})%f'
-# 
-# # Append Git status to the robbyrussell prompt
-# RPROMPT='%F{cyan}❮%F{white}%n@%m%F{cyan}❯ %F{cyan}❮%F{white}%B$(conda_prompt_info)%b%F{cyan}❯%f ${vcs_info_msg_0_}'
-#
-# Enable vcs_info for Git status
-# Enable vcs_info for Git status
-autoload -Uz vcs_info
-precmd() { vcs_info }
-
-# Function to get the number of modified and untracked files
+# Function to get the number of staged, modified, and untracked files
 git_file_counts() {
-  # Get staged files count
-  local staged_count=$(git diff --name-only --cached | wc -l)
+  # Check if we are in a Git repository
+  if git rev-parse --is-inside-work-tree &>/dev/null; then
+    # Get staged files count (files staged for commit)
+    local staged_count=$(git diff --name-only --cached | wc -l)
 
-  # Get modified files count (unstaged changes)
-  local modified_count=$(git ls-files -m | wc -l)
+    # Get modified files count (unstaged changes)
+    local modified_count=$(git ls-files -m | wc -l)
 
-  # Get untracked files count
-  local untracked_count=$(git ls-files --others --exclude-standard | wc -l)
+    # Get untracked files count
+    local untracked_count=$(git ls-files --others --exclude-standard | wc -l)
 
-  # Return file counts
-  echo "$staged_count $modified_count $untracked_count"
+    # Return file counts in the format: staged, modified, untracked
+    echo "$staged_count $modified_count $untracked_count"
+  else
+    # If not in a Git repo, return empty values for the counts
+    echo "- - -"
+  fi
 }
 
 # RPROMPT with Git status and Conda info
 RPROMPT='%F{cyan}❮%F{white}%n@%m%F{cyan}❯ %F{cyan}❮%F{white}%B$(conda_prompt_info)%b%F{cyan}❯%f'
-# RPROMPT+=' $(git_file_counts | awk "{print \"%F{cyan}❮%F{green}●%F{white}\" \$1 \"%F{yellow}●%F{white}\" \$2 \"%F{#8B0000}✚%F{white}\" \$3 \"%F{cyan}❯\"}")'
 RPROMPT+=' $(git_file_counts | awk "{print \"%F{cyan}❮%F{green}\" \$1 \"|%F{yellow}\" \$2 \"|%F{#8B0000}\" \$3 \"%F{cyan}❯\"}")'
