@@ -269,6 +269,8 @@ git_file_counts() {
   fi
 }
 
+host=$(hostname)
+
 # RPROMPT with Git status and Conda info
-RPROMPT='%F{cyan}❮%F{white}%n@%m%F{cyan}❯ %F{cyan}❮%F{white}%B$(conda_prompt_info)%b%F{cyan}❯%f'
+RPROMPT='%F{cyan}❮%F{white}%n@${host}%F{cyan}❯ %F{cyan}❮%F{white}%B$(conda_prompt_info)%b%F{cyan}❯%f'
 RPROMPT+=' $(git_file_counts | awk "{print \"%F{cyan}❮%F{green}\" \$1 \"|%F{yellow}\" \$2 \"|%F{#8B0000}\" \$3 \"%F{cyan}❯%F{white}\"}")'
