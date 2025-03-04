@@ -34,6 +34,7 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " coc ----------------------------------------------
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 Plug 'yuki-yano/fzf-preview.vim', { 'branch': 'release/rpc' }
 " ------------------------------------------------------
 Plug 'jiangmiao/auto-pairs'
@@ -159,13 +160,20 @@ augroup END
 "https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions#implemented-coc-extensions
 let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-clangd', 'coc-fzf-preview', '@yaegassy/coc-pylsp']
 
+" redefine the ripgre command from fzf plugin to include hidden files
+command! -bang -nargs=* RG 
+  \ call fzf#vim#grep2("rg --hidden --column --line-number --no-heading --color=always --smart-case -- ", 
+  \ <q-args>, 
+  \ fzf#vim#with_preview(),
+  \ <bang>0)
+
 nmap <Leader><Leader> [fzf-p]
 xmap <Leader><Leader> [fzf-p]
 
 nnoremap <silent> [fzf-p]p     :<C-u>FzfPreviewFromResourcesRpc project_mru git<CR>
 nnoremap <silent> [fzf-p]gs    :<C-u>FzfPreviewGitStatusRpc<CR>
 nnoremap <silent> [fzf-p]ga    :<C-u>FzfPreviewGitActionsRpc<CR>
-nnoremap <silent> [fzf-p]b     :<C-u>FzfPreviewBuffersRpc<CR>
+nnoremap <silent> [fzf-p]<leader>     :<C-u>FzfPreviewBuffersRpc<CR>
 nnoremap <silent> [fzf-p]B     :<C-u>FzfPreviewAllBuffersRpc<CR>
 nnoremap <silent> [fzf-p]o     :<C-u>FzfPreviewFromResourcesRpc buffer project_mru<CR>
 nnoremap <silent> [fzf-p]<C-o> :<C-u>FzfPreviewJumpsRpc<CR>
@@ -177,6 +185,7 @@ xnoremap          [fzf-p]gr    "sy:FzfPreviewProjectGrepRpc<Space>-F<Space>"<C-r
 nnoremap <silent> [fzf-p]t     :<C-u>FzfPreviewBufferTagsRpc<CR>
 nnoremap <silent> [fzf-p]q     :<C-u>FzfPreviewQuickFixRpc<CR>
 nnoremap <silent> [fzf-p]l     :<C-u>FzfPreviewLocationListRpc<CR>
+nnoremap <silent> [fzf-p]<space>  :<C-u>RG<CR>
 
 " Use tab for trigger completion with characters ahead and navigate
 " NOTE: There's always complete item selected by default, you may want to enable

@@ -1,4 +1,8 @@
 {
+    "floatFactory.floatConfig": {
+        "border": true,
+        "rounded": true,
+    },
     "coc.preferences.formatOnSave": true,
     "diagnostic.errorSign": "✗",
     "diagnostic.warningSign": "⦁",
@@ -13,19 +17,8 @@
     "pylsp.plugins.ruff.enabled": true,
     "pylsp.plugins.ruff.formatEnabled": false,
     "pylsp.plugins.ruff.extendSelect": [],
-    //"pylsp.plugins.ruff.extendSelect": [
-    //    "E",
-    //    "D",
-    //    "C90",
-    //    "I"
-    //],
     "pylsp.plugins.ruff.ignore": [],
     "pylsp.plugins.ruff.format": [],
-    //"pylsp.plugins.ruff.format": [
-    //    "D",
-    //    "C90",
-    //    "I"
-    //],
     "pylsp.plugins.ruff.preview": true,
     "pylsp.plugins.ruff.lineLength": 79,
     "pylsp.plugins.pycodestyle.enabled": false,
