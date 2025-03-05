@@ -1,8 +1,9 @@
 {
     "floatFactory.floatConfig": {
         "border": true,
-        "rounded": true,
+        "rounded": true
     },
+    "suggest.noselect": true,
     "coc.preferences.formatOnSave": true,
     "diagnostic.errorSign": "✗",
     "diagnostic.warningSign": "⦁",
