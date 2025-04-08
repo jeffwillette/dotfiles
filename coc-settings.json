@@ -4,7 +4,7 @@
         "rounded": true
     },
     "suggest.noselect": true,
-    "coc.preferences.formatOnSave": true,
+    "coc.preferences.formatOnSave": false,
     "diagnostic.errorSign": "✗",
     "diagnostic.warningSign": "⦁",
     "diagnostic.infoSign": "i",
@@ -14,18 +14,24 @@
     "pylsp.builtin.enableInstallPylsIsort": true,
     "pylsp.builtin.enableInstallPythonLspBlack": true,
     "pylsp.builtin.enableInstallPylspRope": true,
-    "pylsp.builtin.enableInstallPythonLspRuff": true,
-    "pylsp.plugins.ruff.enabled": true,
-    "pylsp.plugins.ruff.formatEnabled": false,
-    "pylsp.plugins.ruff.extendSelect": [],
-    "pylsp.plugins.ruff.ignore": [],
-    "pylsp.plugins.ruff.format": [],
-    "pylsp.plugins.ruff.preview": true,
-    "pylsp.plugins.ruff.lineLength": 79,
+    //"pylsp.builtin.enableInstallPythonLspRuff": true,
+    //"pylsp.plugins.ruff.enabled": false,
+    //"pylsp.plugins.ruff.formatEnabled": false,
+    //"pylsp.plugins.ruff.extendSelect": [],
+    //"pylsp.plugins.ruff.ignore": [],
+    //"pylsp.plugins.ruff.format": [],
+    //"pylsp.plugins.ruff.preview": true,
+    //"pylsp.plugins.ruff.lineLength": 79,
     "pylsp.plugins.pycodestyle.enabled": false,
     "pylsp.plugins.pyflakes.enabled": false,
     "pylsp.plugins.mccabe.enabled": false,
     "pylsp.builtin.installExtrasArgs": [
-        "all"
+        "rope",
+        "pyflakes",
+        "mccabe",
+        "pycodestyle",
+        "pydocstyle",
+        "flake8",
+        "pylint"
     ]
 }

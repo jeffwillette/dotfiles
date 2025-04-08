@@ -154,6 +154,7 @@ let g:python_highlight_all = 1
 augroup python
     autocmd!
     autocmd FileType python set tabstop=4 shiftwidth=0 expandtab
+    au BufWritePre *.py call CocActionAsync('format')
 augroup END
 
 "coc setup
