@@ -28,7 +28,6 @@ Plug 'MunifTanjim/nui.nvim'
 Plug 'folke/noice.nvim'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
-Plug 'folke/trouble.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " coc ----------------------------------------------
@@ -221,6 +220,8 @@ endif
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
 nmap <silent><nowait> [g <Plug>(coc-diagnostic-prev)
 nmap <silent><nowait> ]g <Plug>(coc-diagnostic-next)
+nnoremap <silent><nowait> <leader>'  :<C-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 
 " GoTo code navigation
 nmap <silent><nowait> gd <Plug>(coc-definition)
@@ -402,10 +403,6 @@ nnoremap <silent> <c-h> :wincmd h<CR>
 " inserting newline without entering insert
 nnoremap _ O<Esc>
 nnoremap - o<Esc>
-
-" location list open, close, next, previous wincmd's make it so that the cursor goes back to the main buffer
-nnoremap <silent> <leader>' :Trouble diagnostics toggle<CR>
-" jump to the current error
 
 " quickfix window commands
 nnoremap <silent> <leader>/ :copen<CR>:wincmd k<CR>
