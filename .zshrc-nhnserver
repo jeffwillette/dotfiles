@@ -1,0 +1,67 @@
+echo "setting home to /data/jeff"
+export HOME=/data/jeff
+
+# add neovim bin so that the install executables are visible
+export PATH=/usr/local/sbin:$PATH:/data/jeff/bin:/data/jeff/bin/nvim-linux-x86_64/bin:/data/jeff/bin/texlive/2025/bin/x86_64-linux
+export PATH="/data/jeff/perl5/bin${PATH:+:${PATH}}"
+
+source ~/dotfiles/.zsh-common
+
+# this is for general linux systems that I control
+echo "NHN H100 AI SERVER"
+
+PERL5LIB="/data/jeff/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/data/jeff/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/data/jeff/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/data/jeff/perl5"; export PERL_MM_OPT;
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/data/jeff/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+eval "$__conda_setup"
+unset __conda_setup
+# <<< conda initialize <<<
+
+export __GL_SHADER_DISK_CACHE_PATH=/data/jeff/.nv
+export DENO_DIR=/data/jeff/.tmp  # needed for this bug: https://github.com/denoland/deno/issues/16577
+# this was added for the rl experiments for my CS572 project
+export CUDA_DEVICE_ORDER=PCI_BUS_ID
+export XAUTHORITY=/home/jeff/.Xauthority
+export XDG_CACHE_HOME=/data/jeff/.tmp
+export XDG_CONFIG_HOME=/data/jeff/.config
+export HOME=/data/jeff
+export TMPDIR=/tmp
+export WORKPLACE=KAIST
+# for using hdf5 files on the server. Doing anything with hdf5 files
+# causes an error without this
+export HDF5_USE_FILE_LOCKING=TRUE
+
+alias vim=nvim
+
+function download_fzf() {
+    note "\ndownloading fzf\n" ${lcyan}
+
+    download_dir=~/bin/fzf-0.60.2
+    rm -r $download_dir
+    rm ~/bin/fzf
+
+    curl -Lo ${download_dir}.tar.gz https://github.com/junegunn/fzf/releases/download/v0.60.2/fzf-0.60.2-linux_amd64.tar.gz
+
+    tar -xvf ${download_dir}.tar.gz
+    rm ${download_dir}.tar.gz
+}
+
+
+function update() {
+    note "downloading binaries\n" ${lcyan}
+    download_nvim
+    download_fd
+    download_rg
+    download_fzf
+}
+
+export IP_ADDRESS=`ip -4 address | grep inet | tail -n 1 | cut -d " " -f 8`
+
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

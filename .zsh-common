@@ -157,6 +157,7 @@ function emptytrash() {
 export FD_SAVE_LINK=~/bin/fd.tar.gz
 export DENO_SAVE_LINK=~/bin/deno.zip
 export RG_SAVE_LINK=~/bin/rg.tar.gz
+export NVIM_SAVE_LINK=~/bin/vim
 
 function download_clangd() {
     note "\ndownloading clangd\n" ${lcyan}
@@ -225,8 +226,8 @@ function download_rg {
     curl -Lo $RG_SAVE_LINK https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep-14.1.0-x86_64-unknown-linux-musl.tar.gz
     cd ~/bin
     tar -xvf rg.tar.gz
-    cp ~/bin/ripgrep-14.0.3-x86_64-unknown-linux-musl/rg ~/bin
-    rm -r ripgrep-14.0.3-x86_64-unknown-linux-musl
+    cp ~/bin/ripgrep-14.1.0-x86_64-unknown-linux-musl/rg ~/bin
+    rm -r ripgrep-14.1.0-x86_64-unknown-linux-musl
 }
 
 # rename file extensions in directory from 1 to 2

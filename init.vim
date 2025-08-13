@@ -153,7 +153,7 @@ let g:python_highlight_all = 1
 augroup python
     autocmd!
     autocmd FileType python set tabstop=4 shiftwidth=0 expandtab
-    au BufWritePre *.py call CocActionAsync('format')
+    "au BufWritePre *.py call CocActionAsync('format')
 augroup END
 
 "coc setup
@@ -170,6 +170,7 @@ command! -bang -nargs=* RG
 nmap <Leader><Leader> [fzf-p]
 xmap <Leader><Leader> [fzf-p]
 
+nnoremap <silent> [fzf-p][     :<C-u>FZF<CR>
 nnoremap <silent> [fzf-p]p     :<C-u>FzfPreviewFromResourcesRpc project_mru git<CR>
 nnoremap <silent> [fzf-p]gs    :<C-u>FzfPreviewGitStatusRpc<CR>
 nnoremap <silent> [fzf-p]ga    :<C-u>FzfPreviewGitActionsRpc<CR>
